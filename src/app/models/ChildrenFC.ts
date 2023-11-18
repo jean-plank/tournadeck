@@ -1,1 +1,1 @@
-export type ChildrenFC = React.FC<{ children?: React.ReactNode }>;
+export type ChildrenFC = React.FC<{ children?: React.ReactNode }>
