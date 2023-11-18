@@ -1,8 +1,11 @@
 import Link from 'next/link'
 
+import { contextLive } from '@/Context'
 import t from '@/app/locales/frFR'
 
-const Home: React.FC = () => {
+const Home: React.FC = async () => {
+  const { discordUtils } = await contextLive
+
   return (
     <div>
       <h1>Home</h1>
@@ -16,7 +19,10 @@ const Home: React.FC = () => {
         </Link>
       </nav>
 
-      <a href="#" className="flex items-center rounded-md bg-discord-blurple px-6 text-white">
+      <a
+        href={discordUtils.apiOAuth2Authorize('state' /* TODO: some proper state */)}
+        className="flex items-center rounded-md bg-discord-blurple px-6 text-white"
+      >
         {t.connectWithDiscord}
       </a>
 
