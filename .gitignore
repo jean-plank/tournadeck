@@ -1,4 +1,4 @@
-/.env
+/.env.local
 /.next
 /build
 /node_modules
