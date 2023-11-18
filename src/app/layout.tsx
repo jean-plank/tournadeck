@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const RootLayout: ChildrenFC = ({ children }) => {
   return (
-    <html lang="en">
+    <html>
       <body className={inter.className}>{children}</body>
     </html>
   )
