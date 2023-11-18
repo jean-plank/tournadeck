@@ -3,6 +3,7 @@
 /build
 /node_modules
 /out
+/tsconfig.tsbuildinfo
 /yarn.lock
 
 next-env.d.ts
