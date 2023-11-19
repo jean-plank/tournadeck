@@ -1,20 +1,20 @@
 import { either, json } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import { Codec } from 'io-ts/Codec'
+import type { Codec } from 'io-ts/Codec'
 import * as D from 'io-ts/Decoder'
-import { DecodeError as IoTsDecodeError } from 'io-ts/lib/Decoder'
-import { AnyNewtype, CarrierOf } from 'newtype-ts'
+import type { DecodeError as IoTsDecodeError } from 'io-ts/lib/Decoder'
+import type { AnyNewtype, CarrierOf } from 'newtype-ts'
 
 import { StringUtils } from '@/utils/StringUtils'
 
 const limit = 10000
 
 export const decodeErrorString =
-  (name: string) =>
+  (decoderName: string) =>
   (value: unknown) =>
   (error: IoTsDecodeError): string =>
     StringUtils.stripMargins(
-      `Couldn't decode ${name}:
+      `Couldn't decode ${decoderName}:
       |Error:
       |${pipe(D.draw(error), StringUtils.ellipse(limit))}
       |
@@ -26,14 +26,14 @@ export const decodeErrorString =
     )
 
 export const decodeError =
-  (name: string) =>
+  (decoderName: string) =>
   (value: unknown) =>
   (error: IoTsDecodeError): DecodeError =>
-    new DecodeError(name, value, error)
+    new DecodeError(decoderName, value, error)
 
 export class DecodeError extends Error {
-  constructor(name: string, value: unknown, error: IoTsDecodeError) {
-    super(decodeErrorString(name)(value)(error))
+  constructor(decoderName: string, value: unknown, error: IoTsDecodeError) {
+    super(decodeErrorString(decoderName)(value)(error))
   }
 }
 

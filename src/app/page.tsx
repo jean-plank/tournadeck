@@ -4,7 +4,7 @@ import { contextLive } from '@/Context'
 import t from '@/app/locales/frFR'
 
 const Home: React.FC = async () => {
-  const { discordUtils } = await contextLive
+  const { discordHelper } = await contextLive
 
   return (
     <div>
@@ -20,7 +20,7 @@ const Home: React.FC = async () => {
       </nav>
 
       <a
-        href={discordUtils.apiOAuth2Authorize('state' /* TODO: some proper state */)}
+        href={discordHelper.apiOAuth2Authorize('state' /* TODO: some proper state */)}
         className="flex items-center rounded-md bg-discord-blurple px-6 text-white"
       >
         {t.connectWithDiscord}

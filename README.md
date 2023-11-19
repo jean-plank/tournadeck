@@ -17,6 +17,15 @@ You need a Discord app for authentication:
    2. Copy your Client ID and Client Secret in your `.env.local` file
    3. Add `http://localhost:3000/discordRedirect` as a new redirect
 
+You need a running mongo:
+
+```bash
+mkdir -p .docker-data/mongo # if needed
+podman run --name=tournadeck-mongo -e MONGO_INITDB_ROOT_USERNAME=user -e MONGO_INITDB_ROOT_PASSWORD=password -v .docker-data/mongo:/data/db -p 27022:27017 mongo:7
+```
+
+And start the development server:
+
 ```bash
 yarn dev
 ```

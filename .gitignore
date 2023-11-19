@@ -1,3 +1,4 @@
+/.docker-data
 /.env.local
 /.next
 /build

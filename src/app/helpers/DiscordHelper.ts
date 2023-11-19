@@ -1,9 +1,9 @@
 import qs from 'querystring'
 
-import { ServerConfig } from '@/ServerConfig'
+import type { ServerConfig } from '@/ServerConfig'
 import { DiscordUserId } from '@/models/DiscordUserId'
 
-export class DiscordUtils {
+export class DiscordHelper {
   constructor(private config: ServerConfig) {}
 
   // https://discord.com/developers/docs/topics/oauth2#authorization-code-grant

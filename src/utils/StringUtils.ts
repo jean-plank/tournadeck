@@ -1,9 +1,18 @@
+import { Duration } from 'effect'
+import type { DurationInput } from 'effect/Duration'
+
 const ellipse =
   (take: number) =>
   (str: string): string =>
     take < str.length && 3 <= take ? `${str.slice(0, take - 3)}...` : str
 
-const margin = /^\s*\|/gm
-const stripMargins = (str: string): string => str.replace(margin, '')
+function prettyDuration(duration: DurationInput): string {
+  return `${Duration.toMillis(duration)}ms`
+}
 
-export const StringUtils = { ellipse, stripMargins }
+const margin = /^\s*\|/gm
+function stripMargins(str: string): string {
+  return str.replace(margin, '')
+}
+
+export const StringUtils = { ellipse, prettyDuration, stripMargins }
