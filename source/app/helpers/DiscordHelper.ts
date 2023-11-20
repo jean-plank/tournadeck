@@ -1,7 +1,7 @@
 import qs from 'querystring'
 
-import type { ServerConfig } from '../../ServerConfig'
-import { DiscordUserId } from '../../models/DiscordUserId'
+import type { ServerConfig } from '../../lib/ServerConfig'
+import { DiscordUserId } from '../../lib/models/DiscordUserId'
 
 export class DiscordHelper {
   constructor(private config: ServerConfig) {}

@@ -1,8 +1,8 @@
 import { Duration, Effect, pipe } from 'effect'
 
+import { DiscordHelper } from '../app/helpers/DiscordHelper'
 import { LoggerGetter } from './LoggerGetter'
 import { ServerConfig } from './ServerConfig'
-import { DiscordHelper } from './app/helpers/DiscordHelper'
 import { HealthCheckPersistence } from './persistence/HealthCheckPersistence'
 import { WithDb } from './persistence/helpers/WithDb'
 import { HealthCheckService } from './services/HealthCheckService'

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { contextLive } from '../Context'
+import { contextLive } from '../lib/Context'
 import t from './locales/frFR'
 
 const Home: React.FC = async () => {
