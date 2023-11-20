@@ -1,7 +1,7 @@
 import type { Decoder } from 'io-ts/lib/Decoder'
 import type { LevelWithSilent as PinoLevelWithSilent } from 'pino'
 
-import { createEnum } from '@/utils/createEnum'
+import { createEnum } from '../utils/createEnum'
 
 type LevelWithSilent = PinoLevelWithSilent
 

@@ -2,7 +2,7 @@ import { Effect, pipe } from 'effect'
 import type { Db } from 'mongodb'
 import { MongoClient } from 'mongodb'
 
-import { type EffecT, effectTryPromise } from '@/utils/fp'
+import { type EffecT, effectTryPromise } from '../../utils/fp'
 
 type Load = {
   host: string

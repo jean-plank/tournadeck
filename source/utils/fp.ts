@@ -3,7 +3,7 @@ import type { Effect } from 'effect/Effect'
 import { either } from 'fp-ts'
 import type { Either } from 'fp-ts/Either'
 
-import { unknownToError } from '@/utils/unknownToError'
+import { unknownToError } from './unknownToError'
 
 export function emptyRecord<K extends PropertyKey, A>(): ReadonlyRecord<K, A> {
   return {} as ReadonlyRecord<K, A>

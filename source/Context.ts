@@ -1,13 +1,13 @@
 import { Duration, Effect, pipe } from 'effect'
 
-import { LoggerGetter } from '@/LoggerGetter'
-import { ServerConfig } from '@/ServerConfig'
-import { DiscordHelper } from '@/app/helpers/DiscordHelper'
-import { HealthCheckPersistence } from '@/persistence/HealthCheckPersistence'
-import { WithDb } from '@/persistence/helpers/WithDb'
-import { HealthCheckService } from '@/services/HealthCheckService'
-import { StringUtils } from '@/utils/StringUtils'
-import type { EffecT } from '@/utils/fp'
+import { LoggerGetter } from './LoggerGetter'
+import { ServerConfig } from './ServerConfig'
+import { DiscordHelper } from './app/helpers/DiscordHelper'
+import { HealthCheckPersistence } from './persistence/HealthCheckPersistence'
+import { WithDb } from './persistence/helpers/WithDb'
+import { HealthCheckService } from './services/HealthCheckService'
+import { StringUtils } from './utils/StringUtils'
+import type { EffecT } from './utils/fp'
 
 const dbRetryDelay = Duration.seconds(10)
 

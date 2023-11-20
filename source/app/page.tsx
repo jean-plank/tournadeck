@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
-import { contextLive } from '@/Context'
-import t from '@/app/locales/frFR'
+import { contextLive } from '../Context'
+import t from './locales/frFR'
 
 const Home: React.FC = async () => {
   const { discordHelper } = await contextLive

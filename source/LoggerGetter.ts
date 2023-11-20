@@ -5,9 +5,9 @@ import type { Logger } from 'pino'
 import pino from 'pino'
 import pinoPretty from 'pino-pretty'
 
-import { LevelWithSilent } from '@/models/LevelWithSilent'
-import type { EffecT } from '@/utils/fp'
-import { emptyRecord } from '@/utils/fp'
+import { LevelWithSilent } from './models/LevelWithSilent'
+import type { EffecT } from './utils/fp'
+import { emptyRecord } from './utils/fp'
 
 type LogFn = (arg: unknown, ...args: unknown[]) => EffecT<never, void>
 

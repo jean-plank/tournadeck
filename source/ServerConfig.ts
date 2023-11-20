@@ -3,12 +3,12 @@ import 'server-only'
 import { Effect, pipe } from 'effect'
 import * as D from 'io-ts/Decoder'
 
-import { DiscordUserId } from '@/models/DiscordUserId'
-import { LevelWithSilent } from '@/models/LevelWithSilent'
-import type { EffecT } from '@/utils/fp'
-import { effectFromEither } from '@/utils/fp'
-import type { DecodeError } from '@/utils/ioTsUtils'
-import { decodeError } from '@/utils/ioTsUtils'
+import { DiscordUserId } from './models/DiscordUserId'
+import { LevelWithSilent } from './models/LevelWithSilent'
+import type { EffecT } from './utils/fp'
+import { effectFromEither } from './utils/fp'
+import type { DecodeError } from './utils/ioTsUtils'
+import { decodeError } from './utils/ioTsUtils'
 
 type ServerConfig = D.TypeOf<typeof decoder>
 

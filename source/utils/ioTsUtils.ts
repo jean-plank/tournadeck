@@ -5,7 +5,7 @@ import * as D from 'io-ts/Decoder'
 import type { DecodeError as IoTsDecodeError } from 'io-ts/lib/Decoder'
 import type { AnyNewtype, CarrierOf } from 'newtype-ts'
 
-import { StringUtils } from '@/utils/StringUtils'
+import { StringUtils } from './StringUtils'
 
 const limit = 10000
 

@@ -3,8 +3,8 @@ import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 
-import type { WithDb } from '@/persistence/helpers/WithDb'
-import type { EffecT } from '@/utils/fp'
+import type { EffecT } from '../utils/fp'
+import type { WithDb } from './helpers/WithDb'
 
 const ResultCodec = D.struct({ ok: D.number })
 
