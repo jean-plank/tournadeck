@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "macrosClean": "rm -fr transformed/src transformed/test",
     "macros": "ts-macros transform transformed --tsconfig tsconfig.ts-macros.json",
     "~macros": "nodemon -w src -w test -e ts,tsx -x \"yarn run macros\"",
     "dev": "concurrently -k -n macros,next -c yellow.bold,cyan.bold \"yarn run ~macros\" \"next dev transformed\"",
+    "prebuild": "yarn run macrosClean",
     "build": "yarn run macros && next build --no-lint transformed",
     "start": "next start",
     "compile": "tsc --project tsconfig.tsc.json",
