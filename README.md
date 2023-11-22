@@ -1,9 +1,25 @@
 # tournadeck
 
+## Yarn
+
+This project uses yarn.
+
+Install exact dependencies:
+
+```bash
+yarn add -E[D] <package>
+```
+
+Upgrade deps:
+
+```bash
+yarn upgrade-interactive --latest
+```
+
 ## Getting Started
 
 ```bash
-cp .env.example .env.local
+cp transformed/.env.example transformed/.env.local
 ```
 
 Fill in empty values.
@@ -30,25 +46,19 @@ And start the development server:
 yarn dev
 ```
 
+Apparently, with my macros bootstrap, I lost Next's type checking (and linting). It shall be tested by CI (`yarn run ci`), but you might want to start type checking in a separated shell with:
+
+```bash
+yarn run ~compile
+```
+
 ## Tests
 
-Unit tests shall be named `test/**/*.spec.ts` (run by CI, `yarn run jestUnit`).  
-Other tests shall be named `test/**/*.test.ts` (NOT run by CI, `yarn run jest` - runs all tests).
+Unit tests shall be named `test/**/*.spec.ts` (run by CI, `yarn run testUnit`).  
+Other tests shall be named `test/**/*.test.ts` (NOT run by CI, `yarn run test` - runs all tests).
 
-`yarn run test` is for CI purpose.
+`yarn run ci` is for CI purpose.
 
-## Yarn
+## Code
 
-This project uses yarn.
-
-Install exact dependencies:
-
-```bash
-yarn add -E[D] <package>
-```
-
-Upgrade deps:
-
-```bash
-yarn upgrade-interactive --latest
-```
+Source code is in `src/` directory. `ts-macros` transforms it to generate `transformed/` which is used by Next (and Jest).

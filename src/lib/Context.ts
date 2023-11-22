@@ -62,5 +62,3 @@ export class Context {
 export const contextLive: Promise<Context> = Effect.runPromise(
   pipe(ServerConfig.load, Effect.flatMap(Context.load)),
 )
-
-const titi: any = 'any'
