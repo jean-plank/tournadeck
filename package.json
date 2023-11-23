@@ -5,8 +5,8 @@
   "scripts": {
     "macrosClean": "rm -fr transformed/src transformed/test",
     "macros": "ts-macros transform transformed --tsconfig tsconfig.ts-macros.json",
-    "~macros": "nodemon -w src -w test -e ts,tsx -x \"yarn run macros\"",
-    "dev": "concurrently -k -n macros,next -c yellow.bold,cyan.bold \"yarn run ~macros\" \"next dev transformed\"",
+    "~macros": "scripts/~macros.sh",
+    "dev": "concurrently --restart-tries -1 --restart-after 2000 -n macros,next -c yellow.bold,cyan.bold \"yarn run ~macros\" \"scripts/nextDev.sh\"",
     "prebuild": "yarn run macrosClean",
     "build": "yarn run macros && next build --no-lint transformed",
     "start": "next start",
