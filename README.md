@@ -43,13 +43,20 @@ podman run --name=tournadeck-mongo -e MONGO_INITDB_ROOT_USERNAME=user -e MONGO_I
 And start the development server:
 
 ```bash
-yarn dev
+yarn run ~macros
+yarn run dev # in an other shell
 ```
 
 Apparently, with my macros bootstrap, I lost Next's type checking (and linting). It shall be tested by CI (`yarn run ci`), but you might want to start type checking in a separated shell with:
 
 ```bash
 yarn run ~compile
+```
+
+If you delete a Next page or a test, for example, it won't be deleted from the `transformed/` directory. You have to run:
+
+```bash
+yarn run clean
 ```
 
 ## Tests
