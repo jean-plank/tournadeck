@@ -1,7 +1,6 @@
 import * as C from 'io-ts/Codec'
 
-import { $decoderWithName, $withName } from '@/lib/utils/macros'
-
+import { $decoderWithName, $withName } from '../../../src/lib/utils/macros'
 import { expectT } from '../../expectT'
 
 const totoCodec = C.struct({
@@ -22,7 +21,7 @@ describe('$withName', () => {
   it('should with C.array(totoCodec)', () => {
     const totoArrayCodec = C.array(totoCodec)
 
-    expectT($withName!(C.array(totoCodec)).name).toStrictEqual('null')
+    // $withName!(C.array(totoCodec) // throws during transformation
     expectT($withName!(totoArrayCodec)).toStrictEqual({
       ...totoArrayCodec,
       name: 'totoArrayCodec',

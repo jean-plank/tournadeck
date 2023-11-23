@@ -1,8 +1,8 @@
 import type { Decoder } from 'io-ts/Decoder'
-import { $$text } from 'ts-macros'
+import { $$err, $$text } from 'ts-macros'
 
 export function $withName<A extends Decoder<unknown, unknown>>(decoder: A): A & { name: string } {
-  return { ...decoder, name: $$text!(decoder) }
+  return { ...decoder, name: $$textSafe!(decoder) }
 }
 
 type DecoderT<I, A> = {
@@ -12,5 +12,15 @@ type DecoderT<I, A> = {
 export function $decoderWithName<A extends DecoderT<unknown, unknown>>(
   cType: A,
 ): A['decoder'] & { name: string } {
-  return { ...cType.decoder, name: $$text!(cType) }
+  return { ...cType.decoder, name: $$textSafe!(cType) }
+}
+
+function $$textSafe(exp: unknown): string {
+  const $res = $$text!(exp)
+
+  if ($res === 'null') {
+    $$err!(`$$text: exp in not transformable.`)
+  }
+
+  return $res
 }
