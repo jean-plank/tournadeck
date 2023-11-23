@@ -8,6 +8,7 @@ import { WithDb } from './persistence/helpers/WithDb'
 import { HealthCheckService } from './services/HealthCheckService'
 import { StringUtils } from './utils/StringUtils'
 import type { EffecT } from './utils/fp'
+import { $$textSafe } from './utils/macros'
 
 const dbRetryDelay = Duration.seconds(10)
 
@@ -16,7 +17,7 @@ export class Context {
 
   static load(config: ServerConfig): EffecT<Error, Context> {
     const Logger = new LoggerGetter(config.LOG_LEVEL)
-    const logger = Logger.apply('Context' /* TODO: ts-macros */)
+    const logger = Logger.name($$textSafe!(Context))
 
     return pipe(
       WithDb.load({

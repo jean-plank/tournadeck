@@ -9,6 +9,7 @@ import type { EffecT } from './utils/fp'
 import { effectFromEither } from './utils/fp'
 import type { DecodeError } from './utils/ioTsUtils'
 import { decodeError } from './utils/ioTsUtils'
+import { $$textSafe } from './utils/macros'
 
 type ServerConfig = D.TypeOf<typeof decoder>
 
@@ -30,7 +31,7 @@ const load: EffecT<DecodeError, ServerConfig> = pipe(
     pipe(
       decoder.decode(u),
       effectFromEither,
-      Effect.mapError(decodeError('ServerConfig' /* TODO: use ts-macros to get name */)(u)),
+      Effect.mapError(decodeError($$textSafe!(ServerConfig))(u)),
     ),
   ),
 )

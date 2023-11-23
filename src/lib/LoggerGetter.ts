@@ -18,7 +18,7 @@ export class LoggerGetter {
     this.logger = pino({ level: logLevel }, pinoPretty({ colorize: true }))
   }
 
-  apply(loggerName: string): ReadonlyRecord<LevelWithSilent, LogFn> {
+  name(loggerName: string): ReadonlyRecord<LevelWithSilent, LogFn> {
     const child = this.logger.child({ name: loggerName })
     return LevelWithSilent.values.reduce(
       (acc, level): ReadonlyRecord<LevelWithSilent, LogFn> => ({
