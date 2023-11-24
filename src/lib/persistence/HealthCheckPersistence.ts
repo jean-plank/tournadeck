@@ -9,7 +9,7 @@ import type { WithDb } from './helpers/WithDb'
 const ResultCodec = D.struct({ ok: D.number })
 
 export class HealthCheckPersistence {
-  check: EffecT<Error, boolean>
+  check: EffecT<boolean>
 
   constructor(private withDb: WithDb) {
     this.check = pipe(

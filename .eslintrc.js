@@ -46,7 +46,7 @@ module.exports = {
     ],
     'arrow-body-style': ['warn', 'as-needed'],
     'fp-ts/no-module-imports': ['warn', { allowTypes: true }],
-    'no-shadow': ['warn', { builtinGlobals: true }],
+    'no-shadow': ['warn', { builtinGlobals: true, allow: ['Console', 'name'] }],
     'no-useless-rename': 'warn',
     'object-shorthand': 'warn',
     'prettier/prettier': 'warn',

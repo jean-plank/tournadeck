@@ -9,7 +9,9 @@ import { LevelWithSilent } from './models/LevelWithSilent'
 import type { EffecT } from './utils/fp'
 import { emptyRecord } from './utils/fp'
 
-type LogFn = (arg: unknown, ...args: unknown[]) => EffecT<never, void>
+export type LoggerType = ReadonlyRecord<LevelWithSilent, LogFn>
+
+type LogFn = (arg: unknown, ...args: unknown[]) => EffecT<void>
 
 export class LoggerGetter {
   private logger: Logger<{ level: LevelWithSilent }>
@@ -18,10 +20,10 @@ export class LoggerGetter {
     this.logger = pino({ level: logLevel }, pinoPretty({ colorize: true }))
   }
 
-  name(loggerName: string): ReadonlyRecord<LevelWithSilent, LogFn> {
-    const child = this.logger.child({ name: loggerName })
+  named(name: string): LoggerType {
+    const child = this.logger.child({ name })
     return LevelWithSilent.values.reduce(
-      (acc, level): ReadonlyRecord<LevelWithSilent, LogFn> => ({
+      (acc, level): LoggerType => ({
         ...acc,
         [level]: ((arg, ...args) =>
           Effect.sync(() => child[level](arg as string, ...args))) satisfies LogFn,

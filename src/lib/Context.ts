@@ -8,16 +8,16 @@ import { WithDb } from './persistence/helpers/WithDb'
 import { HealthCheckService } from './services/HealthCheckService'
 import { StringUtils } from './utils/StringUtils'
 import type { EffecT } from './utils/fp'
-import { $$textSafe } from './utils/macros'
+import { $text } from './utils/macros'
 
 const dbRetryDelay = Duration.seconds(10)
 
 export class Context {
   private constructor(public discordHelper: DiscordHelper) {}
 
-  static load(config: ServerConfig): EffecT<Error, Context> {
+  static load(config: ServerConfig): EffecT<Context> {
     const Logger = new LoggerGetter(config.LOG_LEVEL)
-    const logger = Logger.name($$textSafe!(Context))
+    const logger = Logger.named($text!(Context))
 
     return pipe(
       WithDb.load({
@@ -26,12 +26,12 @@ export class Context {
         password: config.DB_PASSWORD,
         dbName: config.DB_NAME,
       }),
-      Effect.flatMap((withDb): EffecT<Error, Context> => {
+      Effect.flatMap((withDb): EffecT<Context> => {
         const healthCheckPersistence = new HealthCheckPersistence(withDb)
 
         const healthCheckService = new HealthCheckService(healthCheckPersistence)
 
-        const waitDatabaseReady: EffecT<Error, boolean> = pipe(
+        const waitDatabaseReady: EffecT<boolean> = pipe(
           healthCheckService.check,
           Effect.orElse(() =>
             pipe(

@@ -6,10 +6,8 @@ import * as D from 'io-ts/Decoder'
 import { DiscordUserId } from './models/DiscordUserId'
 import { LevelWithSilent } from './models/LevelWithSilent'
 import type { EffecT } from './utils/fp'
-import { effectFromEither } from './utils/fp'
-import type { DecodeError } from './utils/ioTsUtils'
-import { decodeError } from './utils/ioTsUtils'
-import { $$textSafe } from './utils/macros'
+import { decodeEffecT } from './utils/fp'
+import { $decoderWithName } from './utils/macros'
 
 type ServerConfig = D.TypeOf<typeof decoder>
 
@@ -25,17 +23,11 @@ const decoder = D.struct({
   DISCORD_REDIRECT_URI: D.string,
 })
 
-const load: EffecT<DecodeError, ServerConfig> = pipe(
+const load: EffecT<ServerConfig> = pipe(
   Effect.sync(() => process.env),
-  Effect.flatMap(u =>
-    pipe(
-      decoder.decode(u),
-      effectFromEither,
-      Effect.mapError(decodeError($$textSafe!(ServerConfig))(u)),
-    ),
-  ),
+  Effect.flatMap(i => decodeEffecT($decoderWithName!(ServerConfig))(i)),
 )
 
-const ServerConfig = { load }
+const ServerConfig = { decoder, load }
 
 export { ServerConfig }

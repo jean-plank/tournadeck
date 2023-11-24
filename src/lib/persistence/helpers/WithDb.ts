@@ -2,7 +2,7 @@ import { Effect, pipe } from 'effect'
 import type { Db } from 'mongodb'
 import { MongoClient } from 'mongodb'
 
-import { type EffecT, effectTryPromise } from '../../utils/fp'
+import { EffecT } from '../../utils/fp'
 
 type Load = {
   host: string
@@ -17,13 +17,13 @@ export class WithDb {
     private dbName: string,
   ) {}
 
-  effect<A>(f: (db: Db) => Promise<A>): EffecT<Error, A> {
-    return effectTryPromise(() => f(this.client.db(this.dbName)))
+  effect<A>(f: (db: Db) => Promise<A>): EffecT<A> {
+    return EffecT.tryPromise(() => f(this.client.db(this.dbName)))
   }
 
-  static load({ host, username, password, dbName }: Load): EffecT<Error, WithDb> {
+  static load({ host, username, password, dbName }: Load): EffecT<WithDb> {
     return pipe(
-      effectTryPromise(() =>
+      EffecT.tryPromise(() =>
         MongoClient.connect(`mongodb://${host}`, { auth: { username, password } }),
       ),
       Effect.map(client => new WithDb(client, dbName)),

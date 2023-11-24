@@ -2,7 +2,7 @@ import type { HealthCheckPersistence } from '../persistence/HealthCheckPersisten
 import type { EffecT } from '../utils/fp'
 
 export class HealthCheckService {
-  check: EffecT<Error, boolean>
+  check: EffecT<boolean>
 
   constructor(healthCheckPersistence: HealthCheckPersistence) {
     this.check = healthCheckPersistence.check

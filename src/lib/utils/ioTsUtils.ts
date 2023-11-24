@@ -32,7 +32,11 @@ export const decodeError =
     new DecodeError(decoderName, value, error)
 
 export class DecodeError extends Error {
-  constructor(decoderName: string, value: unknown, error: IoTsDecodeError) {
+  constructor(
+    public decoderName: string,
+    public value: unknown,
+    public error: IoTsDecodeError,
+  ) {
     super(decodeErrorString(decoderName)(value)(error))
   }
 }
