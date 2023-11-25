@@ -1,4 +1,3 @@
-import { Effect, pipe } from 'effect'
 import * as D from 'io-ts/Decoder'
 
 import type { ServerConfig } from '../ServerConfig'
@@ -46,41 +45,35 @@ export class DiscordService {
       token: {
         post: {
           authorizationCode: code =>
-            pipe(
-              httpClient
-                .post(`${apiEndpoint}/oauth2/token`, {
-                  form: [
-                    OAuth2AuthorizationCodePayload.encoder,
-                    {
-                      client_id: config.DISCORD_CLIENT_ID,
-                      client_secret: config.DISCORD_CLIENT_SECRET,
-                      grant_type: 'authorization_code',
-                      code,
-                      redirect_uri: config.DISCORD_REDIRECT_URI,
-                    },
-                  ],
-                })
-                .json($decoderWithName!(OAuth2AccessTokenResult)),
-              Effect.map(r => r.value),
-            ),
+            httpClient
+              .post(`${apiEndpoint}/oauth2/token`, {
+                form: [
+                  OAuth2AuthorizationCodePayload.encoder,
+                  {
+                    client_id: config.DISCORD_CLIENT_ID,
+                    client_secret: config.DISCORD_CLIENT_SECRET,
+                    grant_type: 'authorization_code',
+                    code,
+                    redirect_uri: config.DISCORD_REDIRECT_URI,
+                  },
+                ],
+              })
+              .json($decoderWithName!(OAuth2AccessTokenResult)),
 
           refreshToken: refreshToken =>
-            pipe(
-              httpClient
-                .post(`${apiEndpoint}/oauth2/token`, {
-                  form: [
-                    OAuth2RefreshTokenPayload.encoder,
-                    {
-                      client_id: config.DISCORD_CLIENT_ID,
-                      client_secret: config.DISCORD_CLIENT_SECRET,
-                      grant_type: 'refresh_token',
-                      refresh_token: refreshToken,
-                    },
-                  ],
-                })
-                .json($decoderWithName!(OAuth2AccessTokenResult)),
-              Effect.map(r => r.value),
-            ),
+            httpClient
+              .post(`${apiEndpoint}/oauth2/token`, {
+                form: [
+                  OAuth2RefreshTokenPayload.encoder,
+                  {
+                    client_id: config.DISCORD_CLIENT_ID,
+                    client_secret: config.DISCORD_CLIENT_SECRET,
+                    grant_type: 'refresh_token',
+                    refresh_token: refreshToken,
+                  },
+                ],
+              })
+              .json($decoderWithName!(OAuth2AccessTokenResult)),
         },
       },
     }
@@ -88,25 +81,19 @@ export class DiscordService {
     this.users = {
       me: {
         get: token =>
-          pipe(
-            httpClient
-              .get(`${apiEndpoint}/users/@me`, {
-                headers: { authorization: authorizationHeader(token) },
-              })
-              .json($decoderWithName!(DiscordUser)),
-            Effect.map(r => r.value),
-          ),
+          httpClient
+            .get(`${apiEndpoint}/users/@me`, {
+              headers: { authorization: authorizationHeader(token) },
+            })
+            .json($decoderWithName!(DiscordUser)),
 
         connections: {
           get: token =>
-            pipe(
-              httpClient
-                .get(`${apiEndpoint}/users/@me/connections`, {
-                  headers: { authorization: authorizationHeader(token) },
-                })
-                .json($withName!(DiscordConnectionArray)),
-              Effect.map(r => r.value),
-            ),
+            httpClient
+              .get(`${apiEndpoint}/users/@me/connections`, {
+                headers: { authorization: authorizationHeader(token) },
+              })
+              .json($withName!(DiscordConnectionArray)),
         },
       },
     }

@@ -35,16 +35,11 @@ type Httpable = <A, OJson, OForm extends ValidOForm>(
 ) => TextOrJson
 
 type TextOrJson = {
-  text: EffecT<WithResponse<string>>
+  text: EffecT<string>
   json: {
-    (): EffecT<WithResponse<unknown>>
-    <A>(decoder: DecoderWithName<unknown, A>): EffecT<WithResponse<A>>
+    (): EffecT<unknown>
+    <A>(decoder: DecoderWithName<unknown, A>): EffecT<A>
   }
-}
-
-type WithResponse<A> = {
-  response: Response
-  value: A
 }
 
 export class HttpClient implements ReadonlyRecord<Method, Httpable> {
@@ -99,19 +94,14 @@ export class HttpClient implements ReadonlyRecord<Method, Httpable> {
       return {
         text: pipe(
           res,
-          Effect.flatMap(response =>
-            pipe(
-              EffecT.tryPromise(() => response.text()),
-              Effect.map(value => ({ response, value })),
-            ),
-          ),
+          Effect.flatMap(response => EffecT.tryPromise(() => response.text())),
         ),
         json,
       }
 
-      function json(): EffecT<WithResponse<unknown>>
-      function json<A>(decoder: DecoderWithName<unknown, A>): EffecT<WithResponse<A>>
-      function json<A>(decoder?: DecoderWithName<unknown, A>): EffecT<WithResponse<A>> {
+      function json(): EffecT<unknown>
+      function json<A>(decoder: DecoderWithName<unknown, A>): EffecT<A>
+      function json<A>(decoder?: DecoderWithName<unknown, A>): EffecT<A> {
         return pipe(
           res,
           Effect.flatMap(response =>
@@ -120,7 +110,6 @@ export class HttpClient implements ReadonlyRecord<Method, Httpable> {
               Effect.flatMap(i =>
                 decoder === undefined ? Effect.succeed(i as A) : decodeEffecT(decoder)(i),
               ),
-              Effect.map(value => ({ response, value })),
             ),
           ),
         )
