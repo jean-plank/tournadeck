@@ -2,24 +2,37 @@ import { Effect, flow, pipe } from 'effect'
 import { json as fpTsJson } from 'fp-ts'
 import type { Encoder } from 'io-ts/Encoder'
 
-import type { LoggerGetter, LoggerType } from '../LoggerGetter'
+import type { MyLogger, MyLoggerGetter } from '../MyLogger'
 import type { Method } from '../models/Method'
 import type { DecoderWithName } from '../models/ioTsModels'
 import { EffecT, decodeEffecT } from '../utils/fp'
 import { $text } from '../utils/macros'
 
-type HttpOptions<O, A> = Omit<RequestInit, 'method'> & {
-  /**
-   * If defined, sets body to json[1] serialized with json[0] and set "Content-Type" header to "application/json"
-   */
-  json?: [Encoder<O, A>, A]
-}
+type ValidOForm = Record<string, string>
 
-type MethodsHttpable = {
-  [K in Method]: Httpable
-}
+type HttpOptions<A, OJson, OForm extends ValidOForm> =
+  | BaseOptions
+  | (Omit<BaseOptions, 'body'> & {
+      /**
+       * If defined, sets body to json[1] serialized with json[0] and JSON.stringified
+       * and sets "Content-Type" header to "application/json".
+       */
+      json: [Encoder<OJson, A>, A]
+    })
+  | (Omit<BaseOptions, 'body'> & {
+      /**
+       * If defined, sets body to form[1] serialized with form[0] and URLSearchParams
+       * and sets "Content-Type" header to "application/x-www-form-urlencoded".
+       */
+      form: [Encoder<OForm, A>, A]
+    })
 
-type Httpable = <O, B>(url: string, options?: HttpOptions<O, B>) => TextOrJson
+type BaseOptions = Omit<RequestInit, 'method'>
+
+type Httpable = <A, OJson, OForm extends ValidOForm>(
+  url: string,
+  options?: HttpOptions<A, OJson, OForm>,
+) => TextOrJson
 
 type TextOrJson = {
   text: EffecT<WithResponse<string>>
@@ -34,7 +47,7 @@ type WithResponse<A> = {
   value: A
 }
 
-export class HttpClient implements MethodsHttpable {
+export class HttpClient implements ReadonlyRecord<Method, Httpable> {
   get: Httpable
   post: Httpable
   put: Httpable
@@ -42,10 +55,10 @@ export class HttpClient implements MethodsHttpable {
   head: Httpable
   delete: Httpable
 
-  private logger: LoggerType
+  private logger: MyLogger
 
-  constructor(Logger: LoggerGetter) {
-    this.logger = Logger.named($text!(HttpClient))
+  constructor(Logger: MyLoggerGetter) {
+    this.logger = Logger($text!(HttpClient))
 
     this.get = this.httpable('get')
     this.post = this.httpable('post')
@@ -55,38 +68,13 @@ export class HttpClient implements MethodsHttpable {
     this.delete = this.httpable('delete')
   }
 
-  http<O, B>(
+  http<A, OJson, OForm extends ValidOForm>(
     method: Method,
     url: string,
-    { json, ...options }: HttpOptions<O, B> = {},
+    options: HttpOptions<A, OJson, OForm> = {},
   ): EffecT<Response> {
-    const encoded = json !== undefined ? encode(json) : undefined
-
-    const headersEffect = Effect.sync((): Headers => {
-      const headers: Headers =
-        options.headers === undefined
-          ? new Headers()
-          : options.headers instanceof Headers
-            ? options.headers
-            : new Headers(options.headers)
-
-      if (encoded !== undefined) {
-        headers.set('Content-Type', 'application/json')
-      }
-
-      return headers
-    })
-
-    const effectBody: EffecT<string | RequestInit['body']> =
-      encoded !== undefined
-        ? EffecT.fromUnknownEither(fpTsJson.stringify(encoded))
-        : Effect.succeed(options.body)
-
     return pipe(
-      Effect.Do.pipe(
-        Effect.bind('headers', () => headersEffect),
-        Effect.bind('body', () => effectBody),
-      ),
+      headersAndBody(options),
       Effect.flatMap(({ headers, body }) =>
         pipe(
           EffecT.tryPromise(() => fetch(url, { ...options, method, headers, body })),
@@ -141,6 +129,70 @@ export class HttpClient implements MethodsHttpable {
   }
 }
 
+const contentTypeName = 'Content-Type'
+
+function headersAndBody<A, OJson, OForm extends ValidOForm>(
+  options: HttpOptions<A, OJson, OForm>,
+): EffecT<{
+  headers: Headers
+  body: RequestInit['body']
+}> {
+  return pipe(
+    contentTypeAndBody(options),
+    Effect.map(({ contentType, body }) => {
+      const headers: Headers =
+        options.headers === undefined
+          ? new Headers()
+          : options.headers instanceof Headers
+            ? options.headers
+            : new Headers(options.headers)
+
+      if (headers.get(contentTypeName) === null && contentType !== undefined) {
+        headers.set(contentTypeName, contentType)
+      }
+
+      return { headers, body }
+    }),
+  )
+}
+
+function contentTypeAndBody<A, OJson, OForm extends ValidOForm>(
+  options: HttpOptions<A, OJson, OForm>,
+): EffecT<{
+  contentType: Optional<string>
+  body: RequestInit['body']
+}> {
+  if ('json' in options) {
+    const [encoder, a] = options.json
+
+    return pipe(
+      encoder.encode(a),
+      fpTsJson.stringify,
+      EffecT.fromUnknownEither,
+      Effect.map(body => ({ contentType: 'application/json', body })),
+    )
+  }
+
+  if ('form' in options) {
+    const [encoder, a] = options.form
+
+    return pipe(
+      EffecT.try(() => new URLSearchParams(encoder.encode(a))),
+      Effect.map(body => ({
+        contentType: 'application/x-www-form-urlencoded',
+        body: body.toString(),
+      })),
+    )
+  }
+
+  return Effect.succeed({ contentType: undefined, body: options.body })
+}
+
+const formatResponse =
+  (method: Method, url: string) =>
+  (res: Response): string =>
+    `${method.toUpperCase()} ${url} ${res.status}`
+
 class HttpError extends Error {
   constructor(
     public method: Method,
@@ -150,12 +202,3 @@ class HttpError extends Error {
     super(`HttpError: ${method.toUpperCase()} ${url} - ${response?.status ?? '???'}`)
   }
 }
-
-function encode<O, A>([encoder, a]: [Encoder<O, A>, A]): O {
-  return encoder.encode(a)
-}
-
-const formatResponse =
-  (method: Method, url: string) =>
-  (res: Response): string =>
-    `${method.toUpperCase()} ${url} ${res.status}`

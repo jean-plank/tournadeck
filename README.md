@@ -31,7 +31,7 @@ You need a Discord app for authentication:
 3. Go to OAuth2 > General:
    1. Click "Reset Secret"
    2. Copy your Client ID and Client Secret in your `.env.local` file
-   3. Add `http://localhost:3000/discordRedirect` as a new redirect
+   3. Add `http://localhost:3000/api/discordRedirect` as a new redirect
 
 You need a running mongo:
 

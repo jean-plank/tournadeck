@@ -3,8 +3,9 @@ import 'server-only'
 import { Effect, pipe } from 'effect'
 import * as D from 'io-ts/Decoder'
 
-import { DiscordUserId } from './models/DiscordUserId'
 import { LevelWithSilent } from './models/LevelWithSilent'
+import { ClientSecret } from './models/discord/ClientSecret'
+import { DiscordUserId } from './models/discord/DiscordUserId'
 import type { EffecT } from './utils/fp'
 import { decodeEffecT } from './utils/fp'
 import { $decoderWithName } from './utils/macros'
@@ -20,7 +21,10 @@ const decoder = D.struct({
   DB_NAME: D.string,
 
   DISCORD_CLIENT_ID: DiscordUserId.codec,
+  DISCORD_CLIENT_SECRET: ClientSecret.codec,
   DISCORD_REDIRECT_URI: D.string,
+
+  JWT_SECRET: D.string,
 })
 
 const load: EffecT<ServerConfig> = pipe(

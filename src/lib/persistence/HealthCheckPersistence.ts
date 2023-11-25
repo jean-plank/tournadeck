@@ -1,6 +1,5 @@
-import { Effect } from 'effect'
+import { Effect, pipe } from 'effect'
 import { either } from 'fp-ts'
-import { pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 
 import type { EffecT } from '../utils/fp'

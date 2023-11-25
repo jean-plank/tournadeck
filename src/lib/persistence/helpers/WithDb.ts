@@ -17,10 +17,6 @@ export class WithDb {
     private dbName: string,
   ) {}
 
-  effect<A>(f: (db: Db) => Promise<A>): EffecT<A> {
-    return EffecT.tryPromise(() => f(this.client.db(this.dbName)))
-  }
-
   static load({ host, username, password, dbName }: Load): EffecT<WithDb> {
     return pipe(
       EffecT.tryPromise(() =>
@@ -28,5 +24,9 @@ export class WithDb {
       ),
       Effect.map(client => new WithDb(client, dbName)),
     )
+  }
+
+  effect<A>(f: (db: Db) => Promise<A>): EffecT<A> {
+    return EffecT.tryPromise(() => f(this.client.db(this.dbName)))
   }
 }

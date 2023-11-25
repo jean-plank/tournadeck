@@ -1,11 +1,17 @@
 import { Duration, Effect, pipe } from 'effect'
 
-import { DiscordHelper } from '../app/helpers/DiscordHelper'
-import { LoggerGetter } from './LoggerGetter'
+import { MyLogger, type MyLoggerGetter } from './MyLogger'
 import { ServerConfig } from './ServerConfig'
+import { HttpClient } from './helpers/HttpClient'
+import { JwtHelper } from './helpers/JwtHelpers'
 import { HealthCheckPersistence } from './persistence/HealthCheckPersistence'
+import { UserPersistence } from './persistence/UserPersistence'
+import type { WithCollectionGetter } from './persistence/helpers/WithCollection'
+import { WithCollection } from './persistence/helpers/WithCollection'
 import { WithDb } from './persistence/helpers/WithDb'
+import { DiscordService } from './services/DiscordService'
 import { HealthCheckService } from './services/HealthCheckService'
+import { UserService } from './services/UserService'
 import { StringUtils } from './utils/StringUtils'
 import type { EffecT } from './utils/fp'
 import { $text } from './utils/macros'
@@ -13,11 +19,15 @@ import { $text } from './utils/macros'
 const dbRetryDelay = Duration.seconds(10)
 
 export class Context {
-  private constructor(public discordHelper: DiscordHelper) {}
+  private constructor(
+    public Logger: MyLoggerGetter,
+    public discordService: DiscordService,
+    public userService: UserService,
+  ) {}
 
   static load(config: ServerConfig): EffecT<Context> {
-    const Logger = new LoggerGetter(config.LOG_LEVEL)
-    const logger = Logger.named($text!(Context))
+    const Logger: MyLoggerGetter = name => new MyLogger(config.LOG_LEVEL, name)
+    const logger = Logger($text!(Context))
 
     return pipe(
       WithDb.load({
@@ -26,8 +36,21 @@ export class Context {
         password: config.DB_PASSWORD,
         dbName: config.DB_NAME,
       }),
-      Effect.flatMap((withDb): EffecT<Context> => {
+      Effect.bindTo('withDb'),
+      Effect.bind('a', ({ withDb }) => {
+        const withCollectionGetter: WithCollectionGetter = collName =>
+          new WithCollection(withDb, collName)
+
+        return Effect.all([UserPersistence.load(Logger, withCollectionGetter)], {
+          concurrency: 'unbounded',
+        })
+      }),
+
+      Effect.flatMap(({ withDb, a: [userPersistence] }): EffecT<Context> => {
         const healthCheckPersistence = new HealthCheckPersistence(withDb)
+
+        const httpClient = new HttpClient(Logger)
+        const jwtHelper = new JwtHelper(config.JWT_SECRET)
 
         const healthCheckService = new HealthCheckService(healthCheckPersistence)
 
@@ -53,7 +76,14 @@ export class Context {
           logger.info('Connecting do database'),
           Effect.flatMap(() => waitDatabaseReady),
           Effect.flatMap(() => logger.info('Connected to database')),
-          Effect.map(() => new Context(new DiscordHelper(config))),
+          Effect.map(
+            () =>
+              new Context(
+                Logger,
+                new DiscordService(config, httpClient),
+                new UserService(Logger, userPersistence, jwtHelper),
+              ),
+          ),
         )
       }),
     )
