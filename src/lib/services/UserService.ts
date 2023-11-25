@@ -9,7 +9,7 @@ import type { UserDiscordInfos } from '../models/user/UserDiscordInfos'
 import { UserId } from '../models/user/UserId'
 import type { UserPersistence } from '../persistence/UserPersistence'
 import { EffecT } from '../utils/fp'
-import { $text } from '../utils/macros'
+import { $codecWithName, $text } from '../utils/macros'
 
 const accountTokenTtl = Duration.days(30)
 
@@ -80,5 +80,9 @@ export class UserService {
 
   private signToken(content: TokenContent): EffecT<Token> {
     return this.jwtHelper.sign(TokenContent.codec)(content, { expiresIn: accountTokenTtl })
+  }
+
+  verifyToken(token: string): EffecT<TokenContent> {
+    return this.jwtHelper.verify($codecWithName!(TokenContent))(token)
   }
 }

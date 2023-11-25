@@ -1,10 +1,15 @@
+import { Effect } from 'effect'
 import Link from 'next/link'
 
 import { contextLive } from '../lib/Context'
 import t from './locales/frFR'
 
 const Home: React.FC = async () => {
-  const { discordService } = await contextLive
+  const { discordService, auth } = await contextLive
+
+  const token = await Effect.runPromise(auth.getToken)
+
+  console.log('token =', token)
 
   return (
     <div>

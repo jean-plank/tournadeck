@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
 
 import { type Context, contextLive } from '../../../lib/Context'
+import { Auth } from '../../../lib/helpers/Auth'
 import { DayJs } from '../../../lib/models/DayJs'
 import { OAuth2Code } from '../../../lib/models/discord/OAuth2Code'
 import { Token } from '../../../lib/models/user/Token'
@@ -12,11 +13,6 @@ import type { UserDiscordInfos } from '../../../lib/models/user/UserDiscordInfos
 import { DontLogError, EffecTUtils } from '../../../lib/utils/EffecTUtils'
 import { EffecT, effectFromEither, recordFromEntries } from '../../../lib/utils/fp'
 import { $filenameAndFunction } from '../../../lib/utils/macros'
-
-const accountCookie = {
-  name: 'userAccount',
-  ttl: Duration.days(30),
-}
 
 type State = unknown
 
@@ -47,8 +43,10 @@ export async function GET(request: NextRequest): Promise<Response> {
 
   if (token === undefined) return redirect('/notFound')
 
-  cookies().set(accountCookie.name, Token.codec.encode(token), {
-    maxAge: Duration.toMillis(accountCookie.ttl),
+  const cookiesStore = cookies()
+
+  cookiesStore.set(Auth.accountCookie.name, Token.codec.encode(token), {
+    maxAge: Duration.toMillis(Auth.accountCookie.ttl),
     httpOnly: true,
     sameSite: 'strict',
   })

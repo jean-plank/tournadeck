@@ -2,6 +2,7 @@ import { Duration, Effect, pipe } from 'effect'
 
 import { MyLogger, type MyLoggerGetter } from './MyLogger'
 import { ServerConfig } from './ServerConfig'
+import { Auth } from './helpers/Auth'
 import { HttpClient } from './helpers/HttpClient'
 import { JwtHelper } from './helpers/JwtHelpers'
 import { HealthCheckPersistence } from './persistence/HealthCheckPersistence'
@@ -23,6 +24,7 @@ export class Context {
     public Logger: MyLoggerGetter,
     public discordService: DiscordService,
     public userService: UserService,
+    public auth: Auth,
   ) {}
 
   static load(config: ServerConfig): EffecT<Context> {
@@ -53,6 +55,7 @@ export class Context {
         const jwtHelper = new JwtHelper(config.JWT_SECRET)
 
         const healthCheckService = new HealthCheckService(healthCheckPersistence)
+        const userService = new UserService(Logger, userPersistence, jwtHelper)
 
         const waitDatabaseReady: EffecT<boolean> = pipe(
           healthCheckService.check,
@@ -81,7 +84,8 @@ export class Context {
               new Context(
                 Logger,
                 new DiscordService(config, httpClient),
-                new UserService(Logger, userPersistence, jwtHelper),
+                userService,
+                Auth(userService),
               ),
           ),
         )
