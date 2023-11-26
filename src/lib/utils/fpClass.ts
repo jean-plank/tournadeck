@@ -1,3 +1,5 @@
+import type { Branded } from './brand'
+
 type GetFpClass<Tag> = Tag extends never
   ? never
   : <
@@ -7,8 +9,8 @@ type GetFpClass<Tag> = Tag extends never
     >(
       construct: A,
       statik?: B,
-    ) => ((..._: Parameters<A>) => ReturnType<A> & { _tag: Tag }) &
-      B & { T: ReturnType<A> & { _tag: Tag } }
+    ) => ((..._: Parameters<A>) => Branded<Tag, ReturnType<A>>) &
+      B & { T: Branded<Tag, ReturnType<A>> }
 
 /**
  * `Tag` should be defined as `{ readonly MyClass: unique symbol }`
