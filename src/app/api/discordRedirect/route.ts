@@ -36,7 +36,7 @@ export async function GET(request: NextRequest): Promise<Response> {
     Effect.mapError(() => new DontLogError()),
     EffecT.flatMapFirst(({ state }) => validateState(state)),
     Effect.flatMap(({ code }) => exchangeCodeAndGetUsersMe(context, code)),
-    Effect.flatMap(discord => context.userService.registerOrLogin(discord)),
+    Effect.flatMap(context.userService.registerOrLogin),
     EffecTUtils.orElseWithLog(logger, () => Effect.succeed(undefined)),
     Effect.runPromise,
   )

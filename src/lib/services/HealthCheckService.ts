@@ -1,10 +1,18 @@
 import type { HealthCheckPersistence } from '../persistence/HealthCheckPersistence'
+import { brand } from '../utils/brand'
 import type { EffecT } from '../utils/fp'
 
-export class HealthCheckService {
-  check: EffecT<boolean>
+type Tag = { readonly HealthCheckService: unique symbol }
 
-  constructor(healthCheckPersistence: HealthCheckPersistence) {
-    this.check = healthCheckPersistence.check
-  }
+type HealthCheckService = ReturnType<typeof HealthCheckService>
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function HealthCheckService(healthCheckPersistence: HealthCheckPersistence) {
+  const check: EffecT<boolean> = healthCheckPersistence.check
+
+  return brand<Tag>()({
+    check,
+  })
 }
+
+export { HealthCheckService }

@@ -25,7 +25,7 @@ const Home: React.FC = async () => {
       </nav>
 
       <a
-        href={discordService.apiOAuth2Authorize('state' /* TODO: some proper state */)}
+        href={discordService.apiOAuth2AuthorizeUrl('state' /* TODO: some proper state */)}
         className="flex items-center rounded-md bg-discord-blurple px-6 text-white"
       >
         {t.connectWithDiscord}

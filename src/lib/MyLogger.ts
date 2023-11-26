@@ -5,35 +5,32 @@ import pino from 'pino'
 import pinoPretty from 'pino-pretty'
 import util from 'util'
 
-import type { LevelWithSilent } from './models/LevelWithSilent'
-import type { EffecT } from './utils/fp'
+import { LevelWithSilent } from './models/LevelWithSilent'
+import { brand } from './utils/brand'
+import { type EffecT, recordEmpty } from './utils/fp'
 
 export type MyLoggerGetter = (name: string) => MyLogger
 
+type Tag = { readonly MyLogger: unique symbol }
+
+type MyLogger = ReturnType<typeof MyLogger>
+
 type LogFn = (arg: unknown, ...args: unknown[]) => EffecT<void>
 
-export class MyLogger implements ReadonlyRecord<LevelWithSilent, LogFn> {
-  fatal: LogFn
-  error: LogFn
-  warn: LogFn
-  info: LogFn
-  debug: LogFn
-  trace: LogFn
-  silent: LogFn
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function MyLogger(logLevel: LevelWithSilent, name: string) {
+  const child = pino({ level: logLevel }, pinoPretty({ colorize: true })).child({ name })
 
-  constructor(logLevel: LevelWithSilent, name: string) {
-    const child = pino({ level: logLevel }, pinoPretty({ colorize: true })).child({ name })
+  const res: ReadonlyRecord<LevelWithSilent, LogFn> = LevelWithSilent.values.reduce(
+    (acc, level) => ({ ...acc, [level]: log(level) }),
+    recordEmpty<LevelWithSilent, LogFn>(),
+  )
 
-    this.fatal = log('fatal')
-    this.error = log('error')
-    this.warn = log('warn')
-    this.info = log('info')
-    this.debug = log('debug')
-    this.trace = log('trace')
-    this.silent = log('silent')
+  return brand<Tag>()(res)
 
-    function log(level: LevelWithSilent): LogFn {
-      return (arg, ...args) => Effect.sync(() => child[level](util.format(arg, ...args)))
-    }
+  function log(level: LevelWithSilent): LogFn {
+    return (arg, ...args) => Effect.sync(() => child[level](util.format(arg, ...args)))
   }
 }
+
+export { MyLogger }

@@ -5,7 +5,12 @@ import jwt from 'jsonwebtoken'
 
 import type { DecoderWithName } from '../models/ioTsModels'
 import { Token } from '../models/user/Token'
+import { brand } from '../utils/brand'
 import { EffecT, decodeEffecT, partialRecordEmpty, recordEntries } from '../utils/fp'
+
+type Tag = { readonly JwtHelper: unique symbol }
+
+type JwtHelper = ReturnType<typeof JwtHelper>
 
 type MySignOptions = Omit<jwt.SignOptions, 'expiresIn' | 'notBefore'> & {
   expiresIn?: DurationInput
@@ -14,59 +19,58 @@ type MySignOptions = Omit<jwt.SignOptions, 'expiresIn' | 'notBefore'> & {
 
 type MyVerifyOptions = Omit<jwt.VerifyOptions, 'complete'>
 
-export class JwtHelper {
-  constructor(private secret: string) {}
-
-  sign<O extends ReadonlyRecord<PropertyKey, unknown>, A>(
-    encoder: Encoder<O, A>,
-  ): (a: A, options?: MySignOptions) => EffecT<Token> {
-    return (a, { expiresIn, notBefore, ...options } = {}) =>
-      pipe(
-        EffecT.tryPromise(
-          () =>
-            new Promise<Optional<string>>((resolve, reject) =>
-              jwt.sign(
-                encoder.encode(a),
-                this.secret,
-                {
-                  ...options,
-                  ...msDurationOptions({ expiresIn, notBefore }),
-                },
-                (err, encoded) => (err !== null ? reject(err) : resolve(encoded)),
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function JwtHelper(secret: string) {
+  return brand<Tag>()({
+    sign:
+      <O extends ReadonlyRecord<PropertyKey, unknown>, A>(encoder: Encoder<O, A>) =>
+      (a: A, { expiresIn, notBefore, ...options }: MySignOptions = {}): EffecT<Token> =>
+        pipe(
+          EffecT.tryPromise(
+            () =>
+              new Promise<Optional<string>>((resolve, reject) =>
+                jwt.sign(
+                  encoder.encode(a),
+                  secret,
+                  {
+                    ...options,
+                    ...msDurationOptions({ expiresIn, notBefore }),
+                  },
+                  (err, encoded) => (err !== null ? reject(err) : resolve(encoded)),
+                ),
               ),
-            ),
+          ),
+          Effect.flatMap(res =>
+            res !== undefined
+              ? Effect.succeed(res)
+              : Effect.fail(Error('undefined jwt (this should never happen)')),
+          ),
+          Effect.map(Token.wrap),
         ),
-        Effect.flatMap(res =>
-          res !== undefined
-            ? Effect.succeed(res)
-            : Effect.fail(Error('undefined jwt (this should never happen)')),
-        ),
-        Effect.map(Token.wrap),
-      )
-  }
 
-  verify<A>(
-    decoder: DecoderWithName<string | jwt.JwtPayload, A>,
-  ): (token: string, options?: MyVerifyOptions) => EffecT<A> {
-    return (token, options) =>
-      pipe(
-        EffecT.tryPromise(
-          () =>
-            new Promise<Optional<string | jwt.JwtPayload>>((resolve, reject) =>
-              jwt.verify(token, this.secret, { ...options, complete: false }, (err, decoded) =>
-                err !== null ? reject(err) : resolve(decoded),
+    verify:
+      <A>(decoder: DecoderWithName<string | jwt.JwtPayload, A>) =>
+      (token: string, options?: MyVerifyOptions): EffecT<A> =>
+        pipe(
+          EffecT.tryPromise(
+            () =>
+              new Promise<Optional<string | jwt.JwtPayload>>((resolve, reject) =>
+                jwt.verify(token, secret, { ...options, complete: false }, (err, decoded) =>
+                  err !== null ? reject(err) : resolve(decoded),
+                ),
               ),
-            ),
+          ),
+          Effect.flatMap(res =>
+            res !== undefined
+              ? Effect.succeed(res)
+              : Effect.fail(Error('Undefined payload (this should never happen)')),
+          ),
+          Effect.flatMap(decodeEffecT(decoder)),
         ),
-        Effect.flatMap(res =>
-          res !== undefined
-            ? Effect.succeed(res)
-            : Effect.fail(Error('Undefined payload (this should never happen)')),
-        ),
-        Effect.flatMap(decodeEffecT(decoder)),
-      )
-  }
+  })
 }
+
+export { JwtHelper }
 
 function msDurationOptions<K extends PropertyKey>(
   obj: ReadonlyRecord<K, DurationInput | undefined>,

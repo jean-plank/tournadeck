@@ -13,65 +13,88 @@ import type {
 import type { MyLogger } from '../../MyLogger'
 import type { IndexDescription, WithoutProjection } from '../../models/MongoTypings'
 import type { CodecWithName, DecoderWithName } from '../../models/ioTsModels'
+import type { Branded } from '../../utils/brand'
+import { brand } from '../../utils/brand'
 import { EffecT, arrayMkString, arrayMutable, decodeEffecT } from '../../utils/fp'
 import type { WithCollection } from './WithCollection'
 
-export class FpCollection<O extends MongoDocument, A> {
-  constructor(
-    private logger: MyLogger,
-    private codec: CodecWithName<unknown, OptionalUnlessRequiredId<O>, A>,
-    public withCollection: WithCollection<O>,
-  ) {}
+type Tag = { readonly FpCollection: unique symbol }
 
-  ensureIndexes(
-    indexSpecs: NonEmptyArray<IndexDescription<A>>,
-    options?: CreateIndexesOptions,
-  ): EffecT<void> {
-    return pipe(
-      this.logger.info('Ensuring indexes'),
-      Effect.flatMap(() =>
-        this.withCollection.effect(c =>
-          c.createIndexes(
-            arrayMutable(indexSpecs as NonEmptyArray<MongoIndexDescription>),
-            options,
+type FpCollection<O extends MongoDocument, A> = Branded<
+  Tag,
+  {
+    withCollection: WithCollection<O>
+    ensureIndexes: (
+      indexSpecs: NonEmptyArray<IndexDescription<A>>,
+      options?: CreateIndexesOptions,
+    ) => EffecT<void>
+    insertOne: (doc: A, options?: InsertOneOptions) => EffecT<InsertOneResult<O>>
+    findOne: {
+      (filter: Filter<O>, options?: WithoutProjection<FindOptions<O>>): EffecT<Optional<A>>
+      <B extends A>(
+        filter: Filter<O>,
+        options: WithoutProjection<FindOptions<O>>,
+        decoder: DecoderWithName<unknown, B>,
+      ): EffecT<Optional<B>>
+    }
+  }
+>
+
+function construct<O extends MongoDocument, A>(
+  logger: MyLogger,
+  codec: CodecWithName<unknown, OptionalUnlessRequiredId<O>, A>,
+  withCollection: WithCollection<O>,
+): FpCollection<O, A> {
+  return brand<Tag>()({
+    withCollection,
+
+    ensureIndexes: (
+      indexSpecs: NonEmptyArray<IndexDescription<A>>,
+      options?: CreateIndexesOptions,
+    ): EffecT<void> =>
+      pipe(
+        logger.info('Ensuring indexes'),
+        Effect.flatMap(() =>
+          withCollection.effect(c =>
+            c.createIndexes(
+              arrayMutable(indexSpecs as NonEmptyArray<MongoIndexDescription>),
+              options,
+            ),
           ),
         ),
       ),
-    )
-  }
 
-  insertOne(doc: A, options: InsertOneOptions = {}): EffecT<InsertOneResult<O>> {
-    const encoded = this.codec.encode(doc)
-    return pipe(
-      this.withCollection.effect(c => c.insertOne(encoded, options)),
-      EffecT.flatMapFirst(() => this.logger.trace('Inserted', JSON.stringify(encoded))),
-    )
-  }
+    insertOne: (doc: A, options?: InsertOneOptions): EffecT<InsertOneResult<O>> => {
+      const encoded = codec.encode(doc)
+      return pipe(
+        withCollection.effect(c => c.insertOne(encoded, options)),
+        EffecT.flatMapFirst(() => logger.trace('Inserted', JSON.stringify(encoded))),
+      )
+    },
 
-  findOne(filter: Filter<O>, options?: WithoutProjection<FindOptions<O>>): EffecT<Optional<A>>
-  findOne<B extends A>(
-    filter: Filter<O>,
-    options: WithoutProjection<FindOptions<O>>,
-    decoder: DecoderWithName<unknown, B>,
-  ): EffecT<Optional<B>>
-  findOne<B extends A>(
-    filter: Filter<O>,
-    options: WithoutProjection<FindOptions<O>> = {},
-    decoder: DecoderWithName<unknown, B> = this.codec as DecoderWithName<unknown, B>,
-  ): EffecT<Optional<B>> {
-    return pipe(
-      this.withCollection.effect(c => c.findOne(filter, options)),
-      EffecT.flatMapFirst(res => this.logger.trace('Found one', JSON.stringify(res))),
-      Effect.flatMap(res =>
-        res === null ? Effect.succeed(undefined) : decodeEffecT(decoder)(res),
-      ),
-    )
-  }
-
-  static getPath<B>(): Path<B> {
-    return (...path: ReadonlyArray<string>) => arrayMkString('.')(path)
-  }
+    findOne<B extends A>(
+      filter: Filter<O>,
+      options: WithoutProjection<FindOptions<O>> = {},
+      decoder: DecoderWithName<unknown, B> = codec as DecoderWithName<unknown, B>,
+    ): EffecT<Optional<B>> {
+      return pipe(
+        withCollection.effect(c => c.findOne(filter, options)),
+        EffecT.flatMapFirst(res => logger.trace('Found one', JSON.stringify(res))),
+        Effect.flatMap(res =>
+          res === null ? Effect.succeed(undefined) : decodeEffecT(decoder)(res),
+        ),
+      )
+    },
+  })
 }
+
+function getPath<B>(): Path<B> {
+  return (...path: ReadonlyArray<string>) => arrayMkString('.')(path)
+}
+
+const FpCollection = Object.assign(construct, { getPath })
+
+export { FpCollection }
 
 type KeyOf<A> = A extends ReadonlyArray<infer B>
   ? keyof B

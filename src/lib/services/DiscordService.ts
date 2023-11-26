@@ -11,40 +11,25 @@ import type { OAuth2Code } from '../models/discord/OAuth2Code'
 import { OAuth2RefreshTokenPayload } from '../models/discord/OAuth2RefreshTokenPayload'
 import { OAuth2SearchParams } from '../models/discord/OAuth2SearchParams'
 import type { RefreshToken } from '../models/discord/RefreshToken'
+import { brand } from '../utils/brand'
 import type { EffecT } from '../utils/fp'
 import { $decoderWithName, $withName } from '../utils/macros'
+
+type Tag = { readonly DiscordService: unique symbol }
 
 const apiEndpoint = 'https://discord.com/api'
 
 const DiscordConnectionArray = D.array(DiscordConnection.decoder)
 
-export class DiscordService {
-  oauth2: {
-    token: {
-      post: {
-        authorizationCode: (code: OAuth2Code) => EffecT<OAuth2AccessTokenResult>
-        refreshToken: (refreshToken: RefreshToken) => EffecT<OAuth2AccessTokenResult>
-      }
-    }
-  }
+type DiscordService = ReturnType<typeof DiscordService>
 
-  users: {
-    me: {
-      get: (token: AccessToken) => EffecT<DiscordUser>
-      connections: {
-        get: (token: AccessToken) => EffecT<ReadonlyArray<DiscordConnection>>
-      }
-    }
-  }
-
-  constructor(
-    private config: ServerConfig,
-    httpClient: HttpClient,
-  ) {
-    this.oauth2 = {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function DiscordService(config: ServerConfig, httpClient: HttpClient) {
+  return brand<Tag>()({
+    oauth2: {
       token: {
         post: {
-          authorizationCode: code =>
+          authorizationCode: (code: OAuth2Code): EffecT<OAuth2AccessTokenResult> =>
             httpClient
               .post(`${apiEndpoint}/oauth2/token`, {
                 form: [
@@ -60,7 +45,7 @@ export class DiscordService {
               })
               .json($decoderWithName!(OAuth2AccessTokenResult)),
 
-          refreshToken: refreshToken =>
+          refreshToken: (refreshToken: RefreshToken): EffecT<OAuth2AccessTokenResult> =>
             httpClient
               .post(`${apiEndpoint}/oauth2/token`, {
                 form: [
@@ -76,11 +61,11 @@ export class DiscordService {
               .json($decoderWithName!(OAuth2AccessTokenResult)),
         },
       },
-    }
+    },
 
-    this.users = {
+    users: {
       me: {
-        get: token =>
+        get: (token: AccessToken): EffecT<DiscordUser> =>
           httpClient
             .get(`${apiEndpoint}/users/@me`, {
               headers: { authorization: authorizationHeader(token) },
@@ -88,7 +73,7 @@ export class DiscordService {
             .json($decoderWithName!(DiscordUser)),
 
         connections: {
-          get: token =>
+          get: (token: AccessToken): EffecT<ReadonlyArray<DiscordConnection>> =>
             httpClient
               .get(`${apiEndpoint}/users/@me/connections`, {
                 headers: { authorization: authorizationHeader(token) },
@@ -96,28 +81,30 @@ export class DiscordService {
               .json($withName!(DiscordConnectionArray)),
         },
       },
-    }
-  }
+    },
 
-  /**
-   * @see https://discord.com/developers/docs/topics/oauth2#authorization-code-grant
-   * @returns oauth2 Discord url
-   */
-  apiOAuth2Authorize(state: string): string {
-    const params: OAuth2SearchParams = {
-      client_id: this.config.DISCORD_CLIENT_ID,
-      redirect_uri: this.config.DISCORD_REDIRECT_URI,
-      response_type: 'code',
-      scope: ['identify'],
-      state,
-      prompt: 'none',
-    }
+    /**
+     * @see https://discord.com/developers/docs/topics/oauth2#authorization-code-grant
+     * @returns oauth2 Discord url
+     */
+    apiOAuth2AuthorizeUrl(state: string): string {
+      const params: OAuth2SearchParams = {
+        client_id: config.DISCORD_CLIENT_ID,
+        redirect_uri: config.DISCORD_REDIRECT_URI,
+        response_type: 'code',
+        scope: ['identify'],
+        state,
+        prompt: 'none',
+      }
 
-    const search = new URLSearchParams(OAuth2SearchParams.encoder.encode(params)).toString()
+      const search = new URLSearchParams(OAuth2SearchParams.encoder.encode(params)).toString()
 
-    return `https://discord.com/api/oauth2/authorize?${search}`
-  }
+      return `https://discord.com/api/oauth2/authorize?${search}`
+    },
+  })
 }
+
+export { DiscordService }
 
 function authorizationHeader(
   token: AccessToken,

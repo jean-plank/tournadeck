@@ -2,11 +2,16 @@ import { Effect, flow, pipe } from 'effect'
 import { json as fpTsJson } from 'fp-ts'
 import type { Encoder } from 'io-ts/Encoder'
 
-import type { MyLogger, MyLoggerGetter } from '../MyLogger'
-import type { Method } from '../models/Method'
+import type { MyLoggerGetter } from '../MyLogger'
+import { Method } from '../models/Method'
 import type { DecoderWithName } from '../models/ioTsModels'
-import { EffecT, decodeEffecT } from '../utils/fp'
+import { brand } from '../utils/brand'
+import { EffecT, decodeEffecT, recordEmpty } from '../utils/fp'
 import { $text } from '../utils/macros'
+
+type Tag = { readonly HttpClient: unique symbol }
+
+type HttpClient = ReturnType<typeof HttpClient>
 
 type ValidOForm = Record<string, string>
 
@@ -42,28 +47,18 @@ type TextOrJson = {
   }
 }
 
-export class HttpClient implements ReadonlyRecord<Method, Httpable> {
-  get: Httpable
-  post: Httpable
-  put: Httpable
-  patch: Httpable
-  head: Httpable
-  delete: Httpable
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function HttpClient(Logger: MyLoggerGetter) {
+  const logger = Logger($text!(HttpClient))
 
-  private logger: MyLogger
+  const methods: ReadonlyRecord<Method, Httpable> = Method.values.reduce(
+    (acc, method) => ({ ...acc, [method]: httpable(method) }),
+    recordEmpty<Method, Httpable>(),
+  )
 
-  constructor(Logger: MyLoggerGetter) {
-    this.logger = Logger($text!(HttpClient))
+  return brand<Tag>()({ ...methods, http })
 
-    this.get = this.httpable('get')
-    this.post = this.httpable('post')
-    this.put = this.httpable('put')
-    this.patch = this.httpable('patch')
-    this.head = this.httpable('head')
-    this.delete = this.httpable('delete')
-  }
-
-  http<A, OJson, OForm extends ValidOForm>(
+  function http<A, OJson, OForm extends ValidOForm>(
     method: Method,
     url: string,
     options: HttpOptions<A, OJson, OForm> = {},
@@ -78,7 +73,7 @@ export class HttpClient implements ReadonlyRecord<Method, Httpable> {
           ),
         ),
       ),
-      EffecT.flatMapFirst(flow(formatResponse(method, url), this.logger.debug)),
+      EffecT.flatMapFirst(flow(formatResponse(method, url), logger.debug)),
       Effect.flatMap(res =>
         200 <= res.status && res.status < 300
           ? Effect.succeed(res)
@@ -87,9 +82,9 @@ export class HttpClient implements ReadonlyRecord<Method, Httpable> {
     )
   }
 
-  private httpable(method: Method): Httpable {
+  function httpable(method: Method): Httpable {
     return (url, options): TextOrJson => {
-      const res = this.http(method, url, options)
+      const res = http(method, url, options)
 
       return {
         text: pipe(
@@ -117,6 +112,8 @@ export class HttpClient implements ReadonlyRecord<Method, Httpable> {
     }
   }
 }
+
+export { HttpClient }
 
 const contentTypeName = 'Content-Type'
 

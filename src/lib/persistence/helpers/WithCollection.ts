@@ -1,14 +1,33 @@
 import type { Collection, Document as MongoDocument } from 'mongodb'
 
+import type { Branded } from '../../utils/brand'
+import { brand } from '../../utils/brand'
 import type { EffecT } from '../../utils/fp'
 import type { WithDb } from './WithDb'
 
-export type WithCollectionGetter = <O extends MongoDocument>(collName: string) => WithCollection<O>
+type TagGetter = { readonly WithCollectionGetter: unique symbol }
 
-export class WithCollection<O extends MongoDocument> {
-  effect: <A>(f: (coll: Collection<O>) => Promise<A>) => EffecT<A>
+type WithCollectionGetter = Branded<
+  TagGetter,
+  <O extends MongoDocument>(collName: string) => WithCollection<O>
+>
 
-  constructor(withDb: WithDb, collName: string) {
-    this.effect = f => withDb.effect(db => f(db.collection(collName)))
+const WithCollectionGetter = (withDb: WithDb): WithCollectionGetter =>
+  brand<TagGetter>()(
+    <O extends MongoDocument>(collName: string): WithCollection<O> =>
+      brand<Tag>()({
+        effect: <A>(f: (coll: Collection<O>) => Promise<A>): EffecT<A> =>
+          withDb.effect(db => f(db.collection(collName))),
+      }),
+  )
+
+type Tag = { readonly WithCollection: unique symbol }
+
+type WithCollection<O extends MongoDocument> = Branded<
+  Tag,
+  {
+    effect: <A>(f: (coll: Collection<O>) => Promise<A>) => EffecT<A>
   }
-}
+>
+
+export { WithCollectionGetter, type WithCollection }

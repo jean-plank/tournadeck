@@ -2,7 +2,17 @@ import { Effect, pipe } from 'effect'
 import type { Db } from 'mongodb'
 import { MongoClient } from 'mongodb'
 
+import { type Branded, brand } from '../../utils/brand'
 import { EffecT } from '../../utils/fp'
+
+type Tag = { readonly WithDb: unique symbol }
+
+type WithDb = Branded<
+  Tag,
+  {
+    effect: <A>(f: (db: Db) => Promise<A>) => EffecT<A>
+  }
+>
 
 type Load = {
   host: string
@@ -11,22 +21,17 @@ type Load = {
   dbName: string
 }
 
-export class WithDb {
-  private constructor(
-    private client: MongoClient,
-    private dbName: string,
-  ) {}
+const WithDb = ({ host, username, password, dbName }: Load): EffecT<WithDb> =>
+  pipe(
+    EffecT.tryPromise(() =>
+      MongoClient.connect(`mongodb://${host}`, { auth: { username, password } }),
+    ),
+    Effect.map(client =>
+      brand<Tag>()({
+        effect: <A>(f: (db: Db) => Promise<A>): EffecT<A> =>
+          EffecT.tryPromise(() => f(client.db(dbName))),
+      }),
+    ),
+  )
 
-  static load({ host, username, password, dbName }: Load): EffecT<WithDb> {
-    return pipe(
-      EffecT.tryPromise(() =>
-        MongoClient.connect(`mongodb://${host}`, { auth: { username, password } }),
-      ),
-      Effect.map(client => new WithDb(client, dbName)),
-    )
-  }
-
-  effect<A>(f: (db: Db) => Promise<A>): EffecT<A> {
-    return EffecT.tryPromise(() => f(this.client.db(this.dbName)))
-  }
-}
+export { WithDb }

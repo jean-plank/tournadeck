@@ -2,70 +2,82 @@ import { Effect, pipe } from 'effect'
 
 import type { MyLoggerGetter } from '../MyLogger'
 import { DiscordUserId } from '../models/discord/DiscordUserId'
-import type { UserOutput } from '../models/user/User'
 import { User } from '../models/user/User'
 import { UserDiscordInfos } from '../models/user/UserDiscordInfos'
 import { UserId } from '../models/user/UserId'
+import type { Branded } from '../utils/brand'
+import { brand } from '../utils/brand'
 import type { EffecT } from '../utils/fp'
 import { $codecWithName, $text } from '../utils/macros'
 import { FpCollection } from './helpers/FpCollection'
 import type { WithCollectionGetter } from './helpers/WithCollection'
 
+type Tag = { readonly UserPersistence: unique symbol }
+
+type UserPersistence = Branded<
+  Tag,
+  {
+    findByDiscordId: (id: DiscordUserId) => EffecT<Optional<User>>
+    create: (user: User) => EffecT<boolean>
+    updateDiscord: (id: UserId, discord: UserDiscordInfos) => EffecT<boolean>
+  }
+>
+
+const collName = 'user' as const
+
 const Keys = {
   discordId: FpCollection.getPath<User>()('discord', 'id'),
 }
 
-export class UserPersistence {
-  static collName = 'user' as const
+function construct(
+  Logger: MyLoggerGetter,
+  withCollectionGetter: WithCollectionGetter,
+): EffecT<UserPersistence> {
+  const logger = Logger($text!(UserPersistence))
+  const collection = FpCollection(
+    logger,
+    $codecWithName!(User),
+    withCollectionGetter(UserPersistence.collName),
+  )
 
-  private constructor(private collection: FpCollection<UserOutput, User>) {}
+  const ensureIndexes: EffecT<void> = collection.ensureIndexes([
+    { key: { id: -1 }, unique: true },
+    { key: { [Keys.discordId]: -1 }, unique: true },
+  ])
 
-  static load(
-    Logger: MyLoggerGetter,
-    withCollectionGetter: WithCollectionGetter,
-  ): EffecT<UserPersistence> {
-    const logger = Logger($text!(UserPersistence))
-    const collection = new FpCollection(
-      logger,
-      $codecWithName!(User),
-      withCollectionGetter(UserPersistence.collName),
-    )
+  return pipe(
+    ensureIndexes,
+    Effect.map(() =>
+      brand<Tag>()({
+        findByDiscordId: (id: DiscordUserId): EffecT<Optional<User>> => {
+          const encoded = DiscordUserId.codec.encode(id)
+          return collection.findOne({
+            [Keys.discordId]: encoded,
+          })
+        },
 
-    const ensureIndexes: EffecT<void> = collection.ensureIndexes([
-      { key: { id: -1 }, unique: true },
-      { key: { [Keys.discordId]: -1 }, unique: true },
-    ])
+        create: (user: User): EffecT<boolean> =>
+          pipe(
+            collection.insertOne(user),
+            Effect.map(r => r.acknowledged),
+          ),
 
-    return pipe(
-      ensureIndexes,
-      Effect.map(() => new UserPersistence(collection)),
-    )
-  }
-
-  findByDiscordId(id: DiscordUserId): EffecT<Optional<User>> {
-    const encoded = DiscordUserId.codec.encode(id)
-    return this.collection.findOne({
-      [Keys.discordId]: encoded,
-    })
-  }
-
-  create(user: User): EffecT<boolean> {
-    return pipe(
-      this.collection.insertOne(user),
-      Effect.map(r => r.acknowledged),
-    )
-  }
-
-  updateDiscord(id: UserId, discord: UserDiscordInfos): EffecT<boolean> {
-    return pipe(
-      this.collection.withCollection.effect(c =>
-        c.updateOne(
-          { id: UserId.codec.encode(id) },
-          { $set: { discord: UserDiscordInfos.codec.encode(discord) } },
-        ),
-      ),
-      // TODO: logger.trace
-      Effect.map(r => r.modifiedCount <= 1),
-    )
-  }
+        updateDiscord: (id: UserId, discord: UserDiscordInfos): EffecT<boolean> =>
+          pipe(
+            collection.withCollection.effect(c =>
+              c.updateOne(
+                { id: UserId.codec.encode(id) },
+                { $set: { discord: UserDiscordInfos.codec.encode(discord) } },
+              ),
+            ),
+            // TODO: logger.trace
+            Effect.map(r => r.modifiedCount <= 1),
+          ),
+      }),
+    ),
+  )
 }
+
+const UserPersistence = Object.assign(construct, { collName })
+
+export { UserPersistence }
