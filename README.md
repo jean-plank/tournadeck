@@ -18,12 +18,12 @@ yarn upgrade-interactive --latest
 
 ## Development
 
-Download latest PocketBase version from https://pocketbase.io/docs
+Download latest PocketBase version from https://pocketbase.io/docs (to the root of this project)
 
 Start PocketBase:
 
 ```bash
-pocketbase serve
+./pocketbase serve
 ```
 
 If it's the first time, you need to create an admin account at http://127.0.0.1:8090/_
