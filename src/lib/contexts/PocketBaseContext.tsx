@@ -10,7 +10,7 @@ const PocketBaseContext = createContext<PocketBase | undefined>(undefined)
 export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
   const value: PocketBase = useMemo(() => {
     // TODO: baseUrl from config
-    const pb = new PocketBase('http://127.0.0.1:8090')
+    const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
 
     pb.authStore.loadFromCookie(document.cookie)
 
