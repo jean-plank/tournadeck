@@ -18,6 +18,12 @@ yarn upgrade-interactive --latest
 
 ## Getting started
 
+```bash
+cp .env.local.example .env.local
+```
+
+Fill in empty values.
+
 Download latest PocketBase version from https://pocketbase.io/docs (to the root of this project)
 
 Start PocketBase:

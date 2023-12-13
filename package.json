@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
-    "lintFix": "yarn run lint --fix"
+    "lintFix": "yarn run lint --fix",
+    "test": "echo 'no tests yet'",
+    "testUnit": "yarn run test --testPathPattern=.*\\.spec\\.ts",
+    "ci": "yarn run lint && yarn run testUnit"
   },
   "dependencies": {
     "next": "14.0.4",
