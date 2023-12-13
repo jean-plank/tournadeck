@@ -1,11 +1,9 @@
-import { HomeClient } from "./HomeClient";
+import { HomeClient } from './HomeClient'
 
-const Home: React.FC = () => {
-  return (
-    <div>
-      <HomeClient />
-    </div>
-  );
-};
+const Home: React.FC = () => (
+  <div>
+    <HomeClient />
+  </div>
+)
 
-export default Home;
+export default Home

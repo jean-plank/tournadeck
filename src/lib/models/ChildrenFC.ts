@@ -1,1 +1,1 @@
-export type ChildrenFC<A = {}> = React.FC<{ children?: React.ReactNode } & A>;
+export type ChildrenFC<A = NonNullable<unknown>> = React.FC<{ children?: React.ReactNode } & A>
