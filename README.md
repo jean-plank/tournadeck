@@ -44,3 +44,9 @@ Start PocketBase:
 ```bash
 ./pocketbase serve
 ```
+
+Start Next:
+
+```bash
+yarn dev
+```
