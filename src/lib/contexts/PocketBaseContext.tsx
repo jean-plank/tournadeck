@@ -5,28 +5,34 @@ import { createContext, useContext, useMemo } from 'react'
 
 import type { ChildrenFC } from '../models/ChildrenFC'
 
-const PocketBaseContext = createContext<PocketBase | undefined>(undefined)
+type PocketBaseContext = {
+  pb: PocketBase
+}
+
+const PocketBaseContext = createContext<PocketBaseContext | undefined>(undefined)
 
 export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
-  const value: PocketBase = useMemo(() => {
-    // TODO: baseUrl from config
-    const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
+  const value: PocketBaseContext = {
+    pb: useMemo(() => {
+      // TODO: baseUrl from config
+      const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
 
-    if (typeof document !== 'undefined') {
-      pb.authStore.loadFromCookie(document.cookie)
+      if (typeof document !== 'undefined') {
+        pb.authStore.loadFromCookie(document.cookie)
 
-      pb.authStore.onChange((/* token, model */) => {
-        document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
-      })
-    }
+        pb.authStore.onChange((/* token, model */) => {
+          document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
+        })
+      }
 
-    return pb
-  }, [])
+      return pb
+    }, []),
+  }
 
   return <PocketBaseContext.Provider value={value}>{children}</PocketBaseContext.Provider>
 }
 
-export function usePocketBase(): PocketBase {
+export function usePocketBase(): PocketBaseContext {
   const context = useContext(PocketBaseContext)
   if (context === undefined) {
     throw Error('usePocketBase must be used within a PocketBaseContextProvider')

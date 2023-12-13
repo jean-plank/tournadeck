@@ -6,7 +6,7 @@ import useSWR from 'swr'
 import { usePocketBase } from '../lib/contexts/PocketBaseContext'
 
 export const HomeClient: React.FC = () => {
-  const pb = usePocketBase()
+  const { pb } = usePocketBase()
 
   useEffect(() => {
     console.log('pb.authStore =', pb.authStore)
