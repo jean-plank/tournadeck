@@ -46,6 +46,7 @@ export const HomeClient: React.FC = () => {
       <br />
       <br />
 
+      {/* TODO: if connected, replace with "BONJOUR Gurimarukin" */}
       <button onClick={connectWithDiscod}>Connexion avec Discord</button>
     </div>
   )
