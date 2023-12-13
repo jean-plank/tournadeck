@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react'
 import useSWR from 'swr'
 
-import { usePocketBase } from '../lib/contexts/PocketBaseContext'
+import { usePocketBase } from '../contexts/PocketBaseContext'
 
 export const HomeClient: React.FC = () => {
   const { pb } = usePocketBase()
@@ -13,9 +13,7 @@ export const HomeClient: React.FC = () => {
   }, [pb.authStore])
 
   const { data, error } = useSWR('test/list', () =>
-    pb.collection('test').getFullList({
-      sort: '-created',
-    }),
+    pb.collection('test').getFullList({ sort: '-created' }),
   )
 
   const addTest = useCallback(() => {
@@ -27,12 +25,11 @@ export const HomeClient: React.FC = () => {
 
     console.log('authData =', authData)
 
-    const toto = await fetch('https://discord.com/api/users/@me', {
-      method: 'get',
+    const me = await fetch('https://discord.com/api/users/@me', {
       headers: { Authorization: `Bearer ${authData.meta?.accessToken}` },
     })
 
-    console.log('toto =', toto)
+    console.log('me =', me)
   }, [pb])
 
   return (
