@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 
-import { PocketBaseContextProvider } from '../lib/contexts/PocketBaseContext'
-import type { ChildrenFC } from '../lib/models/ChildrenFC'
+import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
+import type { ChildrenFC } from '../models/ChildrenFC'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
