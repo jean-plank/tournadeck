@@ -12,11 +12,13 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
     // TODO: baseUrl from config
     const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
 
-    pb.authStore.loadFromCookie(document.cookie)
+    if (typeof document !== 'undefined') {
+      pb.authStore.loadFromCookie(document.cookie)
 
-    pb.authStore.onChange((/* token, model */) => {
-      document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
-    })
+      pb.authStore.onChange((/* token, model */) => {
+        document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
+      })
+    }
 
     return pb
   }, [])
