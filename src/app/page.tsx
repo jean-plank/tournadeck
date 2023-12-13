@@ -1,4 +1,4 @@
-import { HomeClient } from '../lib/components/HomeClient'
+import { HomeClient } from '../lib/domain/HomeClient'
 
 const Home: React.FC = () => (
   <div>
