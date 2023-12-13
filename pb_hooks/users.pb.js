@@ -1,0 +1,17 @@
+/// <reference path="../pb_data/types.d.ts" />
+
+onRecordBeforeAuthWithOAuth2Request(e => {
+  const collection = $app.dao().findCollectionByNameOrId('users')
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (e.record === null) {
+    e.record = new Record(collection, {
+      ...e.oAuth2User,
+      role: 'base',
+    })
+  }
+
+  e.record.set('displayName', e.oAuth2User.rawUser.global_name)
+
+  $app.dao().saveRecord(e.record)
+}, 'users')
