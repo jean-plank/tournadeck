@@ -1,0 +1,13 @@
+/.docker-data
+/.eslintcache
+/build
+/node_modules
+/out
+/transformed/.env.local
+/transformed/.next
+/transformed/next-env.d.ts
+/transformed/src
+/transformed/test
+
+*.tsbuildinfo
+

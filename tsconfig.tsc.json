@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "transformed/next-env.d.ts",
+    "transformed/.next/types/**/*.ts",
+    "declaration.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
+}
