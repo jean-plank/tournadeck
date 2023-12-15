@@ -1,17 +1,13 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import useSWR from 'swr'
 
 import { AsyncRenderer } from '../components/AsyncRenderer'
 import { usePocketBase } from '../contexts/PocketBaseContext'
 
 export const HomeClient: React.FC = () => {
-  const { pb } = usePocketBase()
-
-  useEffect(() => {
-    console.log('pb.authStore =', pb.authStore)
-  }, [pb.authStore])
+  const { pb, user } = usePocketBase()
 
   const addTest = useCallback(() => {
     pb.collection('test').create({ label: new Date().toISOString() })
@@ -21,13 +17,6 @@ export const HomeClient: React.FC = () => {
     const authData = await pb.collection('users').authWithOAuth2({ provider: 'discord' })
 
     console.log('authData =', authData)
-
-    // useless, but for science
-    const me = await fetch('https://discord.com/api/users/@me', {
-      headers: { Authorization: `Bearer ${authData.meta?.accessToken}` },
-    })
-
-    console.log('me =', me)
   }, [pb])
 
   return (
@@ -41,13 +30,20 @@ export const HomeClient: React.FC = () => {
 
       <br />
 
-      <button onClick={addTest}>Add test</button>
+      <button type="button" onClick={addTest}>
+        Add test
+      </button>
 
       <br />
       <br />
 
-      {/* TODO: if connected, replace with "BONJOUR Gurimarukin" */}
-      <button onClick={connectWithDiscod}>Connexion avec Discord</button>
+      {user !== null ? (
+        <span>BONJOUR {user.displayName}</span>
+      ) : (
+        <button type="button" onClick={connectWithDiscod}>
+          Connexion avec Discord
+        </button>
+      )}
     </div>
   )
 }

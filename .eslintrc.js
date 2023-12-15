@@ -53,6 +53,8 @@ module.exports = {
     'no-useless-rename': 'warn',
     'object-shorthand': 'warn',
     'prettier/prettier': 'warn',
+    'react/button-has-type': 'warn',
+    'react/display-name': 'off',
     'react/hook-use-state': 'warn',
     'react/jsx-boolean-value': ['warn', 'always'],
     'react/jsx-no-bind': [
@@ -65,6 +67,10 @@ module.exports = {
         allowBind: false,
       },
     ],
+    'react/no-array-index-key': 'warn',
+    'react/no-unescaped-entities': 'off',
+    'react/prop-types': 'off',
+    'react/self-closing-comp': ['warn', { component: true, html: true }],
     'tailwindcss/no-custom-classname': 'warn',
   },
 }
