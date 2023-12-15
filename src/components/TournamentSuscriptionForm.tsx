@@ -1,18 +1,15 @@
 'use client'
 
-import PocketBase from 'pocketbase'
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 
-import { FileInput, Input, SelectInput } from './FormInput'
+import { usePocketBase } from '../contexts/PocketBaseContext'
+import { FileInput, Input, SelectInput } from './FormInputs'
 
 type Props = {
   tournamentId: string
-  // userId: string
 }
-
-export default function AttendeesForm({ tournamentId }: Props) {
-  // export const AttendeesForm: React.FC = () => {
+const AttendeesForm: React.FC<Props> = ({ tournamentId }) => {
   const validate = (newInputs: Inputs): Errors => {
     const newErrors: Errors = {}
 
@@ -25,12 +22,12 @@ export default function AttendeesForm({ tournamentId }: Props) {
     const rankRegex = /^(iron|bronze|silver|gold|platinium|emerald|diamond)\s*[1-4]$/
     if (!rankRegex.test(newInputs.currentElo)) {
       newErrors.currentElo =
-        'Please enter a valid Elo (iron|bronze|silver|gold|platinium|emerald|diamond) + 1-4'
+        'Please enter a valid Elo (iron|bronze|silver|gold|platinium|emerald|diamond)[1-4]'
     }
     //PeakElo
     if (!rankRegex.test(newInputs.peakElo)) {
       newErrors.peakElo =
-        'Please enter a valid Elo (iron|bronze|silver|gold|platinium|emerald|diamond) + 1-4'
+        'Please enter a valid Elo (iron|bronze|silver|gold|platinium|emerald|diamond)[1-4]'
     }
     //Role
     const roleRegex = /^(adc|jungle|mid|support|top)$/
@@ -66,10 +63,11 @@ export default function AttendeesForm({ tournamentId }: Props) {
     currentElo: '',
     peakElo: '',
     role: '',
-    championPool: '',
+    championPool: 'One trick poney',
     birthPlace: '',
     avatar: null,
   })
+  const { pb, user } = usePocketBase()
 
   type Errors = Partial<Record<keyof Inputs, string>>
   const [errors, setErrors] = useState<Errors>(validate(inputs))
@@ -119,21 +117,22 @@ export default function AttendeesForm({ tournamentId }: Props) {
       console.log(inputs)
       // Server call
 
-      const data = {
-        ...inputs,
-        isCaptain: false,
-        tournament: tournamentId,
-        // user :
-        // "seed": 123,
-        // "price": 123,
+      console.log(user)
+      if (user !== null) {
+        const data = {
+          ...inputs,
+          isCaptain: false,
+          tournament: tournamentId,
+          user: user.id,
+          // "seed": 123,
+          // "price": 123,
+        }
+
+        pb.collection('attendees')
+          .create(data)
+          .then(res => console.log(res))
+          .catch(error => console.log(error))
       }
-
-      const pb = new PocketBase('http://127.0.0.1:8090')
-
-      pb.collection('attendees')
-        .create(data)
-        .then(res => console.log(res))
-        .catch(error => console.log(error))
     }
   }
 
@@ -146,7 +145,7 @@ export default function AttendeesForm({ tournamentId }: Props) {
         placeholder="summonerName#TAG"
         onChange={handleChange('riotId')}
         onBlur={handleBlur('riotId')}
-        errorMsg={'Please enter a valid Riot Id'}
+        errorMsg={errors.riotId ?? ''}
         showErrorMsg={showErrorMsg('riotId')}
       />
       <Input
@@ -156,7 +155,7 @@ export default function AttendeesForm({ tournamentId }: Props) {
         placeholder="Platine 4"
         onChange={handleChange('currentElo')}
         onBlur={handleBlur('currentElo')}
-        errorMsg={'Please enter a valid Elo'}
+        errorMsg={errors.currentElo ?? ''}
         showErrorMsg={showErrorMsg('currentElo')}
       />
       <Input
@@ -166,7 +165,7 @@ export default function AttendeesForm({ tournamentId }: Props) {
         placeholder="Platine 4"
         onChange={handleChange('peakElo')}
         onBlur={handleBlur('peakElo')}
-        errorMsg={'Please enter a valid Elo'}
+        errorMsg={errors.peakElo ?? ''}
         showErrorMsg={showErrorMsg('peakElo')}
       />
       <Input
@@ -176,7 +175,7 @@ export default function AttendeesForm({ tournamentId }: Props) {
         placeholder="adc"
         onChange={handleChange('role')}
         onBlur={handleBlur('role')}
-        errorMsg={'Please enter a valid role (top mid adc jungle support).'}
+        errorMsg={errors.role ?? ''}
         showErrorMsg={showErrorMsg('role')}
       />
       {
@@ -186,7 +185,7 @@ export default function AttendeesForm({ tournamentId }: Props) {
           value={inputs['championPool']}
           values={['One trick poney', 'Limité', 'Modeste', 'Pas mal', 'Ça fait beaucoup la non']}
           onChange={handleSelectChange('championPool')}
-          errorMsg={'Please detail your champion pool.'}
+          errorMsg={errors.championPool ?? ''}
           showErrorMsg={showErrorMsg('championPool')}
         />
       }
@@ -198,7 +197,7 @@ export default function AttendeesForm({ tournamentId }: Props) {
         placeholder="birthPlace"
         onChange={handleChange('birthPlace')}
         onBlur={handleBlur('birthPlace')}
-        errorMsg={'Please enter a valid birthplace.'}
+        errorMsg={errors.birthPlace ?? ''}
         showErrorMsg={showErrorMsg('birthPlace')}
       />
 
@@ -213,6 +212,7 @@ export default function AttendeesForm({ tournamentId }: Props) {
       />
 
       <button
+        type="button"
         className="
         rounded-full
         bg-blue-500
@@ -228,3 +228,5 @@ export default function AttendeesForm({ tournamentId }: Props) {
     </form>
   )
 }
+
+export default AttendeesForm
