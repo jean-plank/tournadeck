@@ -71,7 +71,6 @@ module.exports = {
     'react/no-unescaped-entities': 'off',
     'react/prop-types': 'off',
     'react/self-closing-comp': ['warn', { component: true, html: true }],
-    'require-await': 'warn',
     'tailwindcss/no-custom-classname': 'warn',
   },
 }
