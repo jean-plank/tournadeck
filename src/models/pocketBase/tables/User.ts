@@ -1,7 +1,7 @@
 import type { MyAuthModel } from '../MyPocketBase'
 
 export type User = MyAuthModel & {
-  role: string
+  role: UserRole
   displayName?: string | null
 }
 

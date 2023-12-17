@@ -6,6 +6,7 @@ import useSWR from 'swr'
 import { AsyncRenderer } from '../components/AsyncRenderer'
 import { DiscordLogoTitle } from '../components/svgs/DiscordLogoTitle'
 import { usePocketBase } from '../contexts/PocketBaseContext'
+import { createTournament } from './tournament/actions'
 
 export const HomeClient: React.FC = () => {
   const { pb, user } = usePocketBase()
@@ -13,6 +14,11 @@ export const HomeClient: React.FC = () => {
   const addTest = useCallback(() => {
     pb.collection('test').create({ label: new Date().toISOString() })
   }, [pb])
+
+  const addTournament = useCallback(() => {
+    const now = new Date().toISOString()
+    createTournament({ name: 'ADEDIGADO', start: now, end: now, maxTeams: 0 })
+  }, [])
 
   const connectWithDiscord = useCallback(() => {
     pb.collection('users').authWithOAuth2({ provider: 'discord' })
@@ -35,6 +41,13 @@ export const HomeClient: React.FC = () => {
 
       <button type="button" onClick={addTest} className="border border-black">
         Add test
+      </button>
+
+      <br />
+      <br />
+
+      <button type="button" onClick={addTournament}>
+        Add tournament
       </button>
 
       <br />

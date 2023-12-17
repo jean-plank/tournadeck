@@ -34,3 +34,9 @@ export type MyAuthModel = MyBaseModel & {
   emailVisibility: boolean
   email: string
 }
+
+export type CreateModel<A> = A extends MyBaseModel
+  ? Except<A, keyof MyBaseModel>
+  : A extends MyAuthModel
+    ? Except<A, keyof MyBaseModel>
+    : never
