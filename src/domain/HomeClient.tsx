@@ -13,7 +13,9 @@ export const HomeClient: React.FC = () => {
     pb.collection('test').create({ label: new Date().toISOString() })
   }, [pb])
 
-  const connectWithDiscod = useCallback(async () => {
+  const connectWithDiscord = useCallback(async () => {
+    console.log('>>> connectWithDiscord')
+
     const authData = await pb.collection('users').authWithOAuth2({ provider: 'discord' })
 
     console.log('authData =', authData)
@@ -40,7 +42,7 @@ export const HomeClient: React.FC = () => {
       {user !== null ? (
         <span>BONJOUR {user.displayName}</span>
       ) : (
-        <button type="button" onClick={connectWithDiscod}>
+        <button type="button" onClick={connectWithDiscord}>
           Connexion avec Discord
         </button>
       )}
