@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "dbClean": "RUNNING_IN_CLI=true vite-node src/scripts/dbClean.ts",
     "_prettier": "prettier .",
     "formatCheck": "yarn run _prettier --check",
     "format": "yarn run _prettier --write",
@@ -16,13 +17,16 @@
     "ci": "yarn run formatCheck && yarn run lint && yarn run testUnit"
   },
   "dependencies": {
+    "dotenv": "16.3.1",
     "fp-ts": "2.16.1",
     "io-ts": "2.2.21",
     "next": "14.0.4",
+    "pino": "8.17.1",
+    "pino-pretty": "10.3.0",
     "pocketbase": "0.20.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "server-only": "0.0.1",
+    "server-cli-only": "0.2.2",
     "swr": "2.2.4",
     "type-fest": "4.8.3"
   },
@@ -45,6 +49,7 @@
     "postcss": "8.4.32",
     "prettier": "3.1.1",
     "tailwindcss": "3.3.6",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "vite-node": "1.0.4"
   }
 }
