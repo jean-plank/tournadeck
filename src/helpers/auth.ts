@@ -1,5 +1,3 @@
-import 'server-only'
-
 import { either, json } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'

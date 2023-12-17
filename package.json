@@ -17,9 +17,12 @@
     "ci": "yarn run formatCheck && yarn run lint && yarn run testUnit"
   },
   "dependencies": {
+    "dayjs": "1.11.10",
     "dotenv": "16.3.1",
     "fp-ts": "2.16.1",
     "io-ts": "2.2.21",
+    "monocle-ts": "2.3.13",
+    "newtype-ts": "0.3.5",
     "next": "14.0.4",
     "pino": "8.17.1",
     "pino-pretty": "10.3.0",

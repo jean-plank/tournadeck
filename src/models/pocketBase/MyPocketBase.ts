@@ -28,8 +28,8 @@ export type MyBaseModel = {
   id: string
   collectionId: string
   collectionName: string
-  created: string
-  updated: string
+  created: Date | string
+  updated: Date | string
 }
 
 export type MyAuthModel = MyBaseModel & {
