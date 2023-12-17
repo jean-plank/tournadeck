@@ -1,20 +1,20 @@
 'use client'
 
-import type { AuthModel } from 'pocketbase'
-import PocketBase from 'pocketbase'
+import { type AuthModel } from 'pocketbase'
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import type { ChildrenFC } from '../models/ChildrenFC'
+import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 
 type PocketBaseContext = {
-  pb: PocketBase
+  pb: MyPocketBase
   user: AuthModel
 }
 
 const PocketBaseContext = createContext<PocketBaseContext | undefined>(undefined)
 
 export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
-  const pb = useMemo(() => new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL), [])
+  const pb = useMemo(() => MyPocketBase(), [])
 
   const [user, setUser] = useState<PocketBaseContext['user']>(null)
 
