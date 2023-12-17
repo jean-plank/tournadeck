@@ -1,13 +1,17 @@
-import type { BaseAuthStore, RecordService } from 'pocketbase'
+import type { BaseAuthStore, RecordOptions, RecordService } from 'pocketbase'
 import PocketBase from 'pocketbase'
 import type { Except } from 'type-fest'
 
 import type { Branded } from '../Branded'
 import { brand } from '../Branded'
-import type { Tables } from './Tables'
+import type { TableName, Tables } from './Tables'
 
 type MyPocketBase_ = Except<PocketBase, 'collection'> & {
-  collection: <A extends keyof Tables>(name: A) => RecordService<Tables[A]>
+  collection: <A extends TableName>(name: A) => MyRecordService<Tables[A]>
+}
+
+type MyRecordService<A> = Except<RecordService<A>, 'create'> & {
+  create: (bodyParams: CreateModel<A> | FormData, options?: RecordOptions) => Promise<A>
 }
 
 type Tag = { readonly MyPocketBase: unique symbol }
