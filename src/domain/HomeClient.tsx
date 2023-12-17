@@ -14,8 +14,6 @@ export const HomeClient: React.FC = () => {
   }, [pb])
 
   const connectWithDiscord = useCallback(async () => {
-    console.log('>>> connectWithDiscord')
-
     const authData = await pb.collection('users').authWithOAuth2({ provider: 'discord' })
 
     console.log('authData =', authData)
