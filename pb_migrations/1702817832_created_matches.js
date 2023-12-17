@@ -55,20 +55,6 @@ migrate((db) => {
       },
       {
         "system": false,
-        "id": "dgbxj7fj",
-        "name": "riotId",
-        "type": "text",
-        "required": false,
-        "presentable": false,
-        "unique": false,
-        "options": {
-          "min": null,
-          "max": null,
-          "pattern": ""
-        }
-      },
-      {
-        "system": false,
         "id": "tss9lx6f",
         "name": "apiData",
         "type": "json",
