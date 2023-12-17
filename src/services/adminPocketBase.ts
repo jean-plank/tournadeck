@@ -39,15 +39,7 @@ async function isDbEmpty(pb: MyPocketBase): Promise<boolean> {
   const collections = await pb.collections.getFullList()
 
   const results = await Promise.all(
-    collections.map(c =>
-      pb
-        .collection(c.name as TableName)
-        .getList(1, 1)
-        .then(res => {
-          console.log(c.name, res)
-          return res
-        }),
-    ),
+    collections.map(c => pb.collection(c.name as TableName).getList(1, 1)),
   )
 
   return results.every(result => result.totalItems === 0)
