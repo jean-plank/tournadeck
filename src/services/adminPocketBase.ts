@@ -1,8 +1,12 @@
 import { config } from '../config'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 
-const pb = MyPocketBase()
+export const adminPocketBase: Promise<MyPocketBase> = loadPb()
 
-export const adminPocketBase: Promise<MyPocketBase> = pb.admins
-  .authWithPassword(config.ADMIN_PB_USERNAME, config.ADMIN_PB_PASSWORD)
-  .then(() => pb)
+async function loadPb(): Promise<MyPocketBase> {
+  const pb = MyPocketBase()
+
+  await pb.admins.authWithPassword(config.ADMIN_PB_USERNAME, config.ADMIN_PB_PASSWORD)
+
+  return pb
+}
