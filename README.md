@@ -31,7 +31,7 @@ Create an admin account at http://127.0.0.1:8090/_ with:
 - email: `next@example.com`
 - password: `Password123`
 
-(Needed in [`adminPocketBase`](src/services/adminPocketBase.ts), see `.env`.)
+(Needed in [`adminPocketBase`](src/services/adminPocketBase.ts), see `.env.development`.)
 
 ---
 
