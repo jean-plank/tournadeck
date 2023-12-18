@@ -9,7 +9,7 @@ import { FileInput, Input, SelectInput } from './FormInputs'
 type Props = {
   tournamentId: string
 }
-const AttendeesForm: React.FC<Props> = ({ tournamentId }) => {
+const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
   const validate = (newInputs: Inputs): Errors => {
     const newErrors: Errors = {}
 
@@ -137,7 +137,10 @@ const AttendeesForm: React.FC<Props> = ({ tournamentId }) => {
   }
 
   return (
-    <form noValidate={true}>
+    <form
+      className="flex w-[25rem] flex-col gap-3 rounded-lg border-2 border-gray-400 bg-white p-4"
+      noValidate={true}
+    >
       <Input
         id="riotId"
         label="Riot ID"
@@ -229,4 +232,4 @@ const AttendeesForm: React.FC<Props> = ({ tournamentId }) => {
   )
 }
 
-export default AttendeesForm
+export default AttendeeForm
