@@ -11,7 +11,11 @@ type MyPocketBase_ = Except<PocketBase, 'collection'> & {
   collection: <A extends TableName>(name: A) => MyRecordService<Tables[A]>
 }
 
-type MyRecordService<A> = Except<RecordService<A>, 'create'> & {
+type MyRecordService<A extends MyBaseModel<Newtype<unknown, string>>> = Except<
+  RecordService<A>,
+  'getOne' | 'create'
+> & {
+  getOne: (id: A['id'], options?: RecordOptions) => Promise<A>
   create: (bodyParams: CreateModel<A> | FormData, options?: RecordOptions) => Promise<A>
 }
 
@@ -20,7 +24,9 @@ type Tag = { readonly MyPocketBase: unique symbol }
 type MyPocketBase = Branded<Tag, MyPocketBase_>
 
 function MyPocketBase(authStore?: BaseAuthStore | null, lang?: string): MyPocketBase {
-  return brand<Tag>()(new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL, authStore, lang))
+  return brand<Tag>()(
+    new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL, authStore, lang) as MyPocketBase_,
+  )
 }
 
 export { MyPocketBase }

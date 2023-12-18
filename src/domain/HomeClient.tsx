@@ -1,12 +1,12 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback } from 'react'
 import useSWR from 'swr'
 
 import { AsyncRenderer } from '../components/AsyncRenderer'
 import { DiscordLogoTitle } from '../components/svgs/DiscordLogoTitle'
 import { usePocketBase } from '../contexts/PocketBaseContext'
-import { createTournament } from './tournament/actions'
 
 export const HomeClient: React.FC = () => {
   const { pb, user } = usePocketBase()
@@ -14,11 +14,6 @@ export const HomeClient: React.FC = () => {
   const addTest = useCallback(() => {
     pb.collection('test').create({ label: new Date().toISOString() })
   }, [pb])
-
-  const addTournament = useCallback(() => {
-    const now = new Date().toISOString()
-    createTournament({ name: 'ADEDIGADO', start: now, end: now, maxTeams: 0 })
-  }, [])
 
   const connectWithDiscord = useCallback(() => {
     pb.collection('users').authWithOAuth2({ provider: 'discord' })
@@ -31,7 +26,6 @@ export const HomeClient: React.FC = () => {
   return (
     <div>
       <AsyncRenderer
-        // need more typesafety on this things
         {...useSWR('test/list', () => pb.collection('test').getFullList({ sort: '-created' }))}
       >
         {res => <pre className="text-xs">test/list: {JSON.stringify(res, null, 2)}</pre>}
@@ -39,15 +33,8 @@ export const HomeClient: React.FC = () => {
 
       <br />
 
-      <button type="button" onClick={addTest} className="border border-black">
-        Add test
-      </button>
-
-      <br />
-      <br />
-
-      <button type="button" onClick={addTournament}>
-        Add tournament
+      <button type="button" onClick={addTest}>
+        Ajouter un "test"
       </button>
 
       <br />
@@ -69,6 +56,13 @@ export const HomeClient: React.FC = () => {
           Connexion avec <DiscordLogoTitle className="my-3 ml-3 h-6" />
         </button>
       )}
+
+      <br />
+      <br />
+
+      <Link href="/tournaments" className="underline">
+        Liste des tournois
+      </Link>
     </div>
   )
 }
