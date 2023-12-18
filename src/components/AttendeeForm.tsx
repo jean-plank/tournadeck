@@ -1,5 +1,6 @@
 'use client'
 
+import { comment } from 'postcss'
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 
@@ -8,8 +9,9 @@ import { FileInput, Input, SelectInput } from './FormInputs'
 
 type Props = {
   tournamentId: string
+  onSuscribeOk: () => void
 }
-const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
+const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) => {
   const validate = (newInputs: Inputs): Errors => {
     const newErrors: Errors = {}
 
@@ -19,15 +21,14 @@ const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
       newErrors.riotId = 'Please enter a valid Riot ID'
     }
     //currentElo
-    const rankRegex = /^(iron|bronze|silver|gold|platinium|emerald|diamond)\s*[1-4]$/
-    if (!rankRegex.test(newInputs.currentElo)) {
-      newErrors.currentElo =
-        'Please enter a valid Elo (iron|bronze|silver|gold|platinium|emerald|diamond)[1-4]'
-    }
-    //PeakElo
-    if (!rankRegex.test(newInputs.peakElo)) {
-      newErrors.peakElo =
-        'Please enter a valid Elo (iron|bronze|silver|gold|platinium|emerald|diamond)[1-4]'
+    // const rankRegex = /^(iron|bronze|silver|gold|platinium|emerald|diamond)\s*[1-4]$/
+    // if (!rankRegex.test(newInputs.currentElo)) {
+    //   newErrors.currentElo =
+    //     'Please enter a valid Elo (iron|bronze|silver|gold|platinium|emerald|diamond)[1-4]'
+    // }
+    //comment
+    if (comment.length > 50) {
+      newErrors.comment = 'Please a comment under 50 characters'
     }
     //Role
     const roleRegex = /^(adc|jungle|mid|support|top)$/
@@ -52,7 +53,7 @@ const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
   type Inputs = {
     riotId: string
     currentElo: string
-    peakElo: string
+    comment: string
     role: string
     championPool: string
     birthPlace: string
@@ -60,14 +61,16 @@ const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
   }
   const [inputs, setInputs] = useState<Inputs>({
     riotId: '',
-    currentElo: '',
-    peakElo: '',
-    role: '',
+    currentElo: 'Fer',
+    comment: '',
+    role: 'adc',
     championPool: 'One trick poney',
     birthPlace: '',
     avatar: null,
   })
   const { pb, user } = usePocketBase()
+
+  const [submitError, setSubmitError] = useState<null | string>(null)
 
   type Errors = Partial<Record<keyof Inputs, string>>
   const [errors, setErrors] = useState<Errors>(validate(inputs))
@@ -130,15 +133,21 @@ const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
 
         pb.collection('attendees')
           .create(data)
-          .then(res => console.log(res))
-          .catch(error => console.log(error))
+          .then(res => {
+            console.log(res)
+            onSuscribeOk()
+          })
+          .catch(error => {
+            console.log(error)
+            setSubmitError('An unkwoned error appened')
+          })
       }
     }
   }
 
   return (
     <form
-      className="flex w-[25rem] flex-col gap-3 rounded-lg border-2 border-gray-400 bg-white p-4"
+      className="flex w-[26rem] flex-col gap-3 rounded-lg border-2 border-gray-400 bg-white p-4"
       noValidate={true}
     >
       <Input
@@ -151,36 +160,50 @@ const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
         errorMsg={errors.riotId ?? ''}
         showErrorMsg={showErrorMsg('riotId')}
       />
+      {
+        <SelectInput
+          id="currentElo"
+          label="Current Elo"
+          value={inputs['currentElo']}
+          values={[
+            'Fer',
+            'Bronze',
+            'Argent',
+            'Or',
+            'Platine',
+            'Emeraude',
+            'Diamant',
+            'Maître',
+            'Grand Maître',
+            'Challenger',
+          ]}
+          onChange={handleSelectChange('currentElo')}
+          errorMsg={errors.currentElo ?? ''}
+          showErrorMsg={showErrorMsg('currentElo')}
+        />
+      }
       <Input
-        id="currentElo"
-        label="Current Elo"
+        id="comment"
+        label="Quelque chose à préciser sur cet elo minable ?"
         type="text"
-        placeholder="Platine 4"
-        onChange={handleChange('currentElo')}
-        onBlur={handleBlur('currentElo')}
-        errorMsg={errors.currentElo ?? ''}
-        showErrorMsg={showErrorMsg('currentElo')}
+        placeholder="c'est à cause de mes mates !"
+        onChange={handleChange('comment')}
+        onBlur={handleBlur('comment')}
+        errorMsg={errors.comment ?? ''}
+        showErrorMsg={showErrorMsg('comment')}
       />
-      <Input
-        id="peakElo"
-        label="Peak Elo"
-        type="text"
-        placeholder="Platine 4"
-        onChange={handleChange('peakElo')}
-        onBlur={handleBlur('peakElo')}
-        errorMsg={errors.peakElo ?? ''}
-        showErrorMsg={showErrorMsg('peakElo')}
-      />
-      <Input
-        id="role"
-        label="Role"
-        type="text"
-        placeholder="adc"
-        onChange={handleChange('role')}
-        onBlur={handleBlur('role')}
-        errorMsg={errors.role ?? ''}
-        showErrorMsg={showErrorMsg('role')}
-      />
+
+      {
+        <SelectInput
+          id="role"
+          label="Role"
+          value={inputs['role']}
+          values={['adc', 'jungle', 'mid', 'top', 'support']}
+          onChange={handleSelectChange('role')}
+          errorMsg={errors.role ?? ''}
+          showErrorMsg={showErrorMsg('role')}
+        />
+      }
       {
         <SelectInput
           id="championPool"
@@ -228,6 +251,7 @@ const AttendeeForm: React.FC<Props> = ({ tournamentId }) => {
       >
         Validate
       </button>
+      {submitError !== null && <p className="text-red-400">{submitError}</p>}
     </form>
   )
 }

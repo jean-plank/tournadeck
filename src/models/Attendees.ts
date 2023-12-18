@@ -3,7 +3,7 @@ export type Attendee = {
   riotId: string
   user: string
   currentElo: string
-  peakElo: string
+  comment: string
   role: string
   championPool: string
   birthPlace: string
