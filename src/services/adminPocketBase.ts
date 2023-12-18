@@ -1,8 +1,6 @@
-import { pipe } from 'fp-ts/function'
-
 import { config } from '../config'
 import { logger } from '../logger'
-import { DayJs } from '../models/DayJs'
+import { Dayjs } from '../models/Dayjs'
 import type { CreateModel } from '../models/pocketBase/MyPocketBase'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { TableName } from '../models/pocketBase/Tables'
@@ -85,7 +83,7 @@ async function addFixtures(pb: MyPocketBase): Promise<void> {
   await pb.collection('matches').create({
     team1: team1.id,
     team2: team3.id,
-    plannedOn: pipe(DayJs(tournament1.start), DayJs.add(12, 'hours'), DayJs.toDate),
+    plannedOn: Dayjs(tournament1.start).add(12, 'hours').toDate(),
     apiData: {
       gameId: 6725087844,
       participants: [
@@ -112,13 +110,13 @@ async function addFixtures(pb: MyPocketBase): Promise<void> {
 }
 
 function genTournament(): CreateModel<Tournament> {
-  const start = pipe(DayJs.now(), DayJs.add(7, 'days'))
-  const end = pipe(start, DayJs.add(1, 'day'))
+  const start = Dayjs.now().add(7, 'days')
+  const end = start.add(1, 'day')
 
   return {
     name: 'Quais-Abattoirs party',
-    start: DayJs.toDate(start),
-    end: DayJs.toDate(end),
+    start: start.toDate(),
+    end: end.toDate(),
     maxTeams: 6,
   }
 }
