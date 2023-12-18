@@ -1,3 +1,4 @@
+import type { Newtype } from 'newtype-ts'
 import type { BaseAuthStore, RecordOptions, RecordService } from 'pocketbase'
 import PocketBase from 'pocketbase'
 import type { Except } from 'type-fest'
@@ -24,23 +25,23 @@ function MyPocketBase(authStore?: BaseAuthStore | null, lang?: string): MyPocket
 
 export { MyPocketBase }
 
-export type MyBaseModel = {
-  id: string
+export type MyBaseModel<Id extends Newtype<unknown, string>> = {
+  id: Id
   collectionId: string
   collectionName: string
   created: Date | string
   updated: Date | string
 }
 
-export type MyAuthModel = MyBaseModel & {
+export type MyAuthModel<Id extends Newtype<unknown, string>> = MyBaseModel<Id> & {
   username: string
   verified: boolean
   emailVisibility: boolean
   email: string
 }
 
-export type CreateModel<A> = A extends MyBaseModel
-  ? Except<A, keyof MyBaseModel>
-  : A extends MyAuthModel
-    ? Except<A, keyof MyBaseModel>
+export type CreateModel<A> = A extends MyBaseModel<infer Id>
+  ? Except<A, keyof MyBaseModel<Id>>
+  : A extends MyAuthModel<infer Id>
+    ? Except<A, keyof MyBaseModel<Id>>
     : never
