@@ -1,5 +1,4 @@
-import Image from 'next/image'
-
+/* eslint-disable @next/next/no-img-element */
 import type { Attendee } from '../models/Attendees'
 import { getImageUrl } from '../utils/pocketBaseImageUrl'
 
@@ -7,27 +6,21 @@ type Props = { data: Attendee }
 export const AttendeeTile: React.FC<Props> = ({ data }: Props) => {
   console.log(data.avatar)
   return (
-    <div className="relative bg-green-200 border-2 w-[30rem]  overflow-hidden">
+    <div className="relative flex w-[20rem] flex-col items-center rounded-lg border-2 border-gray-600 bg-blue-200 p-4">
+      <h3 className="text-center text-xl font-bold">WANTED</h3>
+
       <img
-        className="absolute z-0  w-full object-cover"
+        className="h-[15rem] w-[15rem] rounded-xl border-2 border-gray-400   object-cover object-center"
         src={getImageUrl(data.avatar, 'attendees', data.id)}
         alt="avatar"
       />
-      <Image
-        className="relative z-10  w-full object-cover"
-        src="/wanted-template.png"
-        width={400}
-        height={400}
-        alt="wanted"
-      />
 
-      <div className="absolute bottom-[3.5rem] left-[6rem] font-bold  z-30 ">
+      <div className=" z-30 font-bold ">
         <div className="text-xl">{data.riotId}</div>
         <div className="">Elo : {data.currentElo}</div>
         <div className="">PeakElo : {data.peakElo}</div>
-        <div className="">
-          Role {data.role} / Pool de champion : {data.championPool}
-        </div>
+        <div className="">Role {data.role}</div>
+        <div className="">Pool de champion : {data.championPool}</div>
         <div>Ville natale : {data.birthPlace}</div>
       </div>
       {/* <Image

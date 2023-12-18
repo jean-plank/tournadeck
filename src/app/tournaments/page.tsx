@@ -4,6 +4,7 @@ import Link from 'next/link'
 import PocketBase from 'pocketbase'
 import { useEffect, useState } from 'react'
 
+import AttendeesForm from '../../components/AttendeeForm'
 import { TournamentTile } from '../../components/TournamentTile'
 import type { Tournament } from '../../models/Tournament'
 
@@ -29,6 +30,7 @@ const TournamentSuscription: React.FC = () => {
           <TournamentTile data={t} />
         </Link>
       ))}
+      <AttendeesForm tournamentId={''} />
     </div>
   )
 }

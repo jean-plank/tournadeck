@@ -49,7 +49,7 @@ export const Input: React.FC<Props> = ({
       onChange={onChange}
       onBlur={onBlur}
       type={type}
-      className="w-full rounded-md border border-slate-300 p-5 font-medium placeholder:text-opacity-60"
+      className="w-full rounded-md border border-slate-400 p-2 font-medium placeholder:text-opacity-60"
       placeholder={placeholder}
     />
     {showErrorMsg && <p className="text-red-500">{errorMsg}</p>}
@@ -76,7 +76,7 @@ export const FileInput: React.FC<FileProps> = ({
       onChange={onChange}
       type={type}
       accept="image/*"
-      className="w-full rounded-md border border-slate-300 p-5 font-medium placeholder:text-opacity-60"
+      className="w-full rounded-md border border-slate-400 p-2 font-medium placeholder:text-opacity-60"
       placeholder={placeholder}
     />
     {showErrorMsg && <p className="text-red-500">{errorMsg}</p>}
@@ -103,7 +103,7 @@ export const SelectInput: React.FC<SelectProps> = ({
       name={id}
       value={value}
       onChange={onChange}
-      className="w-full rounded-md border border-slate-300 p-5 font-medium "
+      className="w-full rounded-md border border-slate-400 p-2 font-medium placeholder:text-opacity-60"
     >
       {values.map(v => (
         <option key={v} value={v}>
