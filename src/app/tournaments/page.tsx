@@ -1,15 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import PocketBase from 'pocketbase'
 import { useEffect, useState } from 'react'
 
-import AttendeesForm from '../../components/AttendeeForm'
 import { TournamentTile } from '../../components/TournamentTile'
+import { usePocketBase } from '../../contexts/PocketBaseContext'
 import type { Tournament } from '../../models/Tournament'
 
 const TournamentSuscription: React.FC = () => {
-  const pb = new PocketBase('http://127.0.0.1:8090')
+  const { pb } = usePocketBase()
   const [tournaments, setTournaments] = useState<Tournament[]>([])
 
   useEffect(() => {
@@ -20,7 +19,7 @@ const TournamentSuscription: React.FC = () => {
       .then(res => {
         setTournaments(res)
       })
-  }, [])
+  }, [pb])
 
   return (
     <div>
@@ -30,7 +29,6 @@ const TournamentSuscription: React.FC = () => {
           <TournamentTile data={t} />
         </Link>
       ))}
-      <AttendeesForm tournamentId={''} />
     </div>
   )
 }
