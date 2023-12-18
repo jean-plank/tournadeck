@@ -34,10 +34,10 @@ async function applyFixturesIfDbIsEmpty(pb: MyPocketBase): Promise<void> {
 }
 
 async function isDbEmpty(pb: MyPocketBase): Promise<boolean> {
-  const collections = await pb.collections.getFullList()
+  const collections = await pb.collections.getFullList({ cache: 'no-store' })
 
   const results = await Promise.all(
-    collections.map(c => pb.collection(c.name as TableName).getList(1, 1)),
+    collections.map(c => pb.collection(c.name as TableName).getList(1, 1, { cache: 'no-store' })),
   )
 
   return results.every(result => result.totalItems === 0)
