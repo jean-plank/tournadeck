@@ -3,7 +3,7 @@ module.exports = {
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['fp-ts', 'prettier', 'tailwindcss'],
+  plugins: ['fp-ts', 'tailwindcss'],
   extends: [
     'next/core-web-vitals',
     'plugin:@typescript-eslint/recommended',
@@ -52,7 +52,6 @@ module.exports = {
     'no-unused-vars': 'off',
     'no-useless-rename': 'warn',
     'object-shorthand': 'warn',
-    'prettier/prettier': 'warn',
     'react/button-has-type': 'warn',
     'react/display-name': 'off',
     'react/hook-use-state': 'warn',

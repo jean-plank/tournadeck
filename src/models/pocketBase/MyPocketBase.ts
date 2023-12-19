@@ -19,18 +19,3 @@ function MyPocketBase(authStore?: BaseAuthStore | null, lang?: string): MyPocket
 }
 
 export { MyPocketBase }
-
-export type MyBaseModel = {
-  id: string
-  collectionId: string
-  collectionName: string
-  created: string
-  updated: string
-}
-
-export type MyAuthModel = MyBaseModel & {
-  username: string
-  verified: boolean
-  emailVisibility: boolean
-  email: string
-}
