@@ -13,6 +13,9 @@ const decoder = D.struct({
   POCKET_BASE_ADMIN_EMAIL: D.string,
   POCKET_BASE_ADMIN_PASSWORD: D.string,
 
+  DISCORD_CLIENT_ID: D.string,
+  DISCORD_CLIENT_SECRET: D.string,
+
   NEXT_PUBLIC_POCKET_BASE_URL: D.string,
 })
 
