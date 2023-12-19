@@ -32,13 +32,14 @@ export const TournamentFC: React.FC<Props> = ({ data }: Props) => {
     )
   }, [data, participants, user])
 
-  // useEffect(() => console.log(participants), [participants])
   const handleSuscribeClick = useCallback((): void => {
     if (dialog.current !== null) dialog.current.showModal()
   }, [])
+
   const handleCancelClick = useCallback((): void => {
     if (dialog.current !== null) dialog.current.close()
   }, [])
+
   const onSuscribeOk = useCallback((): void => {
     if (dialog.current !== null) dialog.current.close()
     setSuscribed(true)
@@ -59,7 +60,7 @@ export const TournamentFC: React.FC<Props> = ({ data }: Props) => {
             onClick={handleSuscribeClick}
             className="w-[5rem] bg-black text-white"
           >
-            S'inscrire
+            S’inscrire
           </button>
 
           <dialog ref={dialog}>
@@ -73,7 +74,7 @@ export const TournamentFC: React.FC<Props> = ({ data }: Props) => {
       )}
 
       <div>
-        <h2 className="text-lg font-bold"> Intendees</h2>
+        <h2 className="text-lg font-bold">Participants</h2>
         {participants.map(p => (
           <AttendeeTile data={p} key={p.id} />
         ))}

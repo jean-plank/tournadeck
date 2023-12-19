@@ -25,7 +25,8 @@ type SelectProps = {
   errorMsg: string
   showErrorMsg: boolean
   value: string
-  values: string[]
+  values: ReadonlyArray<string>
+  valuesLabels: ReadonlyArray<string>
 }
 
 export const Input: React.FC<Props> = ({
@@ -87,6 +88,7 @@ export const SelectInput: React.FC<SelectProps> = ({
   id,
   value,
   values,
+  valuesLabels,
   label,
   onChange,
   errorMsg,
@@ -105,9 +107,9 @@ export const SelectInput: React.FC<SelectProps> = ({
       onChange={onChange}
       className="w-full rounded-md border border-slate-400 p-2 font-medium placeholder:text-opacity-60"
     >
-      {values.map(v => (
+      {values.map((v, i) => (
         <option key={v} value={v}>
-          {v}
+          {valuesLabels[i]}
         </option>
       ))}
     </select>

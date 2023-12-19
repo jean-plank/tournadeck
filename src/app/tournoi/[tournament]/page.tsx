@@ -10,6 +10,7 @@ export default function Page({ params }: { params: { tournament: string } }): JS
   const [tournamentData, setTournamentData] = useState<Tournament | null>(null)
 
   const { pb } = usePocketBase()
+
   useEffect(() => {
     pb.collection('tournaments')
       .getOne<Tournament>(params.tournament, {})
@@ -17,6 +18,7 @@ export default function Page({ params }: { params: { tournament: string } }): JS
         setTournamentData(res)
       })
   }, [params.tournament, pb])
+
   return tournamentData === null ? (
     <div>Error getting tournament data</div>
   ) : (

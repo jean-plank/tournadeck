@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const url = new URL(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
-console.log(url)
 const nextConfig = {
   experimental: {
     typedRoutes: true,
@@ -11,7 +10,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: url.protocol.slice(0, -1),
-        hostname: '127.0.0.1',
+        hostname: url.hostname,
         port: url.port,
         pathname: url.pathname,
       },

@@ -2,9 +2,12 @@
 import type { Attendee } from '../models/Attendees'
 import { getImageUrl } from '../utils/pocketBaseImageUrl'
 
-type Props = { data: Attendee }
+type Props = {
+  data: Attendee
+}
+
 export const AttendeeTile: React.FC<Props> = ({ data }: Props) => (
-  <div className="relative flex w-[20rem] flex-col items-center rounded-lg border-2 border-gray-600 bg-blue-200 p-4">
+  <div className="relative flex w-80 flex-col items-center rounded-lg border-2 border-gray-600 bg-blue-200 p-4">
     <h3 className="text-center text-xl font-bold">WANTED</h3>
 
     <img
@@ -13,7 +16,7 @@ export const AttendeeTile: React.FC<Props> = ({ data }: Props) => (
       alt="avatar"
     />
 
-    <div className=" z-30 font-bold ">
+    <div className="z-30 font-bold">
       <div className="text-xl">{data.riotId}</div>
       <div className="">Elo : {data.currentElo}</div>
       <div className="">PeakElo : {data.comment}</div>
