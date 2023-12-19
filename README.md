@@ -29,7 +29,7 @@ Download latest PocketBase version from https://pocketbase.io/docs (to the root 
 Start PocketBase:
 
 ```bash
-./pocketbase serve
+./pocketbase serve --dev
 ```
 
 Create an admin account at http://127.0.0.1:8090/_
@@ -48,7 +48,7 @@ You need a Discord app for authentication:
 Start PocketBase:
 
 ```bash
-./pocketbase serve
+./pocketbase serve --dev
 ```
 
 Start Next:
