@@ -38,4 +38,5 @@ jobs:
       - name: yarn run build
         run: |
           cp .env.local.example .env.test
+          cat .env.development >> .env.test
           yarn run build
