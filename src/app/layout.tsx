@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
 import type { ChildrenFC } from '../models/ChildrenFC'
+// import to trigger `onDevelopmentServerStart`
+import '../services/adminPocketBase/adminPocketBase'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })

@@ -4,10 +4,10 @@ import type { Except } from 'type-fest'
 
 import type { Branded } from '../Branded'
 import { brand } from '../Branded'
-import type { Tables } from './Tables'
+import type { TableName, Tables } from './Tables'
 
 type MyPocketBase_ = Except<PocketBase, 'collection'> & {
-  collection: <A extends keyof Tables>(name: A) => RecordService<Tables[A]>
+  collection: <A extends TableName>(name: A) => RecordService<Tables[A]>
 }
 
 type Tag = { readonly MyPocketBase: unique symbol }

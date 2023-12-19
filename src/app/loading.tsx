@@ -1,9 +1,9 @@
-import { Loading } from '../components/Loading'
+import { Loader } from '../components/Loader'
 
-const Loader: React.FC = () => (
+const Loading: React.FC = () => (
   <div className="flex justify-center">
-    <Loading className="mt-4 h-6" />
+    <Loader className="mt-4 h-6" />
   </div>
 )
 
-export default Loader
+export default Loading
