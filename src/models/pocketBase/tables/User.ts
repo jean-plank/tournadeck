@@ -1,6 +1,6 @@
-import type { MyAuthModel } from '../MyPocketBase'
+import type { PbAuthModel } from '../pbModels'
 
-export type User = MyAuthModel & {
+export type User = PbAuthModel & {
   role: string
   displayName?: string | null
 }

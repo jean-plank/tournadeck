@@ -1,5 +1,5 @@
-import type { MyBaseModel } from '../MyPocketBase'
+import type { PbBaseModel } from '../pbModels'
 
-export type Test = MyBaseModel & {
+export type Test = PbBaseModel & {
   label?: string | null
 }
