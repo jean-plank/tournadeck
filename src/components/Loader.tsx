@@ -4,7 +4,7 @@ type LoadingProps = {
   className?: string
 }
 
-export const Loading: React.FC<LoadingProps> = ({ className }) => (
+export const Loader: React.FC<LoadingProps> = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
