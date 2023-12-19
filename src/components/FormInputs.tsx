@@ -41,7 +41,7 @@ export const Input: React.FC<Props> = ({
 }) => (
   <div className="flex w-full flex-col gap-2">
     <div className="flex justify-between">
-      <label htmlFor={id} className="font-semibold ">
+      <label htmlFor={id} className="font-semibold">
         {label}
       </label>
     </div>
@@ -68,7 +68,7 @@ export const FileInput: React.FC<FileProps> = ({
 }) => (
   <div className="flex w-full flex-col gap-2">
     <div className="flex justify-between">
-      <label htmlFor={id} className="font-semibold ">
+      <label htmlFor={id} className="font-semibold">
         {label}
       </label>
     </div>
@@ -96,7 +96,7 @@ export const SelectInput: React.FC<SelectProps> = ({
 }) => (
   <div className="flex w-full flex-col gap-2">
     <div className="flex justify-between">
-      <label htmlFor={id} className="font-semibold ">
+      <label htmlFor={id} className="font-semibold">
         {label}
       </label>
     </div>

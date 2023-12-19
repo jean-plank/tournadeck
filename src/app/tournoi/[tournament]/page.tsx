@@ -2,28 +2,29 @@
 
 import { useEffect, useState } from 'react'
 
-import { TournamentFC } from '../../../components/TournamentFC'
 import { usePocketBase } from '../../../contexts/PocketBaseContext'
+import { TournamentFC } from '../../../domain/tournoi/TournamentFC'
 import type { Tournament } from '../../../models/Tournament'
 
-export default function Page({ params }: { params: { tournament: string } }): JSX.Element {
+type Props = {
+  params: { tournament: string }
+}
+const Page: React.FC<Props> = ({ params }) => {
   const [tournamentData, setTournamentData] = useState<Tournament | null>(null)
 
   const { pb } = usePocketBase()
 
   useEffect(() => {
-    pb.collection('tournaments')
-      .getOne<Tournament>(params.tournament, {})
-      .then(res => {
-        setTournamentData(res)
-      })
+    pb.collection('tournaments').getOne<Tournament>(params.tournament, {}).then(setTournamentData)
   }, [params.tournament, pb])
 
   return tournamentData === null ? (
-    <div>Error getting tournament data</div>
+    <div>Erreur lors de la récupération du tournoi</div>
   ) : (
     <div>
       <TournamentFC data={tournamentData} />
     </div>
   )
 }
+
+export default Page

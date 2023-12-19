@@ -1,6 +1,6 @@
-/** @type {import('next').NextConfig} */
-
 const url = new URL(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
+
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     typedRoutes: true,

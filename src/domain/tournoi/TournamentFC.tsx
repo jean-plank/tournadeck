@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { usePocketBase } from '../contexts/PocketBaseContext'
-import type { Attendee } from '../models/Attendees'
-import type { Tournament } from '../models/Tournament'
-import AttendeeForm from './AttendeeForm'
+import { usePocketBase } from '../../contexts/PocketBaseContext'
+import type { Attendee } from '../../models/Attendees'
+import type { Tournament } from '../../models/Tournament'
+import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
 import './test.css'
 
-type Props = { data: Tournament }
-export const TournamentFC: React.FC<Props> = ({ data }: Props) => {
+type Props = {
+  data: Tournament
+}
+export const TournamentFC: React.FC<Props> = ({ data }) => {
   const [participants, setParticipants] = useState<Attendee[]>([])
   const [suscribed, setSuscribed] = useState(false)
   const { pb, user } = usePocketBase()
@@ -23,7 +25,7 @@ export const TournamentFC: React.FC<Props> = ({ data }: Props) => {
       .then(res => setParticipants(res))
   }, [data.id, pb, suscribed])
 
-  //Check si l'utilisateur est déjà inscrit
+  // check if user register
   useEffect(() => {
     setSuscribed(
       participants.length < data.maxTeams * 5 &&
@@ -49,25 +51,21 @@ export const TournamentFC: React.FC<Props> = ({ data }: Props) => {
     <div className="flex flex-col gap-5">
       <div>
         <h1 className="text-lg font-bold">{data.name}</h1>
-        <div>Debut : {data.start}</div>
-        <div>Debut : {data.end}</div>
+        <div>Début : {data.start}</div>
+        <div>Fin : {data.end}</div>
       </div>
 
       {!suscribed && (
         <>
-          <button
-            type="submit"
-            onClick={handleSuscribeClick}
-            className="w-[5rem] bg-black text-white"
-          >
+          <button type="button" onClick={handleSuscribeClick} className="w-20 bg-black text-white">
             S’inscrire
           </button>
 
           <dialog ref={dialog}>
             <h2>Inscription</h2>
             <AttendeeForm tournamentId={data.id} onSuscribeOk={onSuscribeOk} />
-            <button className="cursor-pointer p-2" type="submit" onClick={handleCancelClick}>
-              cancel
+            <button className="cursor-pointer p-2" type="button" onClick={handleCancelClick}>
+              Annuler
             </button>
           </dialog>
         </>

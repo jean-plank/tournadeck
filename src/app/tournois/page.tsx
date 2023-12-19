@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-import { TournamentTile } from '../../components/TournamentTile'
 import { usePocketBase } from '../../contexts/PocketBaseContext'
+import { TournamentTile } from '../../domain/tournois/TournamentTile'
 import type { Tournament } from '../../models/Tournament'
 
 const TournamentSuscription: React.FC = () => {
@@ -16,9 +16,7 @@ const TournamentSuscription: React.FC = () => {
       .getFullList<Tournament>({
         sort: '-created',
       })
-      .then(res => {
-        setTournaments(res)
-      })
+      .then(setTournaments)
   }, [pb])
 
   return (
