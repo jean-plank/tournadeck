@@ -5,6 +5,8 @@ import { config } from '../../config'
 import { logger } from '../../logger'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { TableName } from '../../models/pocketBase/Tables'
+import type { CreateModel } from '../../models/pocketBase/pbModels'
+import type { User } from '../../models/pocketBase/tables/User'
 
 export async function onDevelopmentServerStart(pb: MyPocketBase): Promise<void> {
   await initPocketBaseIfPbEmpty(pb)
@@ -83,9 +85,22 @@ async function isDbEmpty(pb: MyPocketBase): Promise<boolean> {
   return results.every(result => result.totalItems === 0)
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function addFixtures(pb: MyPocketBase): Promise<void> {
-  /**
-   * TODO
-   */
+  await pb.collection('users').create(genUser('jenaprank', 'Jena Prank', true))
+  await pb.collection('users').create(genUser('lambertj', 'Jules Lambert'))
+  await pb.collection('users').create(genUser('adedigado', 'Jean Prendnote'))
+}
+
+function genUser(username: string, displayName: string, isOrganiser = false): CreateModel<User> {
+  const password = 'Password123'
+  return {
+    username,
+    password,
+    passwordConfirm: password,
+    verified: true,
+    emailVisibility: false,
+    email: `${username}@x.t`,
+    role: isOrganiser ? 'organiser' : 'attendee',
+    displayName,
+  }
 }

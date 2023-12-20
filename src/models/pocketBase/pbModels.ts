@@ -3,13 +3,14 @@ import type { Except } from 'type-fest'
 
 type UnknownId = Newtype<unknown, string>
 
-export type CreateModel<A> = A extends PbBaseModel<UnknownId>
-  ? CreateModelExcept<A>
-  : A extends PbAuthModel<UnknownId>
-    ? CreateModelExcept<A>
+export type CreateModel<A> = A extends PbAuthModel<UnknownId>
+  ? Except<A, keyof PbBaseModel<A['id']>> & {
+      password: string
+      passwordConfirm: string
+    }
+  : A extends PbBaseModel<UnknownId>
+    ? Except<A, keyof PbBaseModel<A['id']>>
     : never
-
-type CreateModelExcept<A extends PbBaseModel<UnknownId>> = Except<A, keyof PbBaseModel<A['id']>>
 
 export type PbBaseModel<Id extends UnknownId> = {
   id: Id
