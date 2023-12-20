@@ -5,7 +5,9 @@ import type { OverrideProperties } from 'type-fest'
 
 type Props = OverrideProperties<
   React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-  { onClick: () => void }
+  {
+    onClick: () => void
+  }
 >
 
 export const ClientButton: React.FC<Props> = ({ onClick, children, ...props }) => {
