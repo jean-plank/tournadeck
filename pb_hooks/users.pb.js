@@ -8,6 +8,7 @@ onRecordBeforeAuthWithOAuth2Request(e => {
       ...e.oAuth2User,
       role: 'base',
     })
+    e.record.refreshTokenKey()
   }
 
   e.record.set('displayName', e.oAuth2User.rawUser.global_name)
