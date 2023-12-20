@@ -5,7 +5,7 @@ import { immutableAssign } from '../../../utils/fpTsUtils'
 import type { PbAuthModel } from '../pbModels'
 
 export type User = PbAuthModel<UserId> & {
-  role: string
+  role: UserRole
   displayName?: string | null
 }
 
