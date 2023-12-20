@@ -18,6 +18,7 @@
     "ci": "yarn run formatCheck && yarn run lint && yarn run dc && yarn run testUnit"
   },
   "dependencies": {
+    "dayjs": "1.11.10",
     "dotenv": "16.3.1",
     "fp-ts": "2.16.1",
     "io-ts": "2.2.21",
