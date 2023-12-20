@@ -26,15 +26,33 @@ migrate(
     collection.schema.addField(
       new SchemaField({
         system: false,
-        id: 'd4i2qn9q',
-        name: 'role',
-        type: 'select',
+        id: 'g0vopmhd',
+        name: 'displayName',
+        type: 'text',
         required: false,
         presentable: false,
         unique: false,
         options: {
+          min: null,
+          max: null,
+          pattern: '',
+        },
+      }),
+    )
+
+    // update
+    collection.schema.addField(
+      new SchemaField({
+        system: false,
+        id: 'd4i2qn9q',
+        name: 'role',
+        type: 'select',
+        required: true,
+        presentable: false,
+        unique: false,
+        options: {
           maxSelect: 1,
-          values: ['organiser', 'attendee'],
+          values: ['attendee', 'organiser'],
         },
       }),
     )
@@ -94,6 +112,9 @@ migrate(
         },
       }),
     )
+
+    // remove
+    collection.schema.removeField('g0vopmhd')
 
     // remove
     collection.schema.removeField('d4i2qn9q')
