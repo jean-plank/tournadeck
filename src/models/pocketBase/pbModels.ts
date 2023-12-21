@@ -3,6 +3,8 @@ import type { Literal } from 'io-ts/lib/Schemable'
 import type { Newtype } from 'newtype-ts'
 import type { ConditionalKeys, Merge } from 'type-fest'
 
+import type { TableName, Tables } from './Tables'
+
 export type PbUnknownId = Newtype<unknown, string>
 export type PbUnknownModel = ReadonlyRecord<string, PbField<unknown, unknown, unknown, boolean>>
 
@@ -122,13 +124,18 @@ export type MultipleSelectField<A extends Literal> = PbField<
   ReadonlyArray<A>
 >
 
-export type SingleRelationField<Id extends PbUnknownId> = PbField<SingleRelationTag, Id, Id>
+// TODO: handle expand on relations
+export type SingleRelationField<N extends TableName> = PbField<
+  SingleRelationTag,
+  Tables[N]['id']['input'],
+  Tables[N]['id']['output']
+>
 type SingleRelationTag = 'SingleRelation'
 
-export type MultipleRelationField<Id extends PbUnknownId> = PbField<
+export type MultipleRelationField<N extends TableName> = PbField<
   'MultipleRelation',
-  ReadonlyArray<Id>,
-  ReadonlyArray<Id>
+  ReadonlyArray<Tables[N]['id']['input']>,
+  ReadonlyArray<Tables[N]['id']['output']>
 >
 
 export type SingleFileField = PbField<'SingleFile', File, string>
