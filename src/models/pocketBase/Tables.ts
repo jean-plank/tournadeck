@@ -1,9 +1,9 @@
-import type { Test } from './tables/Test'
-import type { User } from './tables/User'
+import type { PbTest } from './tables/Test'
+import type { PbUser } from './tables/User'
 
 export type TableName = keyof Tables
 
 export type Tables = {
-  test: Test
-  users: User
+  test: PbTest
+  users: PbUser
 }

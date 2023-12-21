@@ -2,12 +2,25 @@ import type { Newtype } from 'newtype-ts'
 import { iso } from 'newtype-ts'
 
 import { immutableAssign } from '../../../utils/fpTsUtils'
-import type { PbAuthModel } from '../pbModels'
+import type {
+  NullableField,
+  PbAuthModel,
+  PbInput,
+  PbOutput,
+  SingleSelectField,
+  TextField,
+} from '../pbModels'
 
-export type User = PbAuthModel<UserId> & {
-  role: UserRole
-  displayName?: string | null
-}
+export type User = PbOutput<PbUser>
+export type UserInput = PbInput<PbUser>
+
+export type PbUser = PbAuthModel<
+  UserId,
+  {
+    role: SingleSelectField<UserRole>
+    displayName: NullableField<TextField>
+  }
+>
 
 type UserId = Newtype<{ readonly UserId: unique symbol }, string>
 
