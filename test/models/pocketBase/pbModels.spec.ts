@@ -4,6 +4,7 @@ import type { IsEqual } from 'type-fest'
 import type {
   DateField,
   EditorField,
+  JsonField,
   MultipleFileField,
   MultipleSelectField,
   NullableField,
@@ -31,9 +32,13 @@ describe('pbModels', () => {
         date: DateField
         maybeDate: NullableField<DateField>
         singleSelect: SingleSelectField<'a' | 'b' | 'c'>
+        maybeSingleSelect: NullableField<SingleSelectField<'a' | 'b' | 'c'>>
         multipleSelect: MultipleSelectField<1 | 2 | 3>
         singleRelation: SingleRelationField<UserId>
+        maybeSingleRelation: NullableField<SingleRelationField<UserId>>
         multipleFile: MultipleFileField
+        json: JsonField<{ foo: 123 }>
+        maybeJson: NullableField<JsonField<{ bar: boolean }>>
       }
     >
 
@@ -51,13 +56,17 @@ describe('pbModels', () => {
           updated: string
 
           text: string
-          editor: string | null | undefined
+          editor: string
           date: string
-          maybeDate: string | null | undefined
+          maybeDate: string
           singleSelect: 'a' | 'b' | 'c'
+          maybeSingleSelect: 'a' | 'b' | 'c' | ''
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId
+          maybeSingleRelation: UserId | ''
           multipleFile: ReadonlyArray<string>
+          json: { foo: 123 }
+          maybeJson: { bar: boolean } | null
         }
       >
     >
@@ -72,9 +81,13 @@ describe('pbModels', () => {
           date: Date | string
           maybeDate?: Date | string
           singleSelect: 'a' | 'b' | 'c'
+          maybeSingleSelect?: 'a' | 'b' | 'c'
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId
+          maybeSingleRelation?: UserId
           multipleFile: ReadonlyArray<File>
+          json: { foo: 123 }
+          maybeJson?: { bar: boolean }
         }
       >
     >
@@ -121,9 +134,9 @@ describe('pbModels', () => {
           email: string
 
           text: string
-          editor: string | null | undefined
+          editor: string
           date: string
-          maybeDate: string | null | undefined
+          maybeDate: string
           singleSelect: 'a' | 'b' | 'c'
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId

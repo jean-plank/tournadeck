@@ -4,14 +4,14 @@ import type { Newtype } from 'newtype-ts'
 import type { ConditionalKeys, Merge } from 'type-fest'
 
 export type PbUnknownId = Newtype<unknown, string>
-export type PbUnknownModel = ReadonlyRecord<string, PbField<unknown, unknown, boolean>>
+export type PbUnknownModel = ReadonlyRecord<string, PbField<unknown, unknown, unknown, boolean>>
 
 // ---
 
 export type PbBaseModel<Id extends PbUnknownId, A extends PbUnknownModel> = Merge<
   {
     id: IdField<Id>
-    collectionId: PbField<string, string> // TODO: improve typing
+    collectionId: PbField<'CollectionId', string, string> // TODO: improve typing
     collectionName: TextField
     created: DateField
     updated: DateField
@@ -65,52 +65,75 @@ type InputBis<A extends PbBaseModel<PbUnknownId, PbUnknownModel>> = Omit<
 >
 
 export type PbOutput<A extends PbBaseModel<PbUnknownId, PbUnknownModel>> = {
-  [K in keyof A]: A[K]['nullable'] extends true ? A[K]['output'] | null | undefined : A[K]['output']
+  [K in keyof A]: A[K]['nullable'] extends true
+    ? A[K]['_tag'] extends JsonTag
+      ? A[K]['output'] | null
+      : A[K]['_tag'] extends SingleSelectTag | SingleRelationTag
+        ? A[K]['output'] | ''
+        : A[K]['output']
+    : A[K]['output']
 }
 
 // ---
 
-type PbField<I, O, Nullable extends boolean = false> = {
+type PbField<Tag, I, O, Nullable extends boolean = false> = {
+  _tag: Tag
   input: I
   output: O
   nullable: Nullable
 }
 
-export type NullableField<A extends PbField<unknown, unknown>> = PbField<
+/**
+ * Nullable fields defaults are:
+ * - 0 for NumberField
+ * - false for BoolField
+ * - [] for multiple fields
+ * - '' for all other fields
+ */
+export type NullableField<A extends PbField<unknown, unknown, unknown>> = PbField<
+  A['_tag'],
   A['input'],
   A['output'],
   true
 >
 
-type IdField<Id extends PbUnknownId> = PbField<Id, Id>
+type IdField<Id extends PbUnknownId> = PbField<'Id', Id, Id>
 
-export type TextField = PbField<string, string>
+export type TextField = PbField<'Text', string, string>
 
-export type EditorField = PbField<string, string>
+export type EditorField = PbField<'Editor', string, string>
 
-export type NumberField = PbField<number, number>
+export type NumberField = PbField<'Number', number, number>
 
-export type BoolField = PbField<boolean, boolean>
+export type BoolField = PbField<'Bool', boolean, boolean>
 
-export type EmailField = PbField<string, string>
+export type EmailField = PbField<'Email', string, string>
 
-export type UrlField = PbField<string, string>
+export type UrlField = PbField<'Url', string, string>
 
-export type DateField = PbField<Date | string, string>
+export type DateField = PbField<'Date', Date | string, string>
 
-export type SingleSelectField<A extends Literal> = PbField<A, A>
+export type SingleSelectField<A extends Literal> = PbField<SingleSelectTag, A, A>
+type SingleSelectTag = 'SingleSelect'
 
-export type MultipleSelectField<A extends Literal> = PbField<ReadonlyArray<A>, ReadonlyArray<A>>
+export type MultipleSelectField<A extends Literal> = PbField<
+  'MultipleSelect',
+  ReadonlyArray<A>,
+  ReadonlyArray<A>
+>
 
-export type SingleRelationField<Id extends PbUnknownId> = PbField<Id, Id>
+export type SingleRelationField<Id extends PbUnknownId> = PbField<SingleRelationTag, Id, Id>
+type SingleRelationTag = 'SingleRelation'
 
 export type MultipleRelationField<Id extends PbUnknownId> = PbField<
+  'MultipleRelation',
   ReadonlyArray<Id>,
   ReadonlyArray<Id>
 >
 
-export type SingleFileField = PbField<File, string>
+export type SingleFileField = PbField<'SingleFile', File, string>
 
-export type MultipleFileField = PbField<ReadonlyArray<File>, ReadonlyArray<string>>
+export type MultipleFileField = PbField<'MultipleFile', ReadonlyArray<File>, ReadonlyArray<string>>
 
-export type JsonFileField<A extends Json> = PbField<A, A>
+export type JsonField<A extends Json> = PbField<JsonTag, A, A>
+type JsonTag = 'Json'

@@ -11,6 +11,10 @@ export async function onDevelopmentServerStart(pb: MyPocketBase): Promise<void> 
   await initPocketBaseIfPbEmpty(pb)
 
   await applyFixturesIfDbIsEmpty(pb)
+
+  const res = await pb.collection('test').getFullList()
+
+  console.log('res =', res)
 }
 
 async function initPocketBaseIfPbEmpty(pb: MyPocketBase): Promise<void> {
