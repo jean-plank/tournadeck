@@ -1,24 +1,27 @@
 import type { Newtype } from 'newtype-ts'
 import type { BaseAuthStore, RecordOptions, RecordService } from 'pocketbase'
 import PocketBase from 'pocketbase'
-import type { Except } from 'type-fest'
+import type { OverrideProperties } from 'type-fest'
 
 import type { Branded } from '../Branded'
 import { brand } from '../Branded'
 import type { TableName, Tables } from './Tables'
 import type { CreateModel, PbBaseModel } from './pbModels'
 
-type MyPocketBase_ = Except<PocketBase, 'collection'> & {
-  collection: <A extends TableName>(name: A) => MyRecordService<Tables[A]>
-}
+type MyPocketBase_ = OverrideProperties<
+  PocketBase,
+  {
+    collection: <A extends TableName>(name: A) => MyRecordService<Tables[A]>
+  }
+>
 
-type MyRecordService<A extends PbBaseModel<Newtype<unknown, string>>> = Except<
+type MyRecordService<A extends PbBaseModel<Newtype<unknown, string>>> = OverrideProperties<
   RecordService<A>,
-  'getOne' | 'create'
-> & {
-  getOne: <B = A>(id: A['id'], options?: RecordOptions) => Promise<B>
-  create: (bodyParams: CreateModel<A> | FormData, options?: RecordOptions) => Promise<A>
-}
+  {
+    getOne: <B = A>(id: A['id'], options?: RecordOptions) => Promise<B>
+    create: (bodyParams: CreateModel<A> | FormData, options?: RecordOptions) => Promise<A>
+  }
+>
 
 type Tag = { readonly MyPocketBase: unique symbol }
 
