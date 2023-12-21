@@ -12,7 +12,10 @@ const nextConfig = {
         protocol: url.protocol.slice(0, -1),
         hostname: url.hostname,
         port: url.port,
-        pathname: url.pathname,
+      },
+      {
+        protocol: 'https',
+        hostname: 'raw.communitydragon.org',
       },
     ],
   },

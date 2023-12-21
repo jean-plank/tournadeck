@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { TeamRoleIcon } from '../../components/TeamRoleIcon'
 import { usePocketBase } from '../../contexts/PocketBaseContext'
 import type { Attendee } from '../../models/Attendees'
+import { TeamRole } from '../../models/TeamRole'
 import type { Tournament } from '../../models/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
+import { SmallAttendeeTile } from './SmallAttendeeTile'
 import './test.css'
 
 type Props = {
@@ -72,10 +75,24 @@ export const TournamentFC: React.FC<Props> = ({ data }) => {
       )}
 
       <div>
-        <h2 className="text-lg font-bold">Participants</h2>
-        {participants.map(p => (
-          <AttendeeTile data={p} key={p.id} />
-        ))}
+        <h2 className="text-lg font-bold">
+          Participants ({participants.length}/{data.maxTeams * 5})
+        </h2>
+        <div className="flex flex-row">
+          {TeamRole.values.map(role => (
+            <div key={role}>
+              <TeamRoleIcon role={role} />
+              {participants
+                .filter(p => p.role === role)
+                .map(p => (
+                  <>
+                    <AttendeeTile data={p} key={p.id} />
+                    <SmallAttendeeTile data={p} key={p.id} />
+                  </>
+                ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

@@ -21,7 +21,10 @@ const Page: React.FC<Props> = ({ params }) => {
   return tournamentData === null ? (
     <div>Erreur lors de la récupération du tournoi</div>
   ) : (
-    <div>
+    <div
+      className="h-screen w-full bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/synthwave.jpg')" }}
+    >
       <TournamentFC data={tournamentData} />
     </div>
   )
