@@ -34,8 +34,8 @@ describe('pbModels', () => {
         singleSelect: SingleSelectField<'a' | 'b' | 'c'>
         maybeSingleSelect: NullableField<SingleSelectField<'a' | 'b' | 'c'>>
         multipleSelect: MultipleSelectField<1 | 2 | 3>
-        singleRelation: SingleRelationField<UserId>
-        maybeSingleRelation: NullableField<SingleRelationField<UserId>>
+        singleRelation: SingleRelationField<'users'>
+        maybeSingleRelation: NullableField<SingleRelationField<'users'>>
         multipleFile: MultipleFileField
         json: JsonField<{ foo: 123 }>
         maybeJson: NullableField<JsonField<{ bar: boolean }>>
@@ -110,7 +110,7 @@ describe('pbModels', () => {
         maybeDate: NullableField<DateField>
         singleSelect: SingleSelectField<'a' | 'b' | 'c'>
         multipleSelect: MultipleSelectField<1 | 2 | 3>
-        singleRelation: SingleRelationField<UserId>
+        singleRelation: SingleRelationField<'users'>
         multipleFile: MultipleFileField
       }
     >
