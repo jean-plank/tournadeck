@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers'
+
 import { Permissions } from '../../helpers/Permissions'
 import { auth } from '../../helpers/auth'
 import type { CreateModel } from '../../models/pocketBase/pbModels'
@@ -12,6 +14,9 @@ const listTestTag = 'test/list'
 
 export const listTest = immutableAssign(
   async (): Promise<Test[]> => {
+    // call cookies to switch to dynamic rendering
+    cookies()
+
     const adminPb = await adminPocketBase
 
     return adminPb.collection('test').getFullList({
