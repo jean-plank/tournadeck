@@ -15,7 +15,7 @@ const Home: React.FC = async () => {
         <ul>
           {tests.map(test => (
             <li key={test.id} className="list-item">
-              {test.label ?? <pre>null</pre>}
+              {test.label}
             </li>
           ))}
         </ul>
