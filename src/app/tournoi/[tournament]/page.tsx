@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react'
 
 import { usePocketBase } from '../../../contexts/PocketBaseContext'
-import { TournamentFC } from '../../../domain/tournoi/TournamentFC'
+import { TournamentFC } from '../../../domain/tournoi/[tournament]/TournamentFC'
 import type { Tournament } from '../../../models/Tournament'
 
 type Props = {
   params: { tournament: string }
 }
-const Page: React.FC<Props> = ({ params }) => {
+
+const TournamentPage: React.FC<Props> = ({ params }) => {
   const [tournamentData, setTournamentData] = useState<Tournament | null>(null)
 
   const { pb } = usePocketBase()
@@ -30,4 +31,4 @@ const Page: React.FC<Props> = ({ params }) => {
   )
 }
 
-export default Page
+export default TournamentPage

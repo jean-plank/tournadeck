@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { TeamRoleIcon } from '../../components/TeamRoleIcon'
-import { usePocketBase } from '../../contexts/PocketBaseContext'
-import type { Attendee } from '../../models/Attendees'
-import { TeamRole } from '../../models/TeamRole'
-import type { Tournament } from '../../models/Tournament'
+import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
+import { usePocketBase } from '../../../contexts/PocketBaseContext'
+import type { Attendee } from '../../../models/Attendees'
+import { TeamRole } from '../../../models/TeamRole'
+import type { Tournament } from '../../../models/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
 import { SmallAttendeeTile } from './SmallAttendeeTile'
@@ -13,6 +13,7 @@ import './test.css'
 type Props = {
   data: Tournament
 }
+
 export const TournamentFC: React.FC<Props> = ({ data }) => {
   const [participants, setParticipants] = useState<Attendee[]>([])
   const [suscribed, setSuscribed] = useState(false)
@@ -28,7 +29,7 @@ export const TournamentFC: React.FC<Props> = ({ data }) => {
       .then(res => setParticipants(res))
   }, [data.id, pb, suscribed])
 
-  // check if user register
+  // check if user is already registered
   useEffect(() => {
     setSuscribed(
       participants.length < data.maxTeams * 5 &&
@@ -67,7 +68,7 @@ export const TournamentFC: React.FC<Props> = ({ data }) => {
           <dialog ref={dialog}>
             <h2>Inscription</h2>
             <AttendeeForm tournamentId={data.id} onSuscribeOk={onSuscribeOk} />
-            <button className="cursor-pointer p-2" type="button" onClick={handleCancelClick}>
+            <button type="button" className="p-2" onClick={handleCancelClick}>
               Annuler
             </button>
           </dialog>

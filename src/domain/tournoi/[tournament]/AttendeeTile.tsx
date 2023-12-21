@@ -1,14 +1,15 @@
 import Image from 'next/image'
 
-import { TeamRoleIcon } from '../../components/TeamRoleIcon'
-import type { Attendee } from '../../models/Attendees'
-import { getImageUrl } from '../../utils/pocketBaseImageUrl'
+import { LolEloIcon } from '../../../components/LolEloIcon'
+import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
+import type { Attendee } from '../../../models/Attendees'
+import { getImageUrl } from '../../../utils/pocketBaseImageUrl'
 
 type Props = {
   data: Attendee
 }
 
-export const SmallAttendeeTile: React.FC<Props> = ({ data }) => (
+export const AttendeeTile: React.FC<Props> = ({ data }) => (
   <div className="relative flex flex-col items-center overflow-hidden rounded-lg border-2 border-yellow-500 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-yellow-500/100">
     <div className="z-30 font-bold">
       {/* RiotId and captain */}
@@ -23,7 +24,7 @@ export const SmallAttendeeTile: React.FC<Props> = ({ data }) => (
             className="mr-1 object-cover drop-shadow-lg"
             width={32}
             height={32}
-            alt="avatar"
+            alt="captain-icon"
           />
         )}
       </div>
@@ -32,20 +33,37 @@ export const SmallAttendeeTile: React.FC<Props> = ({ data }) => (
       <div className="flex flex-row justify-start">
         <Image
           src={getImageUrl(data.avatar, 'attendees', data.id)}
-          className="h-[10rem] w-[10rem] rounded-tr-lg border-r-2 border-t-2 border-yellow-500 object-cover"
+          className="h-40 w-40 rounded-r-lg border-y-2 border-r-2 border-yellow-500 object-cover"
           width={200}
           height={200}
           alt="avatar"
         />
-
         <div className="flex flex-col justify-evenly">
-          <TeamRoleIcon
-            className="h-[4rem] w-[4rem]  object-contain drop-shadow-sm"
-            role={data.role}
-          />
+          <TeamRoleIcon className="h-16 w-16 object-contain drop-shadow-sm" role={data.role} />
           <p className="text-center text-4xl text-yellow-500">{data.seed}</p>
         </div>
       </div>
     </div>
+
+    {/* Lol Elo and comment */}
+    <div className="flex flex-row items-center pr-2 text-sm font-normal">
+      <LolEloIcon className="h-16 w-16 drop-shadow-lg" elo={data.currentElo} />
+      {data.comment !== '' && <p>({data.comment})</p>}
+    </div>
+
+    {/* Champion pool */}
+    <div className="flex flex-row items-center pr-2 text-sm font-normal">
+      <Image
+        src={'/icons/pool-icon.png'}
+        className="mr-1 object-cover drop-shadow-sm"
+        width={40}
+        height={40}
+        alt="piscine-icon"
+      />
+      <p>{data.championPool}</p>
+    </div>
+
+    {/* Price */}
+    <div className="text-xl">{data.price} $</div>
   </div>
 )

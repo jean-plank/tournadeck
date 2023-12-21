@@ -6,6 +6,7 @@ type Props = {
   role: TeamRole
   className?: string
 }
+
 export const TeamRoleIcon: React.FC<Props> = ({ role, className }) => (
   <Image
     alt={`${role}-icon`}

@@ -7,7 +7,7 @@ import { usePocketBase } from '../../contexts/PocketBaseContext'
 import { TournamentTile } from '../../domain/tournois/TournamentTile'
 import type { Tournament } from '../../models/Tournament'
 
-const TournamentSuscription: React.FC = () => {
+const Tournaments: React.FC = () => {
   const { pb } = usePocketBase()
   const [tournaments, setTournaments] = useState<Tournament[]>([])
 
@@ -23,7 +23,7 @@ const TournamentSuscription: React.FC = () => {
     <div>
       <h2>Tournois</h2>
       {tournaments.map(t => (
-        <Link href={`tournoi/${t.id}`} key={t.id}>
+        <Link key={t.id} href={`tournoi/${t.id}`}>
           <TournamentTile data={t} />
         </Link>
       ))}
@@ -31,4 +31,4 @@ const TournamentSuscription: React.FC = () => {
   )
 }
 
-export default TournamentSuscription
+export default Tournaments

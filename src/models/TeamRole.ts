@@ -1,6 +1,6 @@
-import { record } from 'fp-ts'
+type TeamRole = (typeof values)[number]
 
-type TeamRole = 'top' | 'jun' | 'mid' | 'bot' | 'sup'
+const values = ['top', 'jun', 'mid', 'bot', 'sup'] as const
 
 const label: Record<TeamRole, string> = {
   top: 'Top',
@@ -9,11 +9,6 @@ const label: Record<TeamRole, string> = {
   bot: 'Botlane',
   sup: 'Support',
 }
-
-const values = record.keys(label).sort((a, b) => {
-  const order = { top: 1, jun: 2, mid: 3, bot: 4, sup: 5 }
-  return order[a] - order[b]
-})
 
 const TeamRole = { label, values }
 

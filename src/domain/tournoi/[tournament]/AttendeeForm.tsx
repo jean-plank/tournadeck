@@ -1,18 +1,15 @@
 'use client'
 
-import { comment } from 'postcss'
+import { readonlyRecord } from 'fp-ts'
 import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 
-import { FileInput, Input, SelectInput } from '../../components/FormInputs'
-import { usePocketBase } from '../../contexts/PocketBaseContext'
-import { LolElo } from '../../models/LolElo'
-import { TeamRole } from '../../models/TeamRole'
+import { FileInput, Input, SelectInput } from '../../../components/FormInputs'
+import { usePocketBase } from '../../../contexts/PocketBaseContext'
+import { ChampionPool } from '../../../models/ChampionPool'
+import { LolElo } from '../../../models/LolElo'
+import { TeamRole } from '../../../models/TeamRole'
 
-type Props = {
-  tournamentId: string
-  onSuscribeOk: () => void
-}
 type Inputs = {
   riotId: string
   currentElo: LolElo
@@ -22,37 +19,19 @@ type Inputs = {
   birthPlace: string
   avatar: File | null
 }
+
 type Errors = Partial<Record<keyof Inputs, string>>
+
 type Touched = Partial<Record<keyof Inputs, boolean>>
 
-const validate = (newInputs: Inputs): Errors => {
-  const newErrors: Errors = {}
-
-  // RiotId
-  const riotIdRegex = /^.{4,16}#[a-zA-Z0-9]{3,5}$/
-  if (!riotIdRegex.test(newInputs.riotId)) {
-    newErrors.riotId = 'Merci de saisir un Riot ID correct'
-  }
-
-  // Comment
-  if (comment.length > 50) {
-    newErrors.comment = 'Merci de saisir un commentaire de moins de 50 caracters'
-  }
-
-  // BirthPlace
-  if (newInputs.birthPlace === '') {
-    newErrors.birthPlace = 'Merci de saisir votre lieu de naissance'
-  }
-
-  // Avatar
-  if (newInputs.avatar === null) {
-    newErrors.avatar = 'Merci de choisir un avatar'
-  }
-
-  return newErrors
+type Props = {
+  tournamentId: string
+  onSuscribeOk: () => void
 }
 
 export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) => {
+  const { pb, user } = usePocketBase()
+
   const [inputs, setInputs] = useState<Inputs>({
     riotId: '',
     currentElo: LolElo.values[0],
@@ -62,7 +41,6 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
     birthPlace: '',
     avatar: null,
   })
-  const { pb, user } = usePocketBase()
 
   const [submitError, setSubmitError] = useState<null | string>(null)
 
@@ -94,17 +72,18 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
     errors[key] !== undefined && touched[key] !== undefined
 
   const handleSubmit = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+    (event: React.FormEvent<HTMLFormElement>): void => {
       event.preventDefault()
 
-      let obj = {}
-      for (const cle in inputs) {
-        obj = { ...obj, [cle]: true }
-      }
+      const obj = readonlyRecord
+        .keys(inputs)
+        .reduce<Touched>((acc, key) => ({ ...acc, [key]: true }), {})
 
       setTouched(obj)
 
-      if (Object.keys(errors).length === 0) {
+      const errors_ = validate(inputs)
+
+      if (Object.keys(errors_).length === 0) {
         if (user !== null) {
           const data = {
             ...inputs,
@@ -120,16 +99,15 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
         }
       }
     },
-    [errors, inputs, onSuscribeOk, pb, tournamentId, user],
+    [inputs, onSuscribeOk, pb, tournamentId, user],
   )
 
   return (
     <form
       className="flex w-[26rem] flex-col gap-3 rounded-lg border-2 border-gray-400 bg-white p-4"
-      noValidate={true}
+      onSubmit={handleSubmit}
     >
       <Input
-        id="riotId"
         label="Riot ID"
         type="text"
         placeholder="summonerName#TAG"
@@ -140,7 +118,6 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
       />
 
       <SelectInput
-        id="currentElo"
         label="Niveau actuel"
         value={inputs['currentElo']}
         values={LolElo.values}
@@ -151,7 +128,6 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
       />
 
       <Input
-        id="comment"
         label="Quelque chose à préciser sur cet elo minable ?"
         type="text"
         placeholder="C'est à cause de mes mates !"
@@ -162,7 +138,6 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
       />
 
       <SelectInput
-        id="role"
         label="Rôle"
         value={inputs['role']}
         values={TeamRole.values}
@@ -173,33 +148,19 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
       />
 
       <SelectInput
-        id="championPool"
         label="Piscine de champions"
         value={inputs['championPool']}
-        values={[
-          'Une compétence cheval',
-          'Limitée',
-          'Modeste',
-          'Pas mal',
-          'Ça fait beaucoup là non ?',
-        ]}
-        valuesLabels={[
-          'Une compétence cheval',
-          'Limité',
-          'Modeste',
-          'Pas mal',
-          'Ça fait beaucoup la non',
-        ]}
+        values={ChampionPool.values}
+        valuesLabels={ChampionPool.values.map(v => ChampionPool.label[v])}
         onChange={handleSelectChange('championPool')}
         errorMsg={errors.championPool ?? ''}
         showErrorMsg={showErrorMsg('championPool')}
       />
 
       <Input
-        id="birthPlace"
         label="Lieu de naissance"
         type="text"
-        placeholder="birthPlace"
+        placeholder="Lieu de naissance"
         onChange={handleChange('birthPlace')}
         onBlur={handleBlur('birthPlace')}
         errorMsg={errors.birthPlace ?? ''}
@@ -207,23 +168,49 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
       />
 
       <FileInput
-        id="avatar"
         label="Photo de votre épouvantable faciès"
-        type="file"
-        placeholder="avatar"
+        placeholder="Avatar"
         onChange={handleFileChange()}
         errorMsg={errors.avatar ?? ''}
         showErrorMsg={showErrorMsg('birthPlace')}
       />
 
       <button
-        type="button"
+        type="submit"
         className="rounded-full bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-        onClick={handleSubmit}
       >
-        Validate
+        Valider
       </button>
+
       {submitError !== null && <p className="text-red-400">{submitError}</p>}
     </form>
   )
+}
+
+const riotIdRegex = /^.{4,16}#[a-zA-Z0-9]{3,5}$/
+
+const validate = (newInputs: Inputs): Errors => {
+  const newErrors: Errors = {}
+
+  // RiotId
+  if (!riotIdRegex.test(newInputs.riotId)) {
+    newErrors.riotId = 'Merci de saisir un Riot ID correct'
+  }
+
+  // Comment
+  if (newInputs.comment.length > 50) {
+    newErrors.comment = 'Merci de saisir un commentaire de moins de 50 caracters'
+  }
+
+  // BirthPlace
+  if (newInputs.birthPlace === '') {
+    newErrors.birthPlace = 'Merci de saisir votre lieu de naissance'
+  }
+
+  // Avatar
+  if (newInputs.avatar === null) {
+    newErrors.avatar = 'Merci de choisir un avatar'
+  }
+
+  return newErrors
 }
