@@ -45,11 +45,13 @@ Start PocketBase:
 ./pocketbase serve --dev
 ```
 
-In an other shell, start Next.js (to initialize PocketBase):
+In an other shell, start Next.js:
 
 ```bash
 yarn dev
 ```
+
+Open http://localhost:3000 to initialize PocketBase.
 
 Log in as admin at http://127.0.0.1:8090/_
 
