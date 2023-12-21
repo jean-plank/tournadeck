@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../contexts/PocketBaseContext'
-import type { Attendee } from '../../../models/Attendees'
 import { TeamRole } from '../../../models/TeamRole'
-import type { Tournament } from '../../../models/Tournament'
+import type { Attendee } from '../../../models/pocketBase/tables/Attendee'
+import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
 import { SmallAttendeeTile } from './SmallAttendeeTile'
@@ -23,9 +23,7 @@ export const TournamentFC: React.FC<Props> = ({ data }) => {
 
   useEffect(() => {
     pb.collection('attendees')
-      .getFullList<Attendee>({
-        filter: `tournament = "${data.id}"`,
-      })
+      .getFullList<Attendee>({ filter: `tournament="${data.id}"` })
       .then(res => setParticipants(res))
   }, [data.id, pb, suscribed])
 

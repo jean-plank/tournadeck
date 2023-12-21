@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import type { TeamRole } from '../models/TeamRole'
+import { TeamRole } from '../models/TeamRole'
 
 type Props = {
   role: TeamRole
@@ -9,7 +9,7 @@ type Props = {
 
 export const TeamRoleIcon: React.FC<Props> = ({ role, className }) => (
   <Image
-    alt={`${role}-icon`}
+    alt={`Icône ${TeamRole.label[role]}`}
     className={className}
     width={200}
     height={200}

@@ -9,13 +9,16 @@ import { usePocketBase } from '../../../contexts/PocketBaseContext'
 import { ChampionPool } from '../../../models/ChampionPool'
 import { LolElo } from '../../../models/LolElo'
 import { TeamRole } from '../../../models/TeamRole'
+import type { CreateModel } from '../../../models/pocketBase/pbModels'
+import type { Attendee } from '../../../models/pocketBase/tables/Attendee'
+import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
 
 type Inputs = {
   riotId: string
   currentElo: LolElo
   comment: string
   role: TeamRole
-  championPool: string
+  championPool: ChampionPool
   birthPlace: string
   avatar: File | null
 }
@@ -25,7 +28,7 @@ type Errors = Partial<Record<keyof Inputs, string>>
 type Touched = Partial<Record<keyof Inputs, boolean>>
 
 type Props = {
-  tournamentId: string
+  tournamentId: TournamentId
   onSuscribeOk: () => void
 }
 
@@ -37,7 +40,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
     currentElo: LolElo.values[0],
     comment: '',
     role: TeamRole.values[0],
-    championPool: 'Une compétence cheval',
+    championPool: 'oneTrick',
     birthPlace: '',
     avatar: null,
   })
@@ -85,7 +88,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
 
       if (Object.keys(errors_).length === 0) {
         if (user !== null) {
-          const data = {
+          const data: CreateModel<Attendee> = {
             ...inputs,
             isCaptain: false,
             tournament: tournamentId,
@@ -104,13 +107,13 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
 
   return (
     <form
-      className="flex w-[26rem] flex-col gap-3 rounded-lg border-2 border-gray-400 bg-white p-4"
+      className="flex w-[26rem] flex-col gap-3 rounded-lg border-2 border-grey-400 bg-white p-4"
       onSubmit={handleSubmit}
     >
       <Input
         label="Riot ID"
         type="text"
-        placeholder="summonerName#TAG"
+        placeholder="SummonerName#TAG"
         onChange={handleChange('riotId')}
         onBlur={handleBlur('riotId')}
         errorMsg={errors.riotId ?? ''}
@@ -130,7 +133,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
       <Input
         label="Quelque chose à préciser sur cet elo minable ?"
         type="text"
-        placeholder="C'est à cause de mes mates !"
+        placeholder="C’est à cause de mes mates !"
         onChange={handleChange('comment')}
         onBlur={handleBlur('comment')}
         errorMsg={errors.comment ?? ''}
@@ -182,7 +185,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
         Valider
       </button>
 
-      {submitError !== null && <p className="text-red-400">{submitError}</p>}
+      {submitError !== null && <p className="text-red-500">{submitError}</p>}
     </form>
   )
 }

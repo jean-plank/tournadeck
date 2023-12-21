@@ -1,7 +1,7 @@
 import Image from 'next/image'
 
 import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
-import type { Attendee } from '../../../models/Attendees'
+import type { Attendee } from '../../../models/pocketBase/tables/Attendee'
 import { getImageUrl } from '../../../utils/pocketBaseImageUrl'
 
 type Props = {
@@ -30,13 +30,15 @@ export const SmallAttendeeTile: React.FC<Props> = ({ data }) => (
 
       {/* Avatar, lane and Seed */}
       <div className="flex flex-row justify-start">
-        <Image
-          src={getImageUrl(data.avatar, 'attendees', data.id)}
-          className="h-40 w-40 rounded-tr-lg border-r-2 border-t-2 border-yellow-500 object-cover"
-          width={200}
-          height={200}
-          alt="avatar"
-        />
+        {typeof data.avatar === 'string' && (
+          <Image
+            src={getImageUrl('attendees', data.id, data.avatar)}
+            className="h-40 w-40 rounded-tr-lg border-r-2 border-t-2 border-yellow-500 object-cover"
+            width={200}
+            height={200}
+            alt="avatar"
+          />
+        )}
 
         <div className="flex flex-col justify-evenly">
           <TeamRoleIcon className="h-16 w-16 object-contain drop-shadow-sm" role={data.role} />

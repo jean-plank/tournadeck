@@ -10,7 +10,7 @@ type Props = {
 }
 
 export const AttendeeTile: React.FC<Props> = ({ data }) => (
-  <div className="relative flex flex-col items-center overflow-hidden rounded-lg border-2 border-yellow-500 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-yellow-500/100">
+  <div className="relative flex flex-col items-center overflow-hidden rounded-lg border-2 border-yellow-500 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-yellow-500">
     <div className="z-30 font-bold">
       {/* RiotId and captain */}
       <div className="flex flex-row justify-between">
@@ -20,11 +20,11 @@ export const AttendeeTile: React.FC<Props> = ({ data }) => (
         </div>
         {data.isCaptain && (
           <Image
-            src={'/icons/crown-64.png'}
+            src="/icons/crown-64.png"
             className="mr-1 object-cover drop-shadow-lg"
             width={32}
             height={32}
-            alt="captain-icon"
+            alt="Icône capitaine"
           />
         )}
       </div>
@@ -54,11 +54,11 @@ export const AttendeeTile: React.FC<Props> = ({ data }) => (
     {/* Champion pool */}
     <div className="flex flex-row items-center pr-2 text-sm font-normal">
       <Image
-        src={'/icons/pool-icon.png'}
+        src="/icons/pool-icon.png"
         className="mr-1 object-cover drop-shadow-sm"
         width={40}
         height={40}
-        alt="piscine-icon"
+        alt="Icône piscine"
       />
       <p>{data.championPool}</p>
     </div>

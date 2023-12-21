@@ -23,7 +23,7 @@ const Tournaments: React.FC = () => {
     <div>
       <h2>Tournois</h2>
       {tournaments.map(t => (
-        <Link key={t.id} href={`tournoi/${t.id}`}>
+        <Link key={t.id} href={`/tournoi/${t.id}`}>
           <TournamentTile data={t} />
         </Link>
       ))}
