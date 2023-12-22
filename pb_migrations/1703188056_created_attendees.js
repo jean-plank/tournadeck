@@ -154,7 +154,7 @@ migrate(
           id: '9swtsna1',
           name: 'isCaptain',
           type: 'bool',
-          required: true,
+          required: false,
           presentable: false,
           unique: false,
           options: {},
