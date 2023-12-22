@@ -54,7 +54,7 @@ migrate(
           },
         },
       ],
-      indexes: ['CREATE INDEX `idx_CelcYWM` ON `teams` (\n  `tournament`,\n  `tag`\n)'],
+      indexes: ['CREATE UNIQUE INDEX `idx_CelcYWM` ON `teams` (\n  `tournament`,\n  `tag`\n)'],
       listRule: null,
       viewRule: null,
       createRule: null,
