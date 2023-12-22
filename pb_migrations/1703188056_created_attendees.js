@@ -188,7 +188,10 @@ migrate(
           },
         },
       ],
-      indexes: ['CREATE UNIQUE INDEX `idx_xRoCn0I` ON `attendees` (\n  `user`,\n  `tournament`\n)'],
+      indexes: [
+        'CREATE UNIQUE INDEX `idx_xRoCn0I` ON `attendees` (\n  `user`,\n  `tournament`\n)',
+        'CREATE UNIQUE INDEX `idx_oZnzPPb` ON `attendees` (\n  `tournament`,\n  `puuid`\n)',
+      ],
       listRule: null,
       viewRule: null,
       createRule: null,
@@ -202,7 +205,5 @@ migrate(
   db => {
     const dao = new Dao(db)
     const collection = dao.findCollectionByNameOrId('1sm1qeyu7mzdkdc')
-
-    return dao.deleteCollection(collection)
   },
 )
