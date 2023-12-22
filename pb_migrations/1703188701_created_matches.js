@@ -11,10 +11,22 @@ migrate(
       schema: [
         {
           system: false,
+          id: 'pmlkrrmf',
+          name: 'team1ResultsFrom',
+          type: 'json',
+          required: false,
+          presentable: false,
+          unique: false,
+          options: {
+            maxSize: 2000000,
+          },
+        },
+        {
+          system: false,
           id: '96v4kxqv',
           name: 'team1',
           type: 'relation',
-          required: true,
+          required: false,
           presentable: false,
           unique: false,
           options: {
@@ -27,10 +39,22 @@ migrate(
         },
         {
           system: false,
+          id: 'q74drpb9',
+          name: 'team2ResultsFrom',
+          type: 'json',
+          required: false,
+          presentable: false,
+          unique: false,
+          options: {
+            maxSize: 2000000,
+          },
+        },
+        {
+          system: false,
           id: 't4poiqlm',
           name: 'team2',
           type: 'relation',
-          required: true,
+          required: false,
           presentable: false,
           unique: false,
           options: {

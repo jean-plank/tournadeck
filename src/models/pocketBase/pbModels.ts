@@ -1,4 +1,3 @@
-import type { Json } from 'fp-ts/Json'
 import type { Literal } from 'io-ts/lib/Schemable'
 import type { Newtype } from 'newtype-ts'
 import type { ConditionalKeys, Merge } from 'type-fest'
@@ -147,5 +146,16 @@ export type MultipleFileField = PbField<
   ReadonlyArray<string>
 >
 
-export type JsonField<A extends Json> = PbField<JsonTag, A, A>
+export type JsonField<A extends PbJson> = PbField<JsonTag, A, A>
 type JsonTag = 'Json'
+
+// ---
+
+type PbJson = PbLiteral | Newtype<unknown, PbLiteral> | PbJsonArray | PbJsonRecord
+type PbLiteral = boolean | number | string | null
+
+type PbJsonRecord = {
+  readonly [key: string]: PbJson
+}
+
+type PbJsonArray = ReadonlyArray<PbJson>

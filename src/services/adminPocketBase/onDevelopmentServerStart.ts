@@ -9,6 +9,7 @@ import { Dayjs } from '../../models/Dayjs'
 import { LolElo } from '../../models/LolElo'
 import { TeamRole } from '../../models/TeamRole'
 import type { TournamentPhase } from '../../models/TournamentPhase'
+import { LoserOf, WinnerOf } from '../../models/WinnerOrLoserOf'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { TableName } from '../../models/pocketBase/Tables'
 import type { AttendeeInput } from '../../models/pocketBase/tables/Attendee'
@@ -159,8 +160,10 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
 
   // matches
 
-  await pb.collection('matches').create({
+  /* const match1 = */ await pb.collection('matches').create({
+    team1ResultsFrom: undefined,
     team1: team1.id,
+    team2ResultsFrom: undefined,
     team2: team2.id,
     plannedOn: tournament1.start,
     apiData: {
@@ -177,13 +180,16 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
         { teamId: 200, championId: 202 },
         { teamId: 200, championId: 143 },
       ],
+      teams: [{ win: false }, { win: true }],
     },
   })
 
-  await pb.collection('matches').create({
+  const match2 = await pb.collection('matches').create({
+    team1ResultsFrom: undefined,
     team1: team1.id,
+    team2ResultsFrom: undefined,
     team2: team3.id,
-    plannedOn: Dayjs(tournament1.start).add(12, 'hours').toDate(),
+    plannedOn: Dayjs(tournament1.start).add(2, 'hours').toDate(),
     apiData: {
       gameId: 6725087844,
       participants: [
@@ -198,13 +204,34 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
         { teamId: 200, championId: 67 },
         { teamId: 200, championId: 267 },
       ],
+      teams: [{ win: false }, { win: true }],
     },
   })
 
-  await pb.collection('matches').create({
+  const match3 = await pb.collection('matches').create({
+    team1ResultsFrom: undefined,
     team1: team2.id,
+    team2ResultsFrom: undefined,
     team2: team3.id,
-    plannedOn: tournament1.end,
+    plannedOn: Dayjs(tournament1.start).add(4, 'hours').toDate(),
+    apiData: undefined,
+  })
+
+  await pb.collection('matches').create({
+    team1ResultsFrom: WinnerOf(match2.id),
+    team1: match2.team2 === '' ? undefined : match2.team2,
+    team2ResultsFrom: WinnerOf(match3.id),
+    team2: undefined,
+    plannedOn: Dayjs(tournament1.start).add(6, 'hours').toDate(),
+    apiData: undefined,
+  })
+
+  await pb.collection('matches').create({
+    team1ResultsFrom: LoserOf(match2.id),
+    team1: match2.team1 === '' ? undefined : match2.team1,
+    team2ResultsFrom: LoserOf(match3.id),
+    team2: undefined,
+    plannedOn: Dayjs(tournament1.start).add(8, 'hours').toDate(),
     apiData: undefined,
   })
 }
