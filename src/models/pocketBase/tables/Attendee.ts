@@ -34,7 +34,7 @@ export type PbAttendee = PbBaseModel<
     championPool: SingleSelectField<ChampionPool>
     birthplace: TextField
     avatar: SingleFileField
-    isCaptain: BoolField
+    isCaptain: NullableField<BoolField>
     seed: NullableField<TextField>
     price: NullableField<NumberField>
   }
