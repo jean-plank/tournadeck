@@ -1,8 +1,5 @@
 import { random } from 'fp-ts'
-import type { AdminAuthResponse } from 'pocketbase'
-import { ClientResponseError } from 'pocketbase'
 
-import { config } from '../../config'
 import { logger } from '../../logger'
 import { ChampionPool } from '../../models/ChampionPool'
 import { Dayjs } from '../../models/Dayjs'
@@ -17,61 +14,7 @@ import type { TournamentId, TournamentInput } from '../../models/pocketBase/tabl
 import type { UserId, UserInput } from '../../models/pocketBase/tables/User'
 import { Puuid } from '../../models/riot/Puuid'
 
-export async function onDevelopmentServerStart(pb: MyPocketBase): Promise<void> {
-  await initPocketBaseIfPbEmpty(pb)
-
-  await applyFixturesIfDbIsEmpty(pb)
-}
-
-async function initPocketBaseIfPbEmpty(pb: MyPocketBase): Promise<void> {
-  const response = await authWithPassword(pb).catch(e => {
-    if (
-      e instanceof ClientResponseError &&
-      e.status === 400 &&
-      e.response.message === 'Failed to authenticate.'
-    ) {
-      return undefined
-    }
-    throw e
-  })
-
-  const isEmpty = response === undefined
-
-  if (!isEmpty) {
-    logger.info('PocketBase: not empty')
-    return
-  }
-
-  logger.info('Creating PocketBase admin and setting up Discord OAuth2')
-
-  await pb.admins.create({
-    email: config.POCKET_BASE_ADMIN_EMAIL,
-    password: config.POCKET_BASE_ADMIN_PASSWORD,
-    passwordConfirm: config.POCKET_BASE_ADMIN_PASSWORD,
-  })
-
-  await authWithPassword(pb)
-
-  await pb.settings.update({
-    discordAuth: {
-      enabled: true,
-      clientId: config.DISCORD_CLIENT_ID,
-      clientSecret: config.DISCORD_CLIENT_SECRET,
-    },
-  })
-}
-
-function authWithPassword(pb: MyPocketBase): Promise<AdminAuthResponse> {
-  return pb.admins.authWithPassword(
-    config.POCKET_BASE_ADMIN_EMAIL,
-    config.POCKET_BASE_ADMIN_PASSWORD,
-    { cache: 'no-store' },
-  )
-}
-
-// ---
-
-async function applyFixturesIfDbIsEmpty(pb: MyPocketBase): Promise<void> {
+export async function applyFixturesIfDbIsEmpty(pb: MyPocketBase): Promise<void> {
   const isEmpty = await isDbEmpty(pb)
 
   if (!isEmpty) {
