@@ -17,6 +17,7 @@ import type {
   TextField,
 } from '../../../src/models/pocketBase/pbModels'
 import type { UserId } from '../../../src/models/pocketBase/tables/User'
+import type { Puuid } from '../../../src/models/riot/Puuid'
 import { type Expect, expectT } from '../../expectT'
 
 describe('pbModels', () => {
@@ -27,7 +28,7 @@ describe('pbModels', () => {
     type PbTestBase = PbBaseModel<
       TestBaseId,
       {
-        text: TextField
+        text: TextField<Puuid>
         editor: NullableField<EditorField>
         date: DateField
         maybeDate: NullableField<DateField>
@@ -55,7 +56,7 @@ describe('pbModels', () => {
           created: string
           updated: string
 
-          text: string
+          text: Puuid
           editor: string
           date: string
           maybeDate: string
@@ -76,7 +77,7 @@ describe('pbModels', () => {
       IsEqual<
         TestBaseInput,
         {
-          text: string
+          text: Puuid
           editor?: string
           date: Date | string
           maybeDate?: Date | string
