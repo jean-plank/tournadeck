@@ -26,8 +26,8 @@ export type PbAuthModel<Id extends PbUnknownId, A extends PbUnknownModel> = PbBa
   Merge<
     {
       username: TextField
-      verified: BoolField
-      emailVisibility: BoolField
+      verified: NullableField<BoolField>
+      emailVisibility: NullableField<BoolField>
       email: EmailField
     },
     A
@@ -92,12 +92,9 @@ type PbField<Tag, I, O, Nullable extends boolean = false> = {
  * - [] for multiple fields
  * - '' for all other fields
  */
-export type NullableField<A extends PbField<unknown, unknown, unknown>> = PbField<
-  A['_tag'],
-  A['input'],
-  A['output'],
-  true
->
+export type NullableField<A extends PbField<unknown, unknown, unknown>> = A['_tag'] extends BoolTag
+  ? PbField<BoolTag, boolean, boolean, true>
+  : PbField<A['_tag'], A['input'], A['output'], true>
 
 type IdField<Id extends PbUnknownId> = PbField<'Id', Id, Id>
 
@@ -107,7 +104,11 @@ export type EditorField = PbField<'Editor', string, string>
 
 export type NumberField = PbField<'Number', number, number>
 
-export type BoolField = PbField<'Bool', boolean, boolean>
+/**
+ * Non nullable bool field can only be true
+ */
+export type BoolField = PbField<BoolTag, true, true>
+type BoolTag = 'Bool'
 
 export type EmailField = PbField<'Email', string, string>
 
@@ -138,9 +139,13 @@ export type MultipleRelationField<N extends TableName> = PbField<
   ReadonlyArray<Tables[N]['id']['output']>
 >
 
-export type SingleFileField = PbField<'SingleFile', File, string>
+export type SingleFileField = PbField<'SingleFile', File | Blob, string>
 
-export type MultipleFileField = PbField<'MultipleFile', ReadonlyArray<File>, ReadonlyArray<string>>
+export type MultipleFileField = PbField<
+  'MultipleFile',
+  ReadonlyArray<File | Blob>,
+  ReadonlyArray<string>
+>
 
 export type JsonField<A extends Json> = PbField<JsonTag, A, A>
 type JsonTag = 'Json'
