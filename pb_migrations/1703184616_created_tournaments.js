@@ -11,6 +11,19 @@ migrate(
       schema: [
         {
           system: false,
+          id: 'xd8v6xnr',
+          name: 'phase',
+          type: 'select',
+          required: true,
+          presentable: false,
+          unique: false,
+          options: {
+            maxSelect: 1,
+            values: ['created', 'teamDraft', 'matches', 'finished'],
+          },
+        },
+        {
+          system: false,
           id: 'jc5ciim4',
           name: 'name',
           type: 'text',
@@ -62,6 +75,16 @@ migrate(
             max: null,
             noDecimal: true,
           },
+        },
+        {
+          system: false,
+          id: 'lwsfnk5a',
+          name: 'isVisible',
+          type: 'bool',
+          required: false,
+          presentable: false,
+          unique: false,
+          options: {},
         },
       ],
       indexes: [],

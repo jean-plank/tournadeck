@@ -8,6 +8,7 @@ import { ChampionPool } from '../../models/ChampionPool'
 import { Dayjs } from '../../models/Dayjs'
 import { LolElo } from '../../models/LolElo'
 import { TeamRole } from '../../models/TeamRole'
+import type { TournamentPhase } from '../../models/TournamentPhase'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { TableName } from '../../models/pocketBase/Tables'
 import type { AttendeeInput } from '../../models/pocketBase/tables/Attendee'
@@ -105,9 +106,9 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
 
   const tournament1 = await pb
     .collection('tournaments')
-    .create(genTournament('Quais-Abattoirs Party', 2))
+    .create(genTournament('teamDraft', 'Quais-Abattoirs Party', 2, true))
 
-  await pb.collection('tournaments').create(genTournament('L’anniversaire de Chloé', 4))
+  await pb.collection('tournaments').create(genTournament('created', 'L’anniversaire de Chloé', 4))
 
   // attendees
 
@@ -227,17 +228,24 @@ function genUser(username: string, displayName: string, isOrganiser = false): Us
 
 // Tournament
 
-function genTournament(name: string, weeksCount: number): TournamentInput {
-  const saturdayZero = Dayjs.now().add(weeksCount, 'weeks').startOf('week').set('day', 6)
+function genTournament(
+  phase: TournamentPhase,
+  name: string,
+  weeksFromNow: number,
+  isVisible?: boolean,
+): TournamentInput {
+  const saturdayZero = Dayjs.now().add(weeksFromNow, 'weeks').startOf('week').set('day', 6)
 
   const start = saturdayZero.set('hour', 9)
   const end = saturdayZero.add(1, 'day').set('hour', 23)
 
   return {
+    phase,
     name,
     start: start.toDate(),
     end: end.toDate(),
     teamsCount: 6,
+    isVisible,
   }
 }
 
