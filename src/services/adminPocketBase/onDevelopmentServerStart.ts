@@ -5,8 +5,7 @@ import { config } from '../../config'
 import { logger } from '../../logger'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { TableName } from '../../models/pocketBase/Tables'
-import type { CreateModel } from '../../models/pocketBase/pbModels'
-import type { User } from '../../models/pocketBase/tables/User'
+import type { UserInput } from '../../models/pocketBase/tables/User'
 
 export async function onDevelopmentServerStart(pb: MyPocketBase): Promise<void> {
   await initPocketBaseIfPbEmpty(pb)
@@ -91,7 +90,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
   await pb.collection('users').create(genUser('adedigado', 'Jean Prendnote'))
 }
 
-function genUser(username: string, displayName: string, isOrganiser = false): CreateModel<User> {
+function genUser(username: string, displayName: string, isOrganiser = false): UserInput {
   const password = 'Password123'
   return {
     username,

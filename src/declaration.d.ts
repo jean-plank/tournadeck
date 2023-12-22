@@ -10,6 +10,13 @@ declare global {
 
 // overrides
 
+declare module 'newtype-ts' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions, no-shadow, @typescript-eslint/no-unused-vars
+  declare interface Newtype<URI, A> {
+    toString: () => A
+  }
+}
+
 declare module 'next/navigation' {
   import type { LinkProps } from 'next/link'
   import type { RedirectType } from 'next/navigation'
@@ -27,7 +34,7 @@ declare module 'react' {
   export as namespace React
 
   declare namespace React {
-    type MyKey = string | number | bigint | Newtype<unknown, string>
+    type MyKey = string | number | bigint | Newtype<unknown, string | number | bigint>
 
     export { MyKey as Key }
   }
