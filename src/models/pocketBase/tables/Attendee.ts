@@ -5,6 +5,7 @@ import { immutableAssign } from '../../../utils/fpTsUtils'
 import type { ChampionPool } from '../../ChampionPool'
 import type { LolElo } from '../../LolElo'
 import type { TeamRole } from '../../TeamRole'
+import type { Puuid } from '../../riot/Puuid'
 import type {
   BoolField,
   NullableField,
@@ -24,9 +25,11 @@ export type AttendeeInput = PbInput<PbAttendee>
 export type PbAttendee = PbBaseModel<
   AttendeeId,
   {
-    riotId: TextField
     user: SingleRelationField<'users'>
+    tournament: SingleRelationField<'tournaments'>
+    puuid: TextField<Puuid>
     currentElo: SingleSelectField<LolElo>
+    comment: NullableField<TextField>
     role: SingleSelectField<TeamRole>
     championPool: SingleSelectField<ChampionPool>
     birthplace: TextField
@@ -34,8 +37,6 @@ export type PbAttendee = PbBaseModel<
     isCaptain: BoolField
     seed: NullableField<TextField>
     price: NullableField<NumberField>
-    tournament: SingleRelationField<'tournaments'>
-    comment: NullableField<TextField>
   }
 >
 

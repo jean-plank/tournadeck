@@ -101,7 +101,7 @@ export type NullableField<A extends PbField<unknown, unknown, unknown>> = PbFiel
 
 type IdField<Id extends PbUnknownId> = PbField<'Id', Id, Id>
 
-export type TextField = PbField<'Text', string, string>
+export type TextField<A extends string | Newtype<unknown, string> = string> = PbField<'Text', A, A>
 
 export type EditorField = PbField<'Editor', string, string>
 
