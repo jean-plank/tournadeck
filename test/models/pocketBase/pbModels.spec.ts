@@ -18,7 +18,8 @@ import type {
 } from '../../../src/models/pocketBase/pbModels'
 import type { UserId } from '../../../src/models/pocketBase/tables/User'
 import type { Puuid } from '../../../src/models/riot/Puuid'
-import { type Expect, expectT } from '../../expectT'
+import { type Expect } from '../../../src/utils/typeUtils'
+import { expectT } from '../../expectT'
 
 describe('pbModels', () => {
   describe('PbBaseModel', () => {
@@ -86,7 +87,7 @@ describe('pbModels', () => {
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId
           maybeSingleRelation?: UserId
-          multipleFile: ReadonlyArray<File>
+          multipleFile: ReadonlyArray<File | Blob>
           json: { foo: 123 }
           maybeJson?: { bar: boolean }
         }
@@ -152,8 +153,8 @@ describe('pbModels', () => {
         TestAuthInput,
         {
           username: string
-          verified: boolean
-          emailVisibility: boolean
+          verified?: boolean
+          emailVisibility?: boolean
           email: string
 
           password: string
@@ -166,7 +167,7 @@ describe('pbModels', () => {
           singleSelect: 'a' | 'b' | 'c'
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId
-          multipleFile: ReadonlyArray<File>
+          multipleFile: ReadonlyArray<File | Blob>
         }
       >
     >
