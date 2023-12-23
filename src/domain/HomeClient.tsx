@@ -8,10 +8,9 @@ import { usePocketBase } from '../contexts/PocketBaseContext'
 export const HomeClient: React.FC = () => {
   const { pb, user } = usePocketBase()
 
-  const connectWithDiscord = useCallback(
-    () => pb.collection('users').authWithOAuth2({ provider: 'discord' }),
-    [pb],
-  )
+  const connectWithDiscord = useCallback(() => {
+    pb.collection('users').authWithOAuth2({ provider: 'discord' })
+  }, [pb])
 
   const logout = useCallback(() => {
     pb.authStore.clear()

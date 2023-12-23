@@ -31,7 +31,6 @@ module.exports = {
     '@typescript-eslint/no-base-to-string': 'error',
     '@typescript-eslint/no-empty-function': 'warn',
     '@typescript-eslint/no-explicit-any': 'error',
-    '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/no-namespace': 'warn',
     '@typescript-eslint/no-restricted-imports': 'off',
     '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'warn',
