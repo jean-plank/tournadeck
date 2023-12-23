@@ -4,6 +4,7 @@ import { flow, pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 import type { RecordSubscription, UnsubscribeFunc } from 'pocketbase'
 
+import { logger } from '../logger'
 import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { TableName, Tables } from '../models/pocketBase/Tables'
 import type { PbOutput } from '../models/pocketBase/pbModels'
@@ -17,55 +18,7 @@ export async function subscribeCollection<N extends TableName>(
 ): Promise<UnsubscribeFunc> {
   const abortController = new AbortController()
 
-  const response = await fetch(pb.buildUrl('/api/realtime'), {
-    cache: 'no-store',
-    signal: abortController.signal,
-  })
-
-  if (response.body === null) {
-    throw Error('Empty SSE')
-  }
-
-  const reader = response.body.getReader()
-
-  new ReadableStream({
-    start(controller) {
-      return pump()
-
-      async function pump(): Promise<void> {
-        const { done, value } = await reader.read()
-
-        if (value !== undefined) {
-          const rawChunk = Buffer.from(value.buffer).toString()
-
-          pipe(
-            pbEventDecoder.decode(rawChunk),
-            either.fold(
-              e => {
-                console.error(decodeErrorString('EventFromChunk')(rawChunk)(e))
-              },
-              event => {
-                handleEvent(event)
-              },
-            ),
-          )
-        }
-
-        // When no more data needs to be consumed, close the stream
-        if (done) {
-          console.log('CLOSE')
-
-          controller.close()
-          reader.releaseLock()
-          return
-        }
-
-        // Enqueue the next data chunk into our target stream
-        controller.enqueue(value)
-        return pump()
-      }
-    },
-  })
+  subscribe()
 
   let clientId: string | undefined = undefined
 
@@ -74,6 +27,49 @@ export async function subscribeCollection<N extends TableName>(
       await postSubscription(pb, clientId, undefined)
     }
     abortController.abort()
+  }
+
+  async function subscribe(): Promise<void> {
+    logger.debug(`Subscribing to PocketBase: ${collection}/${topic}...`)
+
+    const response = await fetch(pb.buildUrl('/api/realtime'), {
+      cache: 'no-store',
+      signal: abortController.signal,
+    })
+
+    if (response.body === null) {
+      throw Error('Empty SSE')
+    }
+
+    pump(response.body.getReader())
+  }
+
+  async function pump(reader: ReadableStreamDefaultReader<Uint8Array>): Promise<void> {
+    const { done, value } = await reader.read()
+
+    if (value !== undefined) {
+      const rawChunk = Buffer.from(value.buffer).toString()
+
+      pipe(
+        pbEventDecoder.decode(rawChunk),
+        either.fold(
+          e => {
+            console.error(decodeErrorString('EventFromChunk')(rawChunk)(e))
+          },
+          event => {
+            handleEvent(event)
+          },
+        ),
+      )
+    }
+
+    if (done) {
+      logger.warn(`Subscription to PocketBase broken (${collection}/${topic})`)
+
+      reader.releaseLock()
+    } else {
+      pump(reader)
+    }
   }
 
   async function handleEvent(e: PbEvent): Promise<void> {
