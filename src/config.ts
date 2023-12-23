@@ -3,13 +3,23 @@ import 'server-cli-only'
 import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
+import type pino from 'pino'
+import type { IsEqual } from 'type-fest'
 
 import { eitherGetOrThrow } from './utils/fpTsUtils'
 import { decodeError } from './utils/ioTsUtils'
+import type { Expect } from './utils/typeUtils'
+
+const levelDecoder = D.literal('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent')
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type Test = Expect<IsEqual<D.TypeOf<typeof levelDecoder>, pino.LevelWithSilent>>
 
 export type Config = D.TypeOf<typeof decoder>
 
 const decoder = D.struct({
+  LOG_LEVEL: levelDecoder,
+
   POCKET_BASE_ADMIN_EMAIL: D.string,
   POCKET_BASE_ADMIN_PASSWORD: D.string,
 
