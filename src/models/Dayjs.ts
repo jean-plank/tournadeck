@@ -1,6 +1,9 @@
 import dayjs from 'dayjs'
 import 'dayjs/locale/fr'
 import customParseFormatPlugin from 'dayjs/plugin/customParseFormat'
+import type { Duration } from 'dayjs/plugin/duration'
+import durationPlugin from 'dayjs/plugin/duration'
+import relativeTimePlugin from 'dayjs/plugin/relativeTime'
 import timezonePlugin from 'dayjs/plugin/timezone'
 import utcPlugin from 'dayjs/plugin/utc'
 
@@ -9,7 +12,14 @@ import { immutableAssign } from '../utils/fpTsUtils'
 dayjs.extend(customParseFormatPlugin)
 dayjs.extend(utcPlugin)
 dayjs.extend(timezonePlugin)
+dayjs.extend(relativeTimePlugin) // needed for durationPlugin
+dayjs.extend(durationPlugin)
+
 dayjs.locale('fr')
+
+/**
+ * Dayjs
+ */
 
 type Dayjs = dayjs.Dayjs
 
@@ -34,3 +44,13 @@ const now: () => dayjs.Dayjs = dayjs.utc
 const Dayjs = immutableAssign(construct, { now })
 
 export { Dayjs }
+
+/**
+ * DayjsDuration
+ */
+
+type DayjsDuration = Duration
+
+const DayjsDuration = dayjs.duration
+
+export { DayjsDuration }

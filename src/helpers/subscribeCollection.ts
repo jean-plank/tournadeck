@@ -17,7 +17,7 @@ export async function subscribeCollection<N extends TableName>(
 ): Promise<UnsubscribeFunc> {
   const abortController = new AbortController()
 
-  const response = await pb.send('/api/realtime', {
+  const response = await fetch(pb.buildUrl('/api/realtime'), {
     cache: 'no-store',
     signal: abortController.signal,
   })
@@ -91,7 +91,7 @@ function postSubscription(
   pb: MyPocketBase,
   clientId: string,
   subscription: string | undefined,
-): Promise<Response> {
+): Promise<unknown> {
   return pb.send('/api/realtime', {
     method: 'POST',
     body: {

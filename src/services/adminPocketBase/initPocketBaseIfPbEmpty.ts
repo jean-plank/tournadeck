@@ -20,11 +20,11 @@ export async function initPocketBaseIfPbEmpty(pb: MyPocketBase): Promise<void> {
   const isEmpty = response === undefined
 
   if (!isEmpty) {
-    logger.info('PocketBase: not empty')
+    logger.info('PocketBase admin: not empty')
     return
   }
 
-  logger.info('Creating PocketBase admin and setting up Discord OAuth2')
+  logger.debug('Creating PocketBase admin and setting up Discord OAuth2...')
 
   await pb.admins.create({
     email: config.POCKET_BASE_ADMIN_EMAIL,
@@ -41,6 +41,8 @@ export async function initPocketBaseIfPbEmpty(pb: MyPocketBase): Promise<void> {
       clientSecret: config.DISCORD_CLIENT_SECRET,
     },
   })
+
+  logger.info('Created PocketBase admin and set up Discord OAuth2')
 }
 
 function authWithPassword(pb: MyPocketBase): Promise<AdminAuthResponse> {

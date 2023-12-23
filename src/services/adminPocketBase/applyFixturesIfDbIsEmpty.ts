@@ -22,9 +22,11 @@ export async function applyFixturesIfDbIsEmpty(pb: MyPocketBase): Promise<void> 
     return
   }
 
-  logger.info('Applying fixtures')
+  logger.debug('Applying fixtures...')
 
   await addFixtures(pb)
+
+  logger.info('Applied fixtures')
 }
 
 async function isDbEmpty(pb: MyPocketBase): Promise<boolean> {
