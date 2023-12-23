@@ -1,6 +1,6 @@
 import * as C from 'io-ts/Codec'
 
-import { MatchId } from './pocketBase/tables/Match'
+import { MatchId } from './pocketBase/tables/match/MatchId'
 
 type WinnerOf = C.TypeOf<typeof winnerOfCodec>
 

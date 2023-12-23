@@ -1,9 +1,9 @@
 import type { PbAttendee } from './tables/Attendee'
-import type { PbMatch } from './tables/Match'
 import type { PbTeam } from './tables/Team'
 import type { PbTest } from './tables/Test'
 import type { PbTournament } from './tables/Tournament'
 import type { PbUser } from './tables/User'
+import type { PbMatch } from './tables/match/Match'
 
 export type TableName = keyof Tables
 
