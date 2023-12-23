@@ -1,4 +1,5 @@
 import { config } from '../../config'
+import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import { applyFixturesIfDbIsEmpty } from './applyFixturesIfDbIsEmpty'
 import { initPocketBaseIfPbEmpty } from './initPocketBaseIfPbEmpty'
@@ -28,10 +29,8 @@ async function loadPb(): Promise<MyPocketBase> {
   return pb
 }
 
-function subscribeAll(pb: MyPocketBase): Promise<void> {
-  // return pb.collection('matches').subscribe('*', e => {
-  //   console.log('e', e)
-  // })
-
-  return Promise.resolve()
+async function subscribeAll(pb: MyPocketBase): Promise<void> {
+  await subscribeCollection(pb, 'matches', '*', e => {
+    console.log(`matches ${e.action}:`, e)
+  })
 }

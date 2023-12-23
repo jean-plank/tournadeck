@@ -1,4 +1,10 @@
-import type { BaseAuthStore, CommonOptions, RecordOptions, RecordService } from 'pocketbase'
+import type {
+  BaseAuthStore,
+  CommonOptions,
+  RecordOptions,
+  RecordService,
+  SendOptions,
+} from 'pocketbase'
 import PocketBase from 'pocketbase'
 import type { OverrideProperties } from 'type-fest'
 
@@ -10,6 +16,7 @@ import type { PbBaseModel, PbInput, PbOutput, PbUnknownId, PbUnknownModel } from
 type MyPocketBase_ = OverrideProperties<
   PocketBase,
   {
+    send: (path: string, options: SendOptions) => Promise<Response>
     collection: <A extends TableName>(name: A) => MyRecordService<Tables[A]>
   }
 >
