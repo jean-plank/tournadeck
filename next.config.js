@@ -1,4 +1,10 @@
-const url = new URL(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
+const url = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_POCKET_BASE_URL ?? '')
+  } catch (e) {
+    return undefined
+  }
+})()
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,16 +19,18 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      {
-        protocol: url.protocol.slice(0, -1),
-        hostname: url.hostname,
-        port: url.port,
-      },
+      url !== undefined
+        ? {
+            protocol: url.protocol.slice(0, -1),
+            hostname: url.hostname,
+            port: url.port,
+          }
+        : undefined,
       {
         protocol: 'https',
         hostname: 'raw.communitydragon.org',
       },
-    ],
+    ].filter(p => p !== undefined),
   },
 }
 
