@@ -84,10 +84,7 @@ function load(
     await subscribeCollection(logger, pb, 'matches', '*', handleMatchesEvent)
 
     function handleMatchesEvent(event: RecordSubscription<Match>): void {
-      if (
-        (event.action === 'create' || event.action === 'update') &&
-        event.record.apiData !== null
-      ) {
+      if (event.action === 'create' || event.action === 'update') {
         pipe(
           MatchApiData.codec.decode(event.record.apiData),
           either.fold(

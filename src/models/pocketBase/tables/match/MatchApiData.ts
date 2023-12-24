@@ -8,13 +8,15 @@ import type { Encoder } from 'io-ts/Encoder'
 import { GameId } from '../../../riot/GameId'
 import { TheQuestMatch, type TheQuestMatchOutput } from '../../../theQuest/TheQuestMatch'
 
-type MatchApiData = D.TypeOf<typeof decoder>
+type MatchApiData = null | GameId | TheQuestMatch
 type MatchApiDataOutput = E.OutputOf<typeof encoder>
 
-const decoder: Decoder<unknown, GameId | TheQuestMatch> = D.union(GameId.codec, TheQuestMatch.codec)
+const decoder: Decoder<unknown, MatchApiData> = D.nullable(
+  D.union(GameId.codec, TheQuestMatch.codec),
+)
 
-const encoder: Encoder<GameId | TheQuestMatchOutput, MatchApiData> = {
-  encode: a => (isGameId(a) ? a : TheQuestMatch.codec.encode(a)),
+const encoder: Encoder<null | GameId | TheQuestMatchOutput, MatchApiData> = {
+  encode: a => (a === null ? null : isGameId(a) ? a : TheQuestMatch.codec.encode(a)),
 }
 
 function isGameId(apiData: MatchApiData): apiData is GameId {
