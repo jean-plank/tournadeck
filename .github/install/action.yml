@@ -1,17 +1,12 @@
 name: Tournadeck install
 description: Install dependencies
 
-inputs:
-  node-version:
-    description: 'Node.js version'
-    required: true
-
 runs:
   using: 'composite'
   steps:
     - uses: actions/setup-node@v4
       with:
-        node-version: ${{ inputs.node-version }}
+        node-version: 20.x
         cache: 'yarn'
     - run: yarn install --frozen-lockfile
       shell: bash

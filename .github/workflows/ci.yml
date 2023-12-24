@@ -11,76 +11,65 @@ on:
 
 env:
   NODE_ENV: test
-  NODE_VERSION: 20.x
 
 jobs:
-  # install:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         # cache: 'yarn'
-  #     - run: yarn install --frozen-lockfile
-
-  typescript:
+  install:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/install
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+
+  typescript:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/install
 
       - run: yarn tsc
 
   format:
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/install
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - run: yarn formatCheck
 
   lint:
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/install
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - run: yarn lint
 
   depcruise:
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/install
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - run: yarn dc
 
   test:
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/install
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - run: yarn testUnit
 
   build:
+    needs: [typescript, format, lint, depcruise, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/install
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - run: |
           cp .env.local.example .env.test
