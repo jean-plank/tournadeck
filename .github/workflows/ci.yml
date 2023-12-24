@@ -32,7 +32,11 @@ jobs:
       - name: yarn install
         run: yarn install --frozen-lockfile
 
-      - name: DEBUG
+  DEBUG:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - name: pwd/ls
         run: |
           pwd
           ls -la
