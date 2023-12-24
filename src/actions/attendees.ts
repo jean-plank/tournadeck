@@ -1,6 +1,7 @@
 'use server'
 
 import { either } from 'fp-ts'
+import { revalidateTag } from 'next/cache'
 
 import { Config } from '../Config'
 import { adminPocketBase, getLogger, theQuestService } from '../context'
@@ -13,7 +14,6 @@ import type { TournamentId } from '../models/pocketBase/tables/Tournament'
 import { GameName } from '../models/riot/GameName'
 import { RiotId } from '../models/riot/RiotId'
 import { TagLine } from '../models/riot/TagLine'
-import { immutableAssign } from '../utils/fpTsUtils'
 
 const logger = getLogger('attendeesActions')
 
@@ -22,39 +22,38 @@ const cacheDuration = 5 // seconds
 
 const listAttendeesTag = 'attendees/list'
 
-export const listAttendeesForTournament = immutableAssign(
-  async (tournamentId: TournamentId): Promise<ReadonlyArray<AttendeeWithRiotId>> => {
-    const { user } = await auth()
+export async function listAttendeesForTournament(
+  tournamentId: TournamentId,
+): Promise<ReadonlyArray<AttendeeWithRiotId>> {
+  const { user } = await auth()
 
-    if (!Permissions.attendees.list(user.role)) {
-      throw Error('Forbidden')
-    }
+  if (!Permissions.attendees.list(user.role)) {
+    throw Error('Forbidden')
+  }
 
-    const adminPb = await adminPocketBase
+  const adminPb = await adminPocketBase
 
-    const attendees = await adminPb.collection('attendees').getFullList<Attendee>({
-      filter: `tournament="${tournamentId}"`,
-      next: { revalidate: cacheDuration, tags: [listAttendeesTag] },
-    })
+  const attendees = await adminPb.collection('attendees').getFullList({
+    filter: `tournament="${tournamentId}"`,
+    next: { revalidate: cacheDuration, tags: [listAttendeesTag] },
+  })
 
-    return Promise.all(
-      attendees.map(
-        (a): Promise<AttendeeWithRiotId> =>
-          theQuestService.getSummonerByPuuid(Config.constants.platform, a.puuid).then(summoner => {
-            if (summoner === undefined) {
-              logger.warn(`Summoner not found for attendee ${a.id}`)
-            }
+  return Promise.all(
+    attendees.map(
+      (a): Promise<AttendeeWithRiotId> =>
+        theQuestService.getSummonerByPuuid(Config.constants.platform, a.puuid).then(summoner => {
+          if (summoner === undefined) {
+            logger.warn(`Summoner not found for attendee ${a.id}`)
+          }
 
-            return {
-              ...a,
-              riotId: summoner?.riotId ?? RiotId(GameName('undefined'), TagLine('undef')),
-            }
-          }),
-      ),
-    )
-  },
-  { tag: listAttendeesTag },
-)
+          return {
+            ...a,
+            riotId: summoner?.riotId ?? RiotId(GameName('undefined'), TagLine('undef')),
+          }
+        }),
+    ),
+  )
+}
 
 export async function createAttendee(
   tournament: TournamentId,
@@ -66,13 +65,13 @@ export async function createAttendee(
     throw Error('Forbidden')
   }
 
-  const attendee = AttendeeCreate.decoder.decode(formData)
+  const attendeeCreate = AttendeeCreate.decoder.decode(formData)
 
-  if (either.isLeft(attendee)) {
+  if (either.isLeft(attendeeCreate)) {
     throw Error('BadRequest')
   }
 
-  const { riotId } = attendee.right
+  const { riotId } = attendeeCreate.right
 
   const summoner = await theQuestService.getSummonerByRiotId(Config.constants.platform, riotId)
 
@@ -82,10 +81,14 @@ export async function createAttendee(
 
   const adminPb = await adminPocketBase
 
-  return await adminPb.collection('attendees').create({
-    ...attendee.right,
+  const attendee = await adminPb.collection('attendees').create({
+    ...attendeeCreate.right,
     user: user.id,
     tournament,
     puuid: summoner.puuid,
   })
+
+  revalidateTag(listAttendeesTag)
+
+  return attendee
 }

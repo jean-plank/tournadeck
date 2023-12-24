@@ -3,13 +3,13 @@
 import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 
+import { createAttendee } from '../../../actions/attendees'
 import { FileInput, Input, SelectInput } from '../../../components/FormInputs'
 import { ChampionPool } from '../../../models/ChampionPool'
 import { LolElo } from '../../../models/LolElo'
 import { TeamRole } from '../../../models/TeamRole'
 import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
 import { objectEntries, objectKeys } from '../../../utils/fpTsUtils'
-import { addAttendee } from './addAttendee'
 
 type Inputs = {
   riotId: string
@@ -90,7 +90,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
         }
       })
 
-      addAttendee(tournament, formData)
+      createAttendee(tournament, formData)
         .then(onSubscribeOk)
         .catch(() => setSubmitError('Une erreur inconnue est survenue'))
     }

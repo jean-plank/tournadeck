@@ -24,6 +24,10 @@ export const objectEntries: <A extends Partial<ReadonlyRecord<PropertyKey, unkno
   a: A,
 ) => ReadonlyArray<{ [K in keyof A]-?: [K, A[K]] }[keyof A]> = Object.entries
 
+export const objectValues: <A extends Partial<ReadonlyRecord<PropertyKey, unknown>>>(
+  a: A,
+) => ReadonlyArray<A[keyof A]> = Object.values
+
 export function emptyRecord<K extends PropertyKey, A>(): ReadonlyRecord<K, A> {
   return {} as ReadonlyRecord<K, A>
 }
