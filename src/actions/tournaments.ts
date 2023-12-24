@@ -1,6 +1,7 @@
 import { adminPocketBase } from '../context'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
+import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { Tournament, TournamentId } from '../models/pocketBase/tables/Tournament'
 
 // for GET actions
@@ -20,7 +21,7 @@ export async function listTournaments(): Promise<ReadonlyArray<Tournament>> {
   })
 }
 
-export async function viewTournament(tournamentId: TournamentId): Promise<Tournament> {
+export async function viewTournament(tournamentId: TournamentId): Promise<Tournament | undefined> {
   const { user } = await auth()
 
   if (!Permissions.tournaments.view(user.role)) {
@@ -32,4 +33,5 @@ export async function viewTournament(tournamentId: TournamentId): Promise<Tourna
   return await adminPb
     .collection('tournaments')
     .getOne(tournamentId, { next: { revalidate: cacheDuration } })
+    .catch(MyPocketBase.statusesToUndefined(404))
 }
