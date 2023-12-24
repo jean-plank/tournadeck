@@ -1,8 +1,10 @@
-type TeamRole = (typeof values)[number]
+import { createEnum } from '../utils/createEnum'
 
-const values = ['top', 'jun', 'mid', 'bot', 'sup'] as const
+type TeamRole = typeof e.T
 
-const label: Record<TeamRole, string> = {
+const e = createEnum('top', 'jun', 'mid', 'bot', 'sup')
+
+const label: ReadonlyRecord<TeamRole, string> = {
   top: 'Haut',
   jun: 'Jungle',
   mid: 'Milieu',
@@ -10,6 +12,6 @@ const label: Record<TeamRole, string> = {
   sup: 'Support',
 }
 
-const TeamRole = { values, label }
+const TeamRole = { ...e, label }
 
 export { TeamRole }

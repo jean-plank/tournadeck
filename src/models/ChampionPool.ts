@@ -1,8 +1,10 @@
-type ChampionPool = (typeof values)[number]
+import { createEnum } from '../utils/createEnum'
 
-const values = ['oneTrick', 'limited', 'modest', 'notBad', 'quiteALot'] as const
+type ChampionPool = typeof e.T
 
-const label: Record<ChampionPool, string> = {
+const e = createEnum('oneTrick', 'limited', 'modest', 'notBad', 'quiteALot')
+
+const label: ReadonlyRecord<ChampionPool, string> = {
   oneTrick: "J'ai un seul poney à mon arc",
   limited: 'Limité',
   modest: 'Modeste',
@@ -10,6 +12,6 @@ const label: Record<ChampionPool, string> = {
   quiteALot: 'Ça fait beaucoup là, non ?',
 }
 
-const ChampionPool = { values, label }
+const ChampionPool = { ...e, label }
 
 export { ChampionPool }

@@ -1,6 +1,8 @@
-type LolElo = (typeof values)[number]
+import { createEnum } from '../utils/createEnum'
 
-const values = [
+type LolElo = typeof e.T
+
+const e = createEnum(
   'iron',
   'bronze',
   'silver',
@@ -11,9 +13,9 @@ const values = [
   'master',
   'grandmaster',
   'challenger',
-] as const
+)
 
-const label: Record<LolElo, string> = {
+const label: ReadonlyRecord<LolElo, string> = {
   iron: 'Fer',
   bronze: 'Bronze',
   silver: 'Argent',
@@ -26,6 +28,6 @@ const label: Record<LolElo, string> = {
   challenger: 'Challenger',
 }
 
-const LolElo = { values, label }
+const LolElo = { ...e, label }
 
 export { LolElo }

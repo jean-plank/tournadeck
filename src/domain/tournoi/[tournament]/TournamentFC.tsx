@@ -1,11 +1,11 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { Fragment, useCallback, useRef } from 'react'
 
 import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../contexts/PocketBaseContext'
-import type { AttendeeWithRiotId } from '../../../models/AttendeeWithRiotId'
 import { TeamRole } from '../../../models/TeamRole'
+import type { AttendeeWithRiotId } from '../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
@@ -20,7 +20,7 @@ type Props = {
 export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
   const { user } = usePocketBase()
 
-  const dialog = useRef<null | HTMLDialogElement>(null)
+  const dialog = useRef<HTMLDialogElement>(null)
 
   const handleSuscribeClick = useCallback((): void => {
     if (dialog.current !== null) dialog.current.showModal()
@@ -55,7 +55,7 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
 
           <dialog ref={dialog}>
             <h2>Inscription</h2>
-            <AttendeeForm tournamentId={tournament.id} onSuscribeOk={onSuscribeOk} />
+            <AttendeeForm tournament={tournament.id} onSubscribeOk={onSuscribeOk} />
             <button type="button" className="p-2" onClick={handleCancelClick}>
               Annuler
             </button>
@@ -74,10 +74,10 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
               {attendees
                 .filter(p => p.role === role)
                 .map(p => (
-                  <>
-                    <AttendeeTile attendee={p} key={p.id} />
-                    <SmallAttendeeTile data={p} key={p.id} />
-                  </>
+                  <Fragment key={p.id}>
+                    <AttendeeTile attendee={p} />
+                    <SmallAttendeeTile data={p} />
+                  </Fragment>
                 ))}
             </div>
           ))}

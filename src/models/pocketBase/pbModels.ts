@@ -1,3 +1,4 @@
+import type { File } from 'buffer'
 import type { Literal } from 'io-ts/lib/Schemable'
 import type { Newtype } from 'newtype-ts'
 import type { ConditionalKeys, Merge } from 'type-fest'

@@ -1,13 +1,15 @@
 'use client'
 
 import type { ChangeEvent } from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
+import { createAttendee } from '../../../actions/attendees'
 import { FileInput, Input, SelectInput } from '../../../components/FormInputs'
 import { ChampionPool } from '../../../models/ChampionPool'
 import { LolElo } from '../../../models/LolElo'
 import { TeamRole } from '../../../models/TeamRole'
 import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
+import { objectEntries, objectKeys } from '../../../utils/fpTsUtils'
 
 type Inputs = {
   riotId: string
@@ -15,94 +17,89 @@ type Inputs = {
   comment: string
   role: TeamRole
   championPool: ChampionPool
-  birthPlace: string
+  birthplace: string
   avatar: File | null
 }
 
 type Errors = Partial<Record<keyof Inputs, string>>
 
-type Touched = Partial<Record<keyof Inputs, boolean>>
+type Touched = Partial<ReadonlyRecord<keyof Inputs, boolean>>
 
-type Props = {
-  tournamentId: TournamentId
-  onSuscribeOk: () => void
+const inputsEmpty: Inputs = {
+  riotId: '',
+  currentElo: LolElo.values[0],
+  comment: '',
+  role: TeamRole.values[0],
+  championPool: 'oneTrick',
+  birthplace: '',
+  avatar: null,
 }
 
-export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) => {
-  const [inputs, setInputs] = useState<Inputs>({
-    riotId: '',
-    currentElo: LolElo.values[0],
-    comment: '',
-    role: TeamRole.values[0],
-    championPool: 'oneTrick',
-    birthPlace: '',
-    avatar: null,
-  })
+const keys = objectKeys(inputsEmpty)
 
-  const [submitError, setSubmitError] = useState<null | string>(null)
+type Props = {
+  tournament: TournamentId
+  onSubscribeOk: () => void
+}
+
+export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => {
+  const [inputs, setInputs] = useState(inputsEmpty)
 
   const errors = validate(inputs)
 
   const [touched, setTouched] = useState<Touched>({})
 
+  const [submitError, setSubmitError] = useState<string | undefined>(undefined)
+
   const handleChange = (key: keyof Inputs) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputs({ ...inputs, [key]: event.target.value })
+    setInputs(i => ({ ...i, [key]: event.target.value }))
   }
   const handleSelectChange =
     (key: keyof Inputs) => (event: React.ChangeEvent<HTMLSelectElement>) => {
-      setInputs({ ...inputs, [key]: event.target.value })
+      setInputs(i => ({ ...i, [key]: event.target.value }))
     }
 
   const handleBlur = (key: keyof Inputs) => () => {
-    setTouched({ ...touched, [key]: true })
+    setTouched(t => ({ ...t, [key]: true }))
   }
 
-  const handleFileChange = () => (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files !== null && files.length > 0) {
       const selected = files[0]
-      setInputs({ ...inputs, avatar: selected })
+      setInputs(i => ({ ...i, avatar: selected }))
     }
-  }
+  }, [])
 
   const showErrorMsg = (key: keyof Inputs): boolean =>
     errors[key] !== undefined && touched[key] !== undefined
 
-  // const handleSubmit = useCallback(
-  //   (event: React.FormEvent<HTMLFormElement>): void => {
-  //     event.preventDefault()
+  const handleSubmit = useCallback(() => {
+    const obj = keys.reduce<Touched>((acc, key) => ({ ...acc, [key]: true }), {})
 
-  //     const obj = readonlyRecord
-  //       .keys(inputs)
-  //       .reduce<Touched>((acc, key) => ({ ...acc, [key]: true }), {})
+    setTouched(obj)
 
-  //     setTouched(obj)
+    const errors_ = validate(inputs)
 
-  //     const errors_ = validate(inputs)
+    if (Object.keys(errors_).length === 0) {
+      const formData = new FormData()
 
-  //     if (Object.keys(errors_).length === 0) {
-  //       if (user !== null) {
-  //         const data: CreateModel<Attendee> = {
-  //           ...inputs,
-  //           isCaptain: false,
-  //           tournament: tournamentId,
-  //           user: user.id,
-  //         }
+      objectEntries(inputs).forEach(([key, val]) => {
+        if (val !== null) {
+          formData.set(key, val)
+        }
+      })
 
-  //         pb.collection('attendees')
-  //           .create(data)
-  //           .then(() => onSuscribeOk())
-  //           .catch(() => setSubmitError('Une erreur inconnue est survenue'))
-  //       }
-  //     }
-  //   },
-  //   [inputs, onSuscribeOk, pb, tournamentId, user],
-  // )
+      createAttendee(tournament, formData)
+        .then(onSubscribeOk)
+        .catch(() => setSubmitError('Une erreur inconnue est survenue'))
+    }
+  }, [inputs, onSubscribeOk, tournament])
 
   return (
     <form
+      action={handleSubmit}
       className="flex w-[26rem] flex-col gap-3 rounded-lg border-2 border-grey-400 bg-white p-4"
-      // onSubmit={handleSubmit}
     >
       <Input
         label="Riot ID"
@@ -158,18 +155,18 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
         label="Lieu de naissance"
         type="text"
         placeholder="Lieu de naissance"
-        onChange={handleChange('birthPlace')}
-        onBlur={handleBlur('birthPlace')}
-        errorMsg={errors.birthPlace ?? ''}
-        showErrorMsg={showErrorMsg('birthPlace')}
+        onChange={handleChange('birthplace')}
+        onBlur={handleBlur('birthplace')}
+        errorMsg={errors.birthplace ?? ''}
+        showErrorMsg={showErrorMsg('birthplace')}
       />
 
       <FileInput
         label="Photo de votre épouvantable faciès"
         placeholder="Avatar"
-        onChange={handleFileChange()}
+        onChange={handleFileChange}
         errorMsg={errors.avatar ?? ''}
-        showErrorMsg={showErrorMsg('birthPlace')}
+        showErrorMsg={showErrorMsg('birthplace')}
       />
 
       <button
@@ -179,33 +176,33 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
         Valider
       </button>
 
-      {submitError !== null && <p className="text-red-500">{submitError}</p>}
+      {submitError !== undefined && <p className="text-red-500">{submitError}</p>}
     </form>
   )
 }
 
 const riotIdRegex = /^.{4,16}#[a-zA-Z0-9]{3,5}$/
 
-const validate = (newInputs: Inputs): Errors => {
+function validate(inputs: Inputs): Errors {
   const newErrors: Errors = {}
 
   // RiotId
-  if (!riotIdRegex.test(newInputs.riotId)) {
+  if (!riotIdRegex.test(inputs.riotId)) {
     newErrors.riotId = 'Merci de saisir un Riot ID correct'
   }
 
   // Comment
-  if (newInputs.comment.length > 50) {
-    newErrors.comment = 'Merci de saisir un commentaire de moins de 50 caracters'
+  if (inputs.comment.trim().length > 50) {
+    newErrors.comment = 'Merci de saisir un commentaire de moins de 50 caractères'
   }
 
   // BirthPlace
-  if (newInputs.birthPlace === '') {
-    newErrors.birthPlace = 'Merci de saisir votre lieu de naissance'
+  if (inputs.birthplace.trim() === '') {
+    newErrors.birthplace = 'Merci de saisir votre lieu de naissance'
   }
 
   // Avatar
-  if (newInputs.avatar === null) {
+  if (inputs.avatar === null) {
     newErrors.avatar = 'Merci de choisir un avatar'
   }
 
