@@ -18,7 +18,8 @@ import type {
 } from '../../../src/models/pocketBase/pbModels'
 import type { UserId } from '../../../src/models/pocketBase/tables/User'
 import type { Puuid } from '../../../src/models/riot/Puuid'
-import { type Expect, expectT } from '../../expectT'
+import { type Expect } from '../../../src/utils/typeUtils'
+import { expectT } from '../../expectT'
 
 describe('pbModels', () => {
   describe('PbBaseModel', () => {

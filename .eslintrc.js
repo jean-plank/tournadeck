@@ -17,6 +17,7 @@ module.exports = {
       'warn',
       { prefer: 'type-imports', disallowTypeAnnotations: false },
     ],
+    '@typescript-eslint/default-param-last': 'error',
     '@typescript-eslint/explicit-function-return-type': [
       'warn',
       {
@@ -25,6 +26,7 @@ module.exports = {
         allowHigherOrderFunctions: true,
       },
     ],
+    '@typescript-eslint/init-declarations': 'error',
     '@typescript-eslint/method-signature-style': 'warn',
     '@typescript-eslint/no-base-to-string': 'error',
     '@typescript-eslint/no-empty-function': 'warn',
@@ -46,8 +48,10 @@ module.exports = {
     ],
     '@typescript-eslint/triple-slash-reference': 'off',
     'arrow-body-style': ['warn', 'as-needed'],
+    'default-param-last': 'off',
     eqeqeq: ['error', 'always'],
     'fp-ts/no-module-imports': ['warn', { allowTypes: true }],
+    'init-declarations': 'off',
     'no-shadow': 'warn',
     'no-unused-vars': 'off',
     'no-useless-rename': 'warn',

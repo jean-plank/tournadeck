@@ -2,8 +2,12 @@ import 'server-cli-only'
 
 import pino from 'pino'
 
-export const logger = pino(
-  process.env.NODE_ENV !== 'production'
+import { config } from './config'
+
+export const logger = pino({
+  level: config.LOG_LEVEL,
+
+  ...(process.env.NODE_ENV !== 'production'
     ? {
         transport: {
           target: 'pino-pretty',
@@ -12,5 +16,5 @@ export const logger = pino(
           },
         },
       }
-    : undefined,
-)
+    : {}),
+})
