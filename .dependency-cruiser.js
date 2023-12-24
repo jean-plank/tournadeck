@@ -199,7 +199,7 @@ module.exports = {
       name: 'not-to-context',
       severity: 'error',
       from: {
-        pathNot: ['^src/app', '^src/domain'],
+        pathNot: ['^src/actions', '^src/app', '^src/domain'],
       },
       to: {
         path: 'src/context.ts',

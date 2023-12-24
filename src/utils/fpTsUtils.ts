@@ -15,3 +15,15 @@ export function immutableAssign<
 export const eitherGetOrThrow: <A>(fa: Either<Error, A>) => A = either.getOrElseW(e => {
   throw e
 })
+
+export const objectKeys: <A extends Partial<ReadonlyRecord<PropertyKey, unknown>>>(
+  a: A,
+) => ReadonlyArray<keyof A> = Object.keys
+
+export const objectEntries: <A extends Partial<ReadonlyRecord<PropertyKey, unknown>>>(
+  a: A,
+) => ReadonlyArray<{ [K in keyof A]-?: [K, A[K]] }[keyof A]> = Object.entries
+
+export function emptyRecord<K extends PropertyKey, A>(): ReadonlyRecord<K, A> {
+  return {} as ReadonlyRecord<K, A>
+}

@@ -1,3 +1,4 @@
+import type { File } from 'buffer'
 import type { Newtype } from 'newtype-ts'
 import type { IsEqual } from 'type-fest'
 

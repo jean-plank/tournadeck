@@ -1,8 +1,8 @@
 import { revalidateTag } from 'next/cache'
 
+import { createTest, listTest } from '../actions/test'
 import { ClientButton } from '../components/ClientButton'
 import { HomeClient } from '../domain/HomeClient'
-import { createTest, listTest } from '../domain/test/actions'
 import { UserId } from '../models/pocketBase/tables/User'
 
 const Home: React.FC = async () => {
