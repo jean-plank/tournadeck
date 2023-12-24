@@ -15,6 +15,7 @@ function Logger(level: pino.LevelWithSilent) {
             target: 'pino-pretty',
             options: {
               colorize: true,
+              ignore: 'pid,hostname',
             },
           },
         }
