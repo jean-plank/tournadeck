@@ -13,75 +13,87 @@ env:
   NODE_ENV: test
 
 jobs:
-  install:
+  # install:
+  #   runs-on: ubuntu-latest
+
+  #   strategy:
+  #     matrix:
+  #       node-version: [20.x]
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         # cache: 'yarn'
+
+  #     - run: yarn install --frozen-lockfile
+
+  typescript:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          # cache: 'yarn'
 
-      - name: yarn install
-        run: yarn install --frozen-lockfile
-
-  DEBUG:
-    needs: install
-    runs-on: ubuntu-latest
-    steps:
-      - name: pwd/ls
-        run: |
-          pwd
-          ls -la
-
-  tsc:
-    needs: install
-    runs-on: ubuntu-latest
-    steps:
-      - name: yarn tsc
-        run: yarn tsc
+      - run: yarn tsc
 
   format:
-    needs: install
     runs-on: ubuntu-latest
     steps:
-      - name: yarn formatCheck
-        run: yarn formatCheck
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          # cache: 'yarn'
+
+      - run: yarn formatCheck
 
   lint:
-    needs: install
     runs-on: ubuntu-latest
     steps:
-      - name: yarn lint
-        run: yarn lint
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          # cache: 'yarn'
+
+      - run: yarn lint
 
   depcruise:
-    needs: install
     runs-on: ubuntu-latest
     steps:
-      - name: yarn dc
-        run: yarn dc
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          # cache: 'yarn'
+
+      - run: yarn dc
 
   test:
-    needs: install
     runs-on: ubuntu-latest
     steps:
-      - name: yarn testUnit
-        run: yarn testUnit
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          # cache: 'yarn'
+
+      - run: yarn testUnit
 
   build:
-    needs: install
     runs-on: ubuntu-latest
     steps:
-      - name: yarn build
-        run: |
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          # cache: 'yarn'
+
+      - run: |
           cp .env.local.example .env.test
           cat .env.development >> .env.test
           yarn build
