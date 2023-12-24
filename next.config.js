@@ -28,6 +28,10 @@ const nextConfig = {
         : undefined,
       {
         protocol: 'https',
+        hostname: 'ddragon.leagueoflegends.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'raw.communitydragon.org',
       },
     ].filter(p => p !== undefined),
