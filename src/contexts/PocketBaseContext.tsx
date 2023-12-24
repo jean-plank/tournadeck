@@ -1,14 +1,14 @@
 'use client'
 
-import { type AuthModel } from 'pocketbase'
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import type { ChildrenFC } from '../models/ChildrenFC'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
+import type { User } from '../models/pocketBase/tables/User'
 
 type PocketBaseContext = {
   pb: MyPocketBase
-  user: AuthModel
+  user: User | null
 }
 
 const PocketBaseContext = createContext<PocketBaseContext | undefined>(undefined)
@@ -23,7 +23,7 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
       pb.authStore.loadFromCookie(document.cookie)
 
       pb.authStore.onChange((token, model) => {
-        setUser(model)
+        setUser(model as User)
 
         document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
       })

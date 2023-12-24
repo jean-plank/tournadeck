@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation'
+
 import { listAttendeesForTournament } from '../../../actions/attendees'
 import { viewTournament } from '../../../actions/tournaments'
 import { TournamentFC } from '../../../domain/tournoi/[tournament]/TournamentFC'
@@ -12,6 +14,10 @@ const TournamentPage: React.FC<Props> = async ({ params }) => {
     viewTournament(params.tournament),
     listAttendeesForTournament(params.tournament),
   ])
+
+  if (tournaments === undefined) {
+    return redirect('/')
+  }
 
   return (
     <div

@@ -74,6 +74,12 @@ In an other shell, start Next.js:
 yarn dev
 ```
 
+You can view Tailwind's config by running:
+
+```bash
+npx tailwind-config-viewer
+```
+
 ## Clean db
 
 Stop PocketBase and Next.js

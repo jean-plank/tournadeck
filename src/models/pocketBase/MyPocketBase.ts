@@ -1,3 +1,4 @@
+import { number, readonlyArray } from 'fp-ts'
 import type {
   BaseAuthStore,
   CommonOptions,
@@ -7,9 +8,10 @@ import type {
   RecordOptions,
   RecordService,
 } from 'pocketbase'
-import PocketBase from 'pocketbase'
+import PocketBase, { ClientResponseError } from 'pocketbase'
 import type { OverrideProperties } from 'type-fest'
 
+import { immutableAssign } from '../../utils/fpTsUtils'
 import type { Branded } from '../Branded'
 import { brand } from '../Branded'
 import type { TableName, Tables } from './Tables'
@@ -74,10 +76,21 @@ type Tag = { readonly MyPocketBase: unique symbol }
 
 type MyPocketBase = Branded<Tag, MyPocketBase_>
 
-function MyPocketBase(authStore?: BaseAuthStore | null, lang?: string): MyPocketBase {
-  return brand<Tag>()(
-    new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL, authStore, lang) as MyPocketBase_,
-  )
-}
+const MyPocketBase = immutableAssign(
+  (authStore?: BaseAuthStore | null, lang?: string): MyPocketBase =>
+    brand<Tag>()(
+      new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL, authStore, lang) as MyPocketBase_,
+    ),
+  {
+    statusesToUndefined:
+      (...statuses: NonEmptyArray<number>) =>
+      (e: unknown): undefined => {
+        if (e instanceof ClientResponseError && readonlyArray.elem(number.Eq)(e.status, statuses))
+          return undefined
+
+        throw e
+      },
+  },
+)
 
 export { MyPocketBase }

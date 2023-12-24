@@ -1,5 +1,5 @@
 import type { Config } from '../Config'
-import { type HttpClient, statusesToUndefined } from '../helpers/HttpClient'
+import { HttpClient } from '../helpers/HttpClient'
 import type { GameId } from '../models/riot/GameId'
 import type { Puuid } from '../models/riot/Puuid'
 import type { RiotId } from '../models/riot/RiotId'
@@ -25,7 +25,7 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
         { next: { revalidate: cacheDuration } },
         [SummonerShort.codec, 'SummonerShort'],
       )
-      .catch(statusesToUndefined(404))
+      .catch(HttpClient.statusesToUndefined(404))
   }
 
   function getSummonerByRiotId(
@@ -38,7 +38,7 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
         { next: { revalidate: cacheDuration } },
         [SummonerShort.codec, 'SummonerShort'],
       )
-      .catch(statusesToUndefined(404))
+      .catch(HttpClient.statusesToUndefined(404))
   }
 
   function getMatchById(platform: Platform, gameId: GameId): Promise<TheQuestMatch> {

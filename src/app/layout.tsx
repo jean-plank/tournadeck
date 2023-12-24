@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 // import to trigger all effectful startup actions
 import '../context'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
+import { Header } from '../domain/Header'
 import type { ChildrenFC } from '../models/ChildrenFC'
 import './globals.css'
 
@@ -17,7 +18,12 @@ export const metadata: Metadata = {
 const RootLayout: ChildrenFC = ({ children }) => (
   <html lang="en">
     <body className={inter.className}>
-      <PocketBaseContextProvider>{children}</PocketBaseContextProvider>
+      <PocketBaseContextProvider>
+        <div className="grid h-screen w-screen grid-rows-[auto_1fr]">
+          <Header />
+          <main className="overflow-x-auto">{children}</main>
+        </div>
+      </PocketBaseContextProvider>
     </body>
   </html>
 )
