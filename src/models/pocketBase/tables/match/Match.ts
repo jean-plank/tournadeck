@@ -1,6 +1,4 @@
 import type { WinnerOrLoserOf } from '../../../WinnerOrLoserOf'
-import type { GameId } from '../../../riot/GameId'
-import type { TheQuestMatchOutput } from '../../../theQuest/TheQuestMatch'
 import type {
   DateField,
   JsonField,
@@ -10,6 +8,7 @@ import type {
   PbOutput,
   SingleRelationField,
 } from '../../pbModels'
+import type { MatchApiDataOutput } from './MatchApiData'
 import type { MatchId } from './MatchId'
 
 export type Match = PbOutput<PbMatch>
@@ -23,6 +22,6 @@ export type PbMatch = PbBaseModel<
     team2ResultsFrom: NullableField<JsonField<WinnerOrLoserOf>>
     team2: NullableField<SingleRelationField<'teams'>>
     plannedOn: NullableField<DateField>
-    apiData: NullableField<JsonField<GameId | TheQuestMatchOutput>>
+    apiData: NullableField<JsonField<MatchApiDataOutput>>
   }
 >
