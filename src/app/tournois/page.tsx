@@ -1,30 +1,17 @@
-'use client'
-
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 
-import { usePocketBase } from '../../contexts/PocketBaseContext'
+import { listTournaments } from '../../actions/tournaments'
 import { TournamentTile } from '../../domain/tournois/TournamentTile'
-import type { Tournament } from '../../models/Tournament'
 
-const Tournaments: React.FC = () => {
-  const { pb } = usePocketBase()
-  const [tournaments, setTournaments] = useState<Tournament[]>([])
-
-  useEffect(() => {
-    pb.collection('tournaments')
-      .getFullList<Tournament>({
-        sort: '-created',
-      })
-      .then(setTournaments)
-  }, [pb])
+const Tournaments: React.FC = async () => {
+  const tournaments = await listTournaments()
 
   return (
     <div>
       <h2>Tournois</h2>
       {tournaments.map(t => (
         <Link key={t.id} href={`/tournoi/${t.id}`}>
-          <TournamentTile data={t} />
+          <TournamentTile tournament={t} />
         </Link>
       ))}
     </div>

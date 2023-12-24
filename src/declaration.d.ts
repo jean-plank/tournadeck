@@ -34,8 +34,22 @@ declare module 'react' {
   export as namespace React
 
   declare namespace React {
-    type MyKey = string | number | bigint | Newtype<unknown, string | number | bigint>
+    type MyNewType<URI, A> = Newtype<URI, A>
 
-    export { MyKey as Key }
+    type MyKey = string | number | bigint | MyNewType<unknown, string | number | bigint>
+
+    type MyReactNode =
+      | MyNewType<unknown, string | number>
+      | ReactElement
+      | string
+      | number
+      | Iterable<ReactNode>
+      | ReactPortal
+      | boolean
+      | null
+      | undefined
+      | React.DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES[keyof React.DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES]
+
+    export { MyKey as Key, MyReactNode as ReactNode }
   }
 }

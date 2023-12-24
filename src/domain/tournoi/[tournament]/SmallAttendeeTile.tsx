@@ -1,11 +1,11 @@
 import Image from 'next/image'
 
 import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
-import type { Attendee } from '../../../models/pocketBase/tables/Attendee'
+import type { AttendeeWithRiotId } from '../../../models/AttendeeWithRiotId'
 import { getImageUrl } from '../../../utils/pocketBaseImageUrl'
 
 type Props = {
-  data: Attendee
+  data: AttendeeWithRiotId
 }
 
 export const SmallAttendeeTile: React.FC<Props> = ({ data }) => (
@@ -14,12 +14,12 @@ export const SmallAttendeeTile: React.FC<Props> = ({ data }) => (
       {/* RiotId and captain */}
       <div className="flex flex-row justify-between">
         <div className="px-2 py-1 text-center text-xl text-yellow-500">
-          <span className="drop-shadow-lg">{data.riotId.split('#')[0]}</span>
-          <span className="text-sm text-purple-900">#{data.riotId.split('#')[1]}</span>
+          <span className="drop-shadow-lg">{data.riotId.gameName}</span>
+          <span className="text-sm text-purple-900">#{data.riotId.tagLine}</span>
         </div>
         {data.isCaptain && (
           <Image
-            src={'/icons/crown-64.png'}
+            src="/icons/crown-64.png"
             className="mr-1 object-cover drop-shadow-lg"
             width={32}
             height={32}

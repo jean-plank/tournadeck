@@ -1,14 +1,14 @@
-import type { Tournament } from '../../models/Tournament'
+import type { Tournament } from '../../models/pocketBase/tables/Tournament'
 
 type Props = {
-  data: Tournament
+  tournament: Tournament
 }
 
-export const TournamentTile: React.FC<Props> = ({ data }) => (
+export const TournamentTile: React.FC<Props> = ({ tournament }) => (
   <div className="w-80 rounded-lg bg-blue-200 p-3 hover:bg-sky-300">
-    <div className="text-lg font-bold">{data.name}</div>
+    <div className="text-lg font-bold">{tournament.name}</div>
 
-    <div>Début : {data.start}</div>
-    <div>Fin : {data.end}</div>
+    <div>Début : {tournament.start}</div>
+    <div>Fin : {tournament.end}</div>
   </div>
 )

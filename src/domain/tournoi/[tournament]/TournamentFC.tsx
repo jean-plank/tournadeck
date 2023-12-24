@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+'use client'
+
+import { useCallback, useRef } from 'react'
 
 import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../contexts/PocketBaseContext'
+import type { AttendeeWithRiotId } from '../../../models/AttendeeWithRiotId'
 import { TeamRole } from '../../../models/TeamRole'
-import type { Attendee } from '../../../models/pocketBase/tables/Attendee'
 import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
@@ -11,30 +13,14 @@ import { SmallAttendeeTile } from './SmallAttendeeTile'
 import './test.css'
 
 type Props = {
-  data: Tournament
+  tournament: Tournament
+  attendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
-export const TournamentFC: React.FC<Props> = ({ data }) => {
-  const [participants, setParticipants] = useState<Attendee[]>([])
-  const [suscribed, setSuscribed] = useState(false)
-  const { pb, user } = usePocketBase()
+export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
+  const { user } = usePocketBase()
 
   const dialog = useRef<null | HTMLDialogElement>(null)
-
-  useEffect(() => {
-    pb.collection('attendees')
-      .getFullList<Attendee>({ filter: `tournament="${data.id}"` })
-      .then(res => setParticipants(res))
-  }, [data.id, pb, suscribed])
-
-  // check if user is already registered
-  useEffect(() => {
-    setSuscribed(
-      participants.length < data.maxTeams * 5 &&
-        user !== null &&
-        participants.find(attendee => attendee.user === user.id) !== undefined,
-    )
-  }, [data, participants, user])
 
   const handleSuscribeClick = useCallback((): void => {
     if (dialog.current !== null) dialog.current.showModal()
@@ -46,18 +32,22 @@ export const TournamentFC: React.FC<Props> = ({ data }) => {
 
   const onSuscribeOk = useCallback((): void => {
     if (dialog.current !== null) dialog.current.close()
-    setSuscribed(true)
   }, [])
+
+  const alreadySubscribed =
+    attendees.length < tournament.teamsCount * 5 &&
+    user !== null &&
+    attendees.find(a => a.user === user.id) !== undefined
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-lg font-bold">{data.name}</h1>
-        <div>Début : {data.start}</div>
-        <div>Fin : {data.end}</div>
+      <div className="text-white">
+        <h1 className="text-lg font-bold">{tournament.name}</h1>
+        <div>Début : {tournament.start}</div>
+        <div>Fin : {tournament.end}</div>
       </div>
 
-      {!suscribed && (
+      {!alreadySubscribed && (
         <>
           <button type="button" onClick={handleSuscribeClick} className="w-20 bg-black text-white">
             S’inscrire
@@ -65,7 +55,7 @@ export const TournamentFC: React.FC<Props> = ({ data }) => {
 
           <dialog ref={dialog}>
             <h2>Inscription</h2>
-            <AttendeeForm tournamentId={data.id} onSuscribeOk={onSuscribeOk} />
+            <AttendeeForm tournamentId={tournament.id} onSuscribeOk={onSuscribeOk} />
             <button type="button" className="p-2" onClick={handleCancelClick}>
               Annuler
             </button>
@@ -74,18 +64,18 @@ export const TournamentFC: React.FC<Props> = ({ data }) => {
       )}
 
       <div>
-        <h2 className="text-lg font-bold">
-          Participants ({participants.length}/{data.maxTeams * 5})
+        <h2 className="text-lg font-bold text-white">
+          Participants ({attendees.length} / {tournament.teamsCount * 5})
         </h2>
         <div className="flex flex-row">
           {TeamRole.values.map(role => (
             <div key={role}>
               <TeamRoleIcon role={role} />
-              {participants
+              {attendees
                 .filter(p => p.role === role)
                 .map(p => (
                   <>
-                    <AttendeeTile data={p} key={p.id} />
+                    <AttendeeTile attendee={p} key={p.id} />
                     <SmallAttendeeTile data={p} key={p.id} />
                   </>
                 ))}

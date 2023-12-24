@@ -1,10 +1,10 @@
 import { cookies } from 'next/headers'
 
-import { adminPocketBase } from '../../context'
-import { Permissions } from '../../helpers/Permissions'
-import { auth } from '../../helpers/auth'
-import type { Test, TestInput } from '../../models/pocketBase/tables/Test'
-import { immutableAssign } from '../../utils/fpTsUtils'
+import { adminPocketBase } from '../context'
+import { Permissions } from '../helpers/Permissions'
+import { auth } from '../helpers/auth'
+import type { Test, TestInput } from '../models/pocketBase/tables/Test'
+import { immutableAssign } from '../utils/fpTsUtils'
 
 // for GET actions
 const cacheDuration = 5 // seconds
@@ -18,7 +18,7 @@ export const listTest = immutableAssign(
 
     const adminPb = await adminPocketBase
 
-    return adminPb.collection('test').getFullList({
+    return await adminPb.collection('test').getFullList<Test>({
       next: {
         revalidate: cacheDuration,
         tags: [listTestTag],
@@ -37,5 +37,5 @@ export async function createTest(test: TestInput): Promise<Test> {
 
   const adminPb = await adminPocketBase
 
-  return adminPb.collection('test').create(test)
+  return await adminPb.collection('test').create(test)
 }

@@ -1,16 +1,12 @@
 'use client'
 
-import { readonlyRecord } from 'fp-ts'
 import type { ChangeEvent } from 'react'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
 import { FileInput, Input, SelectInput } from '../../../components/FormInputs'
-import { usePocketBase } from '../../../contexts/PocketBaseContext'
 import { ChampionPool } from '../../../models/ChampionPool'
 import { LolElo } from '../../../models/LolElo'
 import { TeamRole } from '../../../models/TeamRole'
-import type { CreateModel } from '../../../models/pocketBase/pbModels'
-import type { Attendee } from '../../../models/pocketBase/tables/Attendee'
 import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
 
 type Inputs = {
@@ -33,8 +29,6 @@ type Props = {
 }
 
 export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) => {
-  const { pb, user } = usePocketBase()
-
   const [inputs, setInputs] = useState<Inputs>({
     riotId: '',
     currentElo: LolElo.values[0],
@@ -74,41 +68,41 @@ export const AttendeeForm: React.FC<Props> = ({ tournamentId, onSuscribeOk }) =>
   const showErrorMsg = (key: keyof Inputs): boolean =>
     errors[key] !== undefined && touched[key] !== undefined
 
-  const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>): void => {
-      event.preventDefault()
+  // const handleSubmit = useCallback(
+  //   (event: React.FormEvent<HTMLFormElement>): void => {
+  //     event.preventDefault()
 
-      const obj = readonlyRecord
-        .keys(inputs)
-        .reduce<Touched>((acc, key) => ({ ...acc, [key]: true }), {})
+  //     const obj = readonlyRecord
+  //       .keys(inputs)
+  //       .reduce<Touched>((acc, key) => ({ ...acc, [key]: true }), {})
 
-      setTouched(obj)
+  //     setTouched(obj)
 
-      const errors_ = validate(inputs)
+  //     const errors_ = validate(inputs)
 
-      if (Object.keys(errors_).length === 0) {
-        if (user !== null) {
-          const data: CreateModel<Attendee> = {
-            ...inputs,
-            isCaptain: false,
-            tournament: tournamentId,
-            user: user.id,
-          }
+  //     if (Object.keys(errors_).length === 0) {
+  //       if (user !== null) {
+  //         const data: CreateModel<Attendee> = {
+  //           ...inputs,
+  //           isCaptain: false,
+  //           tournament: tournamentId,
+  //           user: user.id,
+  //         }
 
-          pb.collection('attendees')
-            .create(data)
-            .then(() => onSuscribeOk())
-            .catch(() => setSubmitError('Une erreur inconnue est survenue'))
-        }
-      }
-    },
-    [inputs, onSuscribeOk, pb, tournamentId, user],
-  )
+  //         pb.collection('attendees')
+  //           .create(data)
+  //           .then(() => onSuscribeOk())
+  //           .catch(() => setSubmitError('Une erreur inconnue est survenue'))
+  //       }
+  //     }
+  //   },
+  //   [inputs, onSuscribeOk, pb, tournamentId, user],
+  // )
 
   return (
     <form
       className="flex w-[26rem] flex-col gap-3 rounded-lg border-2 border-grey-400 bg-white p-4"
-      onSubmit={handleSubmit}
+      // onSubmit={handleSubmit}
     >
       <Input
         label="Riot ID"

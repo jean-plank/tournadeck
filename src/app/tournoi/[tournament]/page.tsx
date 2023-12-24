@@ -1,32 +1,24 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-
-import { usePocketBase } from '../../../contexts/PocketBaseContext'
+import { listAttendeesForTournament } from '../../../actions/attendees'
+import { viewTournament } from '../../../actions/tournaments'
 import { TournamentFC } from '../../../domain/tournoi/[tournament]/TournamentFC'
-import type { Tournament } from '../../../models/Tournament'
+import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
 
 type Props = {
-  params: { tournament: string }
+  params: { tournament: TournamentId }
 }
 
-const TournamentPage: React.FC<Props> = ({ params }) => {
-  const [tournamentData, setTournamentData] = useState<Tournament | null>(null)
+const TournamentPage: React.FC<Props> = async ({ params }) => {
+  const [tournaments, attendees] = await Promise.all([
+    viewTournament(params.tournament),
+    listAttendeesForTournament(params.tournament),
+  ])
 
-  const { pb } = usePocketBase()
-
-  useEffect(() => {
-    pb.collection('tournaments').getOne<Tournament>(params.tournament, {}).then(setTournamentData)
-  }, [params.tournament, pb])
-
-  return tournamentData === null ? (
-    <div>Erreur lors de la récupération du tournoi</div>
-  ) : (
+  return (
     <div
       className="h-screen w-full bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/synthwave.jpg')" }}
     >
-      <TournamentFC data={tournamentData} />
+      <TournamentFC tournament={tournaments} attendees={attendees} />
     </div>
   )
 }

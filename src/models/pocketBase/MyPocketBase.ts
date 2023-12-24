@@ -1,4 +1,12 @@
-import type { BaseAuthStore, CommonOptions, RecordOptions, RecordService } from 'pocketbase'
+import type {
+  BaseAuthStore,
+  CommonOptions,
+  ListResult,
+  RecordFullListOptions,
+  RecordListOptions,
+  RecordOptions,
+  RecordService,
+} from 'pocketbase'
 import PocketBase from 'pocketbase'
 import type { OverrideProperties } from 'type-fest'
 
@@ -17,13 +25,47 @@ type MyPocketBase_ = OverrideProperties<
 type MyRecordService<A extends PbBaseModel<PbUnknownId, PbUnknownModel>> = OverrideProperties<
   RecordService<PbOutput<A>>,
   {
-    getOne: <O = PbOutput<A>>(id: A['id']['input'], options?: RecordOptions) => Promise<O>
+    getFullList: {
+      (options?: RecordFullListOptions): Promise<ReadonlyArray<PbOutput<A>>>
+      (batch?: number, options?: RecordListOptions): Promise<ReadonlyArray<PbOutput<A>>>
+      <O>(options?: RecordFullListOptions): Promise<ReadonlyArray<O>>
+      <O>(batch?: number, options?: RecordListOptions): Promise<ReadonlyArray<O>>
+    }
+
+    getList: {
+      (
+        page?: number,
+        perPage?: number,
+        options?: RecordListOptions,
+      ): Promise<ListResult<PbOutput<A>>>
+      <O>(page?: number, perPage?: number, options?: RecordListOptions): Promise<ListResult<O>>
+    }
+
+    getFirstListItem: {
+      (filter: string, options?: RecordListOptions): Promise<PbOutput<A>>
+      <O>(filter: string, options?: RecordListOptions): Promise<O>
+    }
+
+    getOne: {
+      (id: A['id']['input'], options?: RecordOptions): Promise<PbOutput<A>>
+      <O>(id: A['id']['input'], options?: RecordOptions): Promise<O>
+    }
+
     create: (bodyParams: PbInput<A> | FormData, options?: RecordOptions) => Promise<PbOutput<A>>
-    update: <O = PbOutput<A>>(
-      id: A['id']['input'],
-      bodyParams?: Partial<PbInput<A>> | FormData,
-      options?: RecordOptions,
-    ) => Promise<O>
+
+    update: {
+      (
+        id: A['id']['input'],
+        bodyParams?: Partial<PbInput<A>> | FormData,
+        options?: RecordOptions,
+      ): Promise<PbOutput<A>>
+      <O>(
+        id: A['id']['input'],
+        bodyParams?: Partial<PbInput<A>> | FormData,
+        options?: RecordOptions,
+      ): Promise<O>
+    }
+
     delete: (id: A['id']['input'], options?: CommonOptions) => Promise<boolean>
   }
 >
