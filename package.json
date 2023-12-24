@@ -7,15 +7,15 @@
     "build": "next build",
     "start": "next start",
     "_prettier": "prettier .",
-    "formatCheck": "yarn run _prettier --check",
-    "format": "yarn run _prettier --write",
+    "formatCheck": "yarn _prettier --check",
+    "format": "yarn _prettier --write",
     "lint": "next lint --max-warnings 0",
-    "lintFix": "yarn run lint --fix",
+    "lintFix": "yarn lint --fix",
     "test": "jest test",
-    "testUnit": "yarn run test --testPathPattern=.*\\.spec\\.ts",
+    "testUnit": "yarn test --testPathPattern=.*\\.spec\\.ts",
     "dc": "depcruise src test",
     "dcGraph": "depcruise -v -T dot src -x '(node_modules|pocketbase)' | dot -T svg | depcruise-wrap-stream-in-html > dependency-graph.html",
-    "ci": "yarn run tsc && yarn run formatCheck && yarn run lint && yarn run dc && yarn run testUnit"
+    "ci": "yarn tsc && yarn formatCheck && yarn lint && yarn dc && yarn testUnit"
   },
   "dependencies": {
     "dayjs": "1.11.10",
