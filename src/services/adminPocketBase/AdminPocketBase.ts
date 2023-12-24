@@ -1,9 +1,9 @@
 import { ClientResponseError } from 'pocketbase'
 import util from 'util'
 
-import { config } from '../../config'
+import type { Config } from '../../Config'
+import type { GetLogger, Logger } from '../../Logger'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
-import { logger } from '../../logger'
 import { DayjsDuration } from '../../models/Dayjs'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import { sleep } from '../../utils/promiseUtils'
@@ -12,11 +12,19 @@ import { initPocketBaseIfPbEmpty } from './initPocketBaseIfPbEmpty'
 
 const retryDelay = DayjsDuration({ seconds: 1 })
 
-export const adminPocketBase: Promise<MyPocketBase> = loadPocketBaseWithRetry()
+function load(config: Config, getLogger: GetLogger): Promise<MyPocketBase> {
+  const logger = getLogger('AdminPocketBase')
 
-async function loadPocketBaseWithRetry(isSilent: boolean = false): Promise<MyPocketBase> {
+  return loadPocketBaseWithRetry(config, logger)
+}
+
+async function loadPocketBaseWithRetry(
+  config: Config,
+  logger: Logger,
+  isSilent: boolean = false,
+): Promise<MyPocketBase> {
   try {
-    return await loadPocketBase()
+    return await loadPocketBase(config, logger)
   } catch (e) {
     if (
       !(
@@ -39,11 +47,11 @@ async function loadPocketBaseWithRetry(isSilent: boolean = false): Promise<MyPoc
 
     await sleep(retryDelay)
 
-    return await loadPocketBaseWithRetry(true)
+    return await loadPocketBaseWithRetry(config, logger, true)
   }
 }
 
-async function loadPocketBase(): Promise<MyPocketBase> {
+async function loadPocketBase(config: Config, logger: Logger): Promise<MyPocketBase> {
   const isDev = process.env.NODE_ENV === 'development'
 
   const pb = MyPocketBase()
@@ -51,7 +59,7 @@ async function loadPocketBase(): Promise<MyPocketBase> {
   logger.debug('Connecting to PocketBase...')
 
   if (isDev) {
-    await initPocketBaseIfPbEmpty(pb)
+    await initPocketBaseIfPbEmpty(config, logger, pb)
   } else {
     await pb.admins.authWithPassword(
       config.POCKET_BASE_ADMIN_EMAIL,
@@ -61,17 +69,19 @@ async function loadPocketBase(): Promise<MyPocketBase> {
 
   logger.info('Connected to PocketBase')
 
-  await subscribeAll(pb)
+  await subscribeAll(logger, pb)
 
   if (isDev) {
-    await applyFixturesIfDbIsEmpty(pb)
+    await applyFixturesIfDbIsEmpty(logger, pb)
   }
 
   return pb
 }
 
-async function subscribeAll(pb: MyPocketBase): Promise<void> {
-  await subscribeCollection(pb, 'matches', '*', e => {
+async function subscribeAll(logger: Logger, pb: MyPocketBase): Promise<void> {
+  await subscribeCollection(logger, pb, 'matches', '*', e => {
     console.log(`matches ${e.action}:`, e)
   })
 }
+
+export const AdminPocketBase = { load }

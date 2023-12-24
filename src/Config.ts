@@ -15,7 +15,7 @@ const levelDecoder = D.literal('fatal', 'error', 'warn', 'info', 'debug', 'trace
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Test = Expect<IsEqual<D.TypeOf<typeof levelDecoder>, pino.LevelWithSilent>>
 
-export type Config = D.TypeOf<typeof decoder>
+type Config = D.TypeOf<typeof decoder>
 
 const decoder = D.struct({
   LOG_LEVEL: levelDecoder,
@@ -29,8 +29,14 @@ const decoder = D.struct({
   NEXT_PUBLIC_POCKET_BASE_URL: D.string,
 })
 
-export const config: Config = pipe(
-  decoder.decode(process.env),
-  either.mapLeft(decodeError('Config')(process.env)),
-  eitherGetOrThrow,
-)
+function load(): Config {
+  return pipe(
+    decoder.decode(process.env),
+    either.mapLeft(decodeError('Config')(process.env)),
+    eitherGetOrThrow,
+  )
+}
+
+const Config = { load }
+
+export { Config }

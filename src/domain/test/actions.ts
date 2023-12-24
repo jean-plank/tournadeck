@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers'
 
+import { adminPocketBase } from '../../context'
 import { Permissions } from '../../helpers/Permissions'
 import { auth } from '../../helpers/auth'
 import type { Test, TestInput } from '../../models/pocketBase/tables/Test'
-import { adminPocketBase } from '../../services/adminPocketBase/adminPocketBase'
 import { immutableAssign } from '../../utils/fpTsUtils'
 
 // for GET actions

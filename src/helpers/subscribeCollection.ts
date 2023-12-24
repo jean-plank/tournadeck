@@ -4,7 +4,7 @@ import { flow, pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 import type { RecordSubscription, UnsubscribeFunc } from 'pocketbase'
 
-import { logger } from '../logger'
+import type { Logger } from '../Logger'
 import { DayjsDuration } from '../models/Dayjs'
 import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { TableName, Tables } from '../models/pocketBase/Tables'
@@ -15,6 +15,7 @@ import { sleep } from '../utils/promiseUtils'
 const retryDelay = DayjsDuration({ seconds: 1 })
 
 export async function subscribeCollection<N extends TableName>(
+  logger: Logger,
   pb: MyPocketBase,
   collection: N,
   topic: '*' | Tables[N]['id']['input'],

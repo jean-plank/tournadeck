@@ -1,6 +1,6 @@
 import { random } from 'fp-ts'
 
-import { logger } from '../../logger'
+import type { Logger } from '../../Logger'
 import { ChampionPool } from '../../models/ChampionPool'
 import { Dayjs } from '../../models/Dayjs'
 import { LolElo } from '../../models/LolElo'
@@ -14,7 +14,7 @@ import type { TournamentId, TournamentInput } from '../../models/pocketBase/tabl
 import type { UserId, UserInput } from '../../models/pocketBase/tables/User'
 import { Puuid } from '../../models/riot/Puuid'
 
-export async function applyFixturesIfDbIsEmpty(pb: MyPocketBase): Promise<void> {
+export async function applyFixturesIfDbIsEmpty(logger: Logger, pb: MyPocketBase): Promise<void> {
   const isEmpty = await isDbEmpty(pb)
 
   if (!isEmpty) {
