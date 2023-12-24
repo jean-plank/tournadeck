@@ -70,7 +70,7 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
         <div className="flex flex-row">
           {TeamRole.values.map(role => (
             <div key={role}>
-              <TeamRoleIcon role={role} />
+              <TeamRoleIcon role={role} className="h-32 w-32" />
               {attendees
                 .filter(p => p.role === role)
                 .map(p => (

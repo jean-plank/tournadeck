@@ -41,7 +41,7 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
           alt="avatar"
         />
         <div className="flex flex-col justify-evenly">
-          <TeamRoleIcon className="h-16 w-16 object-contain drop-shadow-sm" role={attendee.role} />
+          <TeamRoleIcon className="h-16 w-16 drop-shadow-sm" role={attendee.role} />
           <p className="text-center text-4xl text-yellow-500">{attendee.seed}</p>
         </div>
       </div>

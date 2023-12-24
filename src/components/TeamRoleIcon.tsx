@@ -1,18 +1,14 @@
-import Image from 'next/image'
-
-import { TeamRole } from '../models/TeamRole'
+import type { TeamRole } from '../models/TeamRole'
+import { cx } from '../utils/cx'
+import { teamRoleIcons } from './svgs/teamRoleIcons'
 
 type Props = {
   role: TeamRole
   className?: string
 }
 
-export const TeamRoleIcon: React.FC<Props> = ({ role, className }) => (
-  <Image
-    alt={`Icône ${TeamRole.label[role]}`}
-    className={className}
-    width={200}
-    height={200}
-    src={`/icons/teamRoles/${role}.svg`}
-  />
-)
+export const TeamRoleIcon: React.FC<Props> = ({ role, className }) => {
+  const Role = teamRoleIcons[role]
+
+  return <Role className={cx('text-[#eab30a]', className)} secondaryClassName="text-[#20054d]/50" />
+}

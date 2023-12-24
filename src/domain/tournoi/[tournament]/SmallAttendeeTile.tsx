@@ -41,7 +41,7 @@ export const SmallAttendeeTile: React.FC<Props> = ({ data }) => (
         )}
 
         <div className="flex flex-col justify-evenly">
-          <TeamRoleIcon className="h-16 w-16 object-contain drop-shadow-sm" role={data.role} />
+          <TeamRoleIcon className="h-16 w-16 drop-shadow-sm" role={data.role} />
           <p className="text-center text-4xl text-yellow-500">{data.seed}</p>
         </div>
       </div>
