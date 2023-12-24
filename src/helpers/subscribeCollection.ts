@@ -5,10 +5,14 @@ import * as D from 'io-ts/Decoder'
 import type { RecordSubscription, UnsubscribeFunc } from 'pocketbase'
 
 import { logger } from '../logger'
+import { DayjsDuration } from '../models/Dayjs'
 import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { TableName, Tables } from '../models/pocketBase/Tables'
 import type { PbOutput } from '../models/pocketBase/pbModels'
 import { decodeErrorString } from '../utils/ioTsUtils'
+import { sleep } from '../utils/promiseUtils'
+
+const retryDelay = DayjsDuration({ seconds: 1 })
 
 export async function subscribeCollection<N extends TableName>(
   pb: MyPocketBase,
@@ -18,7 +22,7 @@ export async function subscribeCollection<N extends TableName>(
 ): Promise<UnsubscribeFunc> {
   const abortController = new AbortController()
 
-  subscribe()
+  subscribeWithRetry()
 
   let clientId: string | undefined = undefined
 
@@ -29,8 +33,22 @@ export async function subscribeCollection<N extends TableName>(
     abortController.abort()
   }
 
+  async function subscribeWithRetry(): Promise<void> {
+    try {
+      await subscribe()
+    } catch (e) {
+      if (!(e instanceof TypeError && e.message === 'fetch failed')) {
+        throw e
+      }
+
+      await sleep(retryDelay)
+
+      subscribeWithRetry()
+    }
+  }
+
   async function subscribe(): Promise<void> {
-    logger.debug(`Subscribing to PocketBase: ${collection}/${topic}...`)
+    logger.debug(`Subscribing to PocketBase (${collection}/${topic})...`)
 
     const response = await fetch(pb.buildUrl('/api/realtime'), {
       cache: 'no-store',
@@ -67,6 +85,10 @@ export async function subscribeCollection<N extends TableName>(
       logger.warn(`Subscription to PocketBase broken (${collection}/${topic})`)
 
       reader.releaseLock()
+
+      await sleep(retryDelay)
+
+      subscribeWithRetry()
     } else {
       pump(reader)
     }
@@ -77,6 +99,8 @@ export async function subscribeCollection<N extends TableName>(
       clientId = e.id
 
       await postSubscription(pb, e.id, topic === '*' ? collection : `${collection}/${topic}`)
+
+      logger.info(`Subscribed to PocketBase (${collection}/${topic})`)
     } else {
       onEvent(e.data as unknown as RecordSubscription<PbOutput<Tables[N]>>)
     }
