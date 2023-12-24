@@ -1,31 +1,28 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
+import { Loader } from '../components/Loader'
 import { DiscordLogoTitle } from '../components/svgs/DiscordLogoTitle'
 import { usePocketBase } from '../contexts/PocketBaseContext'
 
-export const HomeClient: React.FC = () => {
+export const LoginButton: React.FC = () => {
   const { pb, user } = usePocketBase()
 
-  const connectWithDiscord = useCallback(() => {
-    pb.collection('users').authWithOAuth2({ provider: 'discord' })
-  }, [pb])
+  const [isLoading, setIsLoading] = useState(false)
 
-  const logout = useCallback(() => {
-    pb.authStore.clear()
-  }, [pb.authStore])
+  const connectWithDiscord = useCallback(() => {
+    setIsLoading(true)
+    pb.collection('users')
+      .authWithOAuth2({ provider: 'discord' })
+      .finally(() => setIsLoading(false))
+  }, [pb])
 
   return (
     <div>
-      {user !== null ? (
-        <>
-          <div>BONJOUR {user.displayName}</div>
-          <button type="button" onClick={logout} className="border border-black">
-            Déconnexion
-          </button>
-        </>
-      ) : (
+      {isLoading ? (
+        <Loader className="h-6" />
+      ) : user === null ? (
         <button
           type="button"
           onClick={connectWithDiscord}
@@ -33,7 +30,7 @@ export const HomeClient: React.FC = () => {
         >
           Connexion avec <DiscordLogoTitle className="my-3 ml-3 h-6" />
         </button>
-      )}
+      ) : null}
     </div>
   )
 }

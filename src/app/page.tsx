@@ -1,9 +1,8 @@
-import { HomeClient } from '../domain/HomeClient'
-import { UserId } from '../models/pocketBase/tables/User'
+import { LoginButton } from '../domain/LoginButton'
 
-const Home: React.FC = async () => (
-  <div className="flex flex-col gap-4 p-4">
-    <HomeClient key={UserId('')} />
+const Home: React.FC = () => (
+  <div className="flex min-h-full items-center justify-center">
+    <LoginButton />
   </div>
 )
 
