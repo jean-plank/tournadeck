@@ -9,8 +9,8 @@ export const Permissions = {
     list: isAnyRole,
     create: isAnyRole,
   },
-  test: {
-    create: isAnyRole,
+  matches: {
+    list: isAnyRole,
   },
   tournaments: {
     list: isAnyRole,

@@ -1,4 +1,5 @@
 const colors = require('tailwindcss/colors')
+const plugin = require('tailwindcss/plugin')
 
 /** @type {import('tailwindcss').Config} */
 const config = {
@@ -22,9 +23,42 @@ const config = {
       white: colors.white,
       'yellow-500': colors.yellow[500],
     },
-    extend: {},
+    extend: {
+      borderRadius: {
+        '1/2': '50%',
+      },
+      boxShadow: {
+        even: '0 0 8px 0 var(--tw-shadow-color)',
+      },
+      gridArea: {
+        1: '1 / 1', // useful for superposing multiple elements in a grid element
+      },
+      textShadow: {
+        DEFAULT: '0 0 5px var(--tw-shadow-color)',
+      },
+    },
   },
-  plugins: [],
+  plugins: [
+    /**
+     * Plugin for grid-area:
+     * - `area-{name}`: define grid-area (customize in theme)
+     */
+    plugin(({ matchUtilities, theme }) =>
+      matchUtilities({ area: gridArea => ({ gridArea }) }, { values: theme('gridArea') }),
+    ),
+
+    /**
+     * Plugin for text-shadow:
+     * - `text-shadow-{name}`: add some text-shadow (customize in theme)
+     * - `shadow-{color}`: text-shadow color
+     */
+    plugin(({ matchUtilities, theme }) =>
+      matchUtilities(
+        { 'text-shadow': textShadow => ({ textShadow }) },
+        { values: theme('textShadow') },
+      ),
+    ),
+  ],
 }
 
 module.exports = config

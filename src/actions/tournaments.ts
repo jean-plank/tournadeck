@@ -16,7 +16,7 @@ export async function listTournaments(): Promise<ReadonlyArray<Tournament>> {
 
   const adminPb = await adminPocketBase
 
-  return await adminPb.collection('tournaments').getFullList<Tournament>({
+  return await adminPb.collection('tournaments').getFullList({
     next: { revalidate: cacheDuration },
   })
 }

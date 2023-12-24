@@ -107,6 +107,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
   // matches
 
   /* const match1 = */ await pb.collection('matches').create({
+    tournament: tournament1.id,
     team1ResultsFrom: undefined,
     team1: team1.id,
     team2ResultsFrom: undefined,
@@ -116,6 +117,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
   })
 
   const match2 = await pb.collection('matches').create({
+    tournament: tournament1.id,
     team1ResultsFrom: undefined,
     team1: team1.id,
     team2ResultsFrom: undefined,
@@ -125,6 +127,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
   })
 
   const match3 = await pb.collection('matches').create({
+    tournament: tournament1.id,
     team1ResultsFrom: undefined,
     team1: team2.id,
     team2ResultsFrom: undefined,
@@ -134,6 +137,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
   })
 
   await pb.collection('matches').create({
+    tournament: tournament1.id,
     team1ResultsFrom: WinnerOf(match2.id),
     team1: match2.team2 === '' ? undefined : match2.team2,
     team2ResultsFrom: WinnerOf(match3.id),
@@ -143,6 +147,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
   })
 
   await pb.collection('matches').create({
+    tournament: tournament1.id,
     team1ResultsFrom: LoserOf(match2.id),
     team1: match2.team1 === '' ? undefined : match2.team1,
     team2ResultsFrom: LoserOf(match3.id),

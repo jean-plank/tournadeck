@@ -17,6 +17,7 @@ export type MatchInput = PbInput<PbMatch>
 export type PbMatch = PbBaseModel<
   MatchId,
   {
+    tournament: SingleRelationField<'tournaments'>
     team1ResultsFrom: NullableField<JsonField<WinnerOrLoserOf>>
     team1: NullableField<SingleRelationField<'teams'>>
     team2ResultsFrom: NullableField<JsonField<WinnerOrLoserOf>>
