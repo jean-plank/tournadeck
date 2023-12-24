@@ -6,7 +6,7 @@ onRecordBeforeAuthWithOAuth2Request(e => {
   if (e.record === null) {
     e.record = new Record(collection, {
       ...e.oAuth2User,
-      role: 'base',
+      role: 'attendee',
     })
     e.record.refreshTokenKey()
   }
