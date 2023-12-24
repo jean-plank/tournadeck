@@ -1,8 +1,10 @@
 import { either, json } from 'fp-ts'
 import { identity, pipe } from 'fp-ts/function'
 import type { Codec } from 'io-ts/Codec'
+import * as C from 'io-ts/Codec'
 import type { DecodeError, Decoder } from 'io-ts/Decoder'
 import * as D from 'io-ts/Decoder'
+import type { Encoder } from 'io-ts/Encoder'
 import type { AnyNewtype, CarrierOf } from 'newtype-ts'
 
 import { Dayjs, DayjsDuration } from '../models/Dayjs'
@@ -44,7 +46,7 @@ export const fromReadonlyArrayDecoder = D.fromArray as unknown as <I, A>(
  * DayjsFromISOString
  */
 
-const dayJsFromISOStringDecoder: Decoder<unknown, Dayjs> = pipe(
+const dayjsFromISOStringDecoder: Decoder<unknown, Dayjs> = pipe(
   D.string,
   D.parse(str => {
     const d = Dayjs(str)
@@ -52,8 +54,19 @@ const dayJsFromISOStringDecoder: Decoder<unknown, Dayjs> = pipe(
   }),
 )
 
+const dayjsFromISOStringEncoder: Encoder<string, Dayjs> = {
+  encode: d => d.toISOString(),
+}
+
+const dayjsFromISOStringCodec: Codec<unknown, string, Dayjs> = C.make(
+  dayjsFromISOStringDecoder,
+  dayjsFromISOStringEncoder,
+)
+
 export const DayjsFromISOString = {
-  decoder: dayJsFromISOStringDecoder,
+  decoder: dayjsFromISOStringDecoder,
+  encoder: dayjsFromISOStringEncoder,
+  codec: dayjsFromISOStringCodec,
 }
 
 /**
@@ -65,6 +78,17 @@ const dayjsDurationFromNumberDecoder: Decoder<unknown, DayjsDuration> = pipe(
   D.map(n => DayjsDuration(n)),
 )
 
+const dayjsDurationFromNumberEncoder: Encoder<number, DayjsDuration> = {
+  encode: d => d.asMilliseconds(),
+}
+
+const dayjsDurationFromNumberCodec: Codec<unknown, number, DayjsDuration> = C.make(
+  dayjsDurationFromNumberDecoder,
+  dayjsDurationFromNumberEncoder,
+)
+
 export const DayjsDurationFromNumber = {
   decoder: dayjsDurationFromNumberDecoder,
+  encoder: dayjsDurationFromNumberEncoder,
+  codec: dayjsDurationFromNumberCodec,
 }

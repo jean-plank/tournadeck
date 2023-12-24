@@ -55,6 +55,10 @@ export async function subscribeCollection<N extends TableName>(
       signal: abortController.signal,
     })
 
+    if (!response.ok) {
+      throw Error(`Fetch error: ${response.status}`)
+    }
+
     if (response.body === null) {
       throw Error('Empty SSE')
     }

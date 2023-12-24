@@ -1,87 +1,113 @@
+import { either } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
+import type { RecordSubscription } from 'pocketbase'
 import { ClientResponseError } from 'pocketbase'
 import util from 'util'
 
 import type { Config } from '../../Config'
-import type { GetLogger, Logger } from '../../Logger'
+import type { GetLogger } from '../../Logger'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
+import type { Match } from '../../models/pocketBase/tables/match/Match'
+import { GameId } from '../../models/riot/GameId'
+import { TheQuestMatch } from '../../models/theQuest/TheQuestMatch'
 import { sleep } from '../../utils/promiseUtils'
+import type { TheQuestService } from '../TheQuestService'
 import { applyFixturesIfDbIsEmpty } from './applyFixturesIfDbIsEmpty'
 import { initPocketBaseIfPbEmpty } from './initPocketBaseIfPbEmpty'
 
 const retryDelay = DayjsDuration({ seconds: 1 })
 
-function load(config: Config, getLogger: GetLogger): Promise<MyPocketBase> {
+function load(
+  config: Config,
+  getLogger: GetLogger,
+  theQuestService: TheQuestService,
+): Promise<MyPocketBase> {
   const logger = getLogger('AdminPocketBase')
 
-  return loadPocketBaseWithRetry(config, logger)
-}
+  return loadPocketBaseWithRetry()
 
-async function loadPocketBaseWithRetry(
-  config: Config,
-  logger: Logger,
-  isSilent: boolean = false,
-): Promise<MyPocketBase> {
-  try {
-    return await loadPocketBase(config, logger)
-  } catch (e) {
-    if (
-      !(
-        e instanceof ClientResponseError &&
-        e.originalError instanceof TypeError &&
-        e.originalError.message === 'fetch failed'
+  async function loadPocketBaseWithRetry(isSilent: boolean = false): Promise<MyPocketBase> {
+    try {
+      return await loadPocketBase()
+    } catch (e) {
+      if (
+        !(
+          e instanceof ClientResponseError &&
+          e.originalError instanceof TypeError &&
+          e.originalError.message === 'fetch failed'
+        )
+      ) {
+        throw e
+      }
+
+      if (!isSilent) {
+        logger.error(`Failed to connect to PocketBase: ${formatError(e.originalError.cause)}`)
+      }
+
+      await sleep(retryDelay)
+
+      return await loadPocketBaseWithRetry(true)
+    }
+  }
+
+  async function loadPocketBase(): Promise<MyPocketBase> {
+    const isDev = process.env.NODE_ENV === 'development'
+
+    const pb = MyPocketBase()
+
+    logger.debug('Connecting to PocketBase...')
+
+    if (isDev) {
+      await initPocketBaseIfPbEmpty(config, logger, pb)
+    } else {
+      await pb.admins.authWithPassword(
+        config.POCKET_BASE_ADMIN_EMAIL,
+        config.POCKET_BASE_ADMIN_PASSWORD,
       )
-    ) {
-      throw e
     }
 
-    if (!isSilent) {
-      const originalError: string =
-        e.originalError.cause instanceof Error
-          ? `${e.originalError.cause.name}: ${e.originalError.cause.message}`
-          : util.inspect(e.originalError)
+    logger.info('Connected to PocketBase')
 
-      logger.error(`Failed to connect to PocketBase: ${originalError}`)
+    await subscribeAll(pb)
+
+    if (isDev) {
+      await applyFixturesIfDbIsEmpty(logger, pb)
     }
 
-    await sleep(retryDelay)
-
-    return await loadPocketBaseWithRetry(config, logger, true)
-  }
-}
-
-async function loadPocketBase(config: Config, logger: Logger): Promise<MyPocketBase> {
-  const isDev = process.env.NODE_ENV === 'development'
-
-  const pb = MyPocketBase()
-
-  logger.debug('Connecting to PocketBase...')
-
-  if (isDev) {
-    await initPocketBaseIfPbEmpty(config, logger, pb)
-  } else {
-    await pb.admins.authWithPassword(
-      config.POCKET_BASE_ADMIN_EMAIL,
-      config.POCKET_BASE_ADMIN_PASSWORD,
-    )
+    return pb
   }
 
-  logger.info('Connected to PocketBase')
+  async function subscribeAll(pb: MyPocketBase): Promise<void> {
+    await subscribeCollection(logger, pb, 'matches', '*', handleMatchesEvent)
 
-  await subscribeAll(logger, pb)
-
-  if (isDev) {
-    await applyFixturesIfDbIsEmpty(logger, pb)
+    function handleMatchesEvent(event: RecordSubscription<Match>): void {
+      if (event.action === 'create' || event.action === 'update') {
+        pipe(
+          GameId.codec.decode(event.record.apiData),
+          either.map(gameId =>
+            theQuestService
+              .getMatchById('EUW', gameId)
+              .catch(e => {
+                logger.error(`Failed to get match ${gameId}: ${formatError(e)}`)
+              })
+              .then(apiData => {
+                if (apiData !== undefined) {
+                  pb.collection('matches').update(event.record.id, {
+                    apiData: TheQuestMatch.codec.encode(apiData),
+                  })
+                }
+              }),
+          ),
+        )
+      }
+    }
   }
-
-  return pb
-}
-
-async function subscribeAll(logger: Logger, pb: MyPocketBase): Promise<void> {
-  await subscribeCollection(logger, pb, 'matches', '*', e => {
-    console.log(`matches ${e.action}:`, e)
-  })
 }
 
 export const AdminPocketBase = { load }
+
+function formatError(e: unknown): string {
+  return e instanceof Error ? `${e.name}: ${e.message}` : util.inspect(e)
+}

@@ -1,6 +1,6 @@
-import type { Json } from 'fp-ts/Json'
-
 import type { WinnerOrLoserOf } from '../../../WinnerOrLoserOf'
+import type { GameId } from '../../../riot/GameId'
+import type { TheQuestMatchOutput } from '../../../theQuest/TheQuestMatch'
 import type {
   DateField,
   JsonField,
@@ -23,6 +23,6 @@ export type PbMatch = PbBaseModel<
     team2ResultsFrom: NullableField<JsonField<WinnerOrLoserOf>>
     team2: NullableField<SingleRelationField<'teams'>>
     plannedOn: NullableField<DateField>
-    apiData: NullableField<JsonField<Json>>
+    apiData: NullableField<JsonField<GameId | TheQuestMatchOutput>>
   }
 >

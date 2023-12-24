@@ -12,6 +12,7 @@ import type { TableName } from '../../models/pocketBase/Tables'
 import type { AttendeeInput } from '../../models/pocketBase/tables/Attendee'
 import type { TournamentId, TournamentInput } from '../../models/pocketBase/tables/Tournament'
 import type { UserId, UserInput } from '../../models/pocketBase/tables/User'
+import { GameId } from '../../models/riot/GameId'
 import { Puuid } from '../../models/riot/Puuid'
 
 export async function applyFixturesIfDbIsEmpty(logger: Logger, pb: MyPocketBase): Promise<void> {
@@ -111,22 +112,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
     team2ResultsFrom: undefined,
     team2: team2.id,
     plannedOn: tournament1.start,
-    apiData: {
-      gameId: 6724906455,
-      participants: [
-        { teamId: 100, championId: 777 },
-        { teamId: 100, championId: 63 },
-        { teamId: 100, championId: 45 },
-        { teamId: 100, championId: 51 },
-        { teamId: 100, championId: 12 },
-        { teamId: 200, championId: 80 },
-        { teamId: 200, championId: 121 },
-        { teamId: 200, championId: 101 },
-        { teamId: 200, championId: 202 },
-        { teamId: 200, championId: 143 },
-      ],
-      teams: [{ win: false }, { win: true }],
-    },
+    apiData: GameId(6724906455),
   })
 
   const match2 = await pb.collection('matches').create({
@@ -135,22 +121,7 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
     team2ResultsFrom: undefined,
     team2: team3.id,
     plannedOn: Dayjs(tournament1.start).add(2, 'hours').toDate(),
-    apiData: {
-      gameId: 6725087844,
-      participants: [
-        { teamId: 100, championId: 78 },
-        { teamId: 100, championId: 245 },
-        { teamId: 100, championId: 25 },
-        { teamId: 100, championId: 21 },
-        { teamId: 100, championId: 910 },
-        { teamId: 200, championId: 164 },
-        { teamId: 200, championId: 79 },
-        { teamId: 200, championId: 246 },
-        { teamId: 200, championId: 67 },
-        { teamId: 200, championId: 267 },
-      ],
-      teams: [{ win: false }, { win: true }],
-    },
+    apiData: GameId(6725087844),
   })
 
   const match3 = await pb.collection('matches').create({

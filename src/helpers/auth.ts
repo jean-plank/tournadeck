@@ -23,7 +23,7 @@ export async function auth(): Promise<Auth> {
 
   const { token } = pipe(
     json.parse(cookie.value),
-    either.chainW(cookieValueDecoder.decode),
+    either.flatMap(cookieValueDecoder.decode),
     either.getOrElseW(() => {
       throw Error('Invalid cookie value')
     }),
