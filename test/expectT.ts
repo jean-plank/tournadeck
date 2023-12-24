@@ -1,5 +1,4 @@
 // strongly typed expect
-
 export const expectT = expect as <A = never>(
   actual: A,
 ) => {

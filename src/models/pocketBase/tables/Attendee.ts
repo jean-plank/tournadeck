@@ -5,23 +5,40 @@ import { immutableAssign } from '../../../utils/fpTsUtils'
 import type { ChampionPool } from '../../ChampionPool'
 import type { LolElo } from '../../LolElo'
 import type { TeamRole } from '../../TeamRole'
-import type { PbBaseModel } from '../pbModels'
-import type { TournamentId } from './Tournament'
+import type { Puuid } from '../../riot/Puuid'
+import type {
+  BoolField,
+  NullableField,
+  NumberField,
+  PbBaseModel,
+  PbInput,
+  PbOutput,
+  SingleFileField,
+  SingleRelationField,
+  SingleSelectField,
+  TextField,
+} from '../pbModels'
 
-export type Attendee = PbBaseModel<AttendeeId> & {
-  riotId: string
-  user: string
-  currentElo: LolElo
-  comment: string
-  role: TeamRole
-  championPool: ChampionPool
-  birthPlace: string
-  avatar: File | null | string
-  isCaptain: boolean
-  seed?: number
-  price?: number
-  tournament: TournamentId
-}
+export type Attendee = PbOutput<PbAttendee>
+export type AttendeeInput = PbInput<PbAttendee>
+
+export type PbAttendee = PbBaseModel<
+  AttendeeId,
+  {
+    user: SingleRelationField<'users'>
+    tournament: SingleRelationField<'tournaments'>
+    puuid: TextField<Puuid>
+    currentElo: SingleSelectField<LolElo>
+    comment: NullableField<TextField>
+    role: SingleSelectField<TeamRole>
+    championPool: SingleSelectField<ChampionPool>
+    birthplace: TextField
+    avatar: SingleFileField
+    isCaptain: NullableField<BoolField>
+    seed: NullableField<TextField>
+    price: NullableField<NumberField>
+  }
+>
 
 type AttendeeId = Newtype<{ readonly AttendeeId: unique symbol }, string>
 

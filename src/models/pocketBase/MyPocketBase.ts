@@ -1,12 +1,11 @@
-import type { Newtype } from 'newtype-ts'
-import type { BaseAuthStore, RecordOptions, RecordService } from 'pocketbase'
+import type { BaseAuthStore, CommonOptions, RecordOptions, RecordService } from 'pocketbase'
 import PocketBase from 'pocketbase'
 import type { OverrideProperties } from 'type-fest'
 
 import type { Branded } from '../Branded'
 import { brand } from '../Branded'
 import type { TableName, Tables } from './Tables'
-import type { CreateModel, PbBaseModel } from './pbModels'
+import type { PbBaseModel, PbInput, PbOutput, PbUnknownId, PbUnknownModel } from './pbModels'
 
 type MyPocketBase_ = OverrideProperties<
   PocketBase,
@@ -15,11 +14,17 @@ type MyPocketBase_ = OverrideProperties<
   }
 >
 
-type MyRecordService<A extends PbBaseModel<Newtype<unknown, string>>> = OverrideProperties<
-  RecordService<A>,
+type MyRecordService<A extends PbBaseModel<PbUnknownId, PbUnknownModel>> = OverrideProperties<
+  RecordService<PbOutput<A>>,
   {
-    getOne: <B = A>(id: A['id'], options?: RecordOptions) => Promise<B>
-    create: (bodyParams: CreateModel<A> | FormData, options?: RecordOptions) => Promise<A>
+    getOne: <O = PbOutput<A>>(id: A['id']['input'], options?: RecordOptions) => Promise<O>
+    create: (bodyParams: PbInput<A> | FormData, options?: RecordOptions) => Promise<PbOutput<A>>
+    update: <O = PbOutput<A>>(
+      id: A['id']['input'],
+      bodyParams?: Partial<PbInput<A>> | FormData,
+      options?: RecordOptions,
+    ) => Promise<O>
+    delete: (id: A['id']['input'], options?: CommonOptions) => Promise<boolean>
   }
 >
 

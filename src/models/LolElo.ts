@@ -26,6 +26,6 @@ const label: Record<LolElo, string> = {
   challenger: 'Challenger',
 }
 
-const LolElo = { label, values }
+const LolElo = { values, label }
 
 export { LolElo }

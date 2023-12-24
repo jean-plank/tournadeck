@@ -10,6 +10,6 @@ const label: Record<ChampionPool, string> = {
   quiteALot: 'Ça fait beaucoup là, non ?',
 }
 
-const ChampionPool = { label, values }
+const ChampionPool = { values, label }
 
 export { ChampionPool }

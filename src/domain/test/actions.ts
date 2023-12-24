@@ -1,10 +1,9 @@
 import { cookies } from 'next/headers'
 
+import { adminPocketBase } from '../../context'
 import { Permissions } from '../../helpers/Permissions'
 import { auth } from '../../helpers/auth'
-import type { CreateModel } from '../../models/pocketBase/pbModels'
-import type { Test } from '../../models/pocketBase/tables/Test'
-import { adminPocketBase } from '../../services/adminPocketBase/adminPocketBase'
+import type { Test, TestInput } from '../../models/pocketBase/tables/Test'
 import { immutableAssign } from '../../utils/fpTsUtils'
 
 // for GET actions
@@ -13,7 +12,7 @@ const cacheDuration = 5 // seconds
 const listTestTag = 'test/list'
 
 export const listTest = immutableAssign(
-  async (): Promise<Test[]> => {
+  async (): Promise<ReadonlyArray<Test>> => {
     // call cookies to switch to dynamic rendering
     cookies()
 
@@ -29,7 +28,7 @@ export const listTest = immutableAssign(
   { tag: listTestTag },
 )
 
-export async function createTest(test: CreateModel<Test>): Promise<Test> {
+export async function createTest(test: TestInput): Promise<Test> {
   const { user } = await auth()
 
   if (!Permissions.test.create(user.role)) {

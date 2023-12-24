@@ -2,6 +2,11 @@ const url = new URL(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  logging: {
+    fetches: {
+      fullUrl: process.env.NODE_ENV !== 'production',
+    },
+  },
   experimental: {
     typedRoutes: true,
     serverComponentsExternalPackages: ['pino'],
