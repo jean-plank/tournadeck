@@ -146,7 +146,7 @@ export type MultipleFileField = PbField<
   ReadonlyArray<string>
 >
 
-export type JsonField<A extends PbJson> = PbField<JsonTag, A, A>
+export type JsonField<A extends PbJson> = PbField<JsonTag, A, unknown>
 type JsonTag = 'Json'
 
 // ---
