@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install.yml
+      - uses: ./.github/install
         with:
           node-version: $NODE_VERSION
 
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install.yml
+      - uses: ./.github/install
         with:
           node-version: $NODE_VERSION
 
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install.yml
+      - uses: ./.github/install
         with:
           node-version: $NODE_VERSION
 
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install.yml
+      - uses: ./.github/install
         with:
           node-version: $NODE_VERSION
 
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install.yml
+      - uses: ./.github/install
         with:
           node-version: $NODE_VERSION
 
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install.yml
+      - uses: ./.github/install
         with:
           node-version: $NODE_VERSION
 
