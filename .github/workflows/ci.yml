@@ -13,7 +13,7 @@ env:
   NODE_ENV: test
 
 jobs:
-  build:
+  install:
     runs-on: ubuntu-latest
 
     strategy:
@@ -32,11 +32,41 @@ jobs:
       - name: yarn install
         run: yarn install --frozen-lockfile
 
-      - name: yarn run ci
-        run: yarn run ci
+  tsc:
+    needs: install
+    steps:
+      - name: yarn tsc
+        run: yarn tsc
 
-      - name: yarn run build
+  format:
+    needs: install
+    steps:
+      - name: yarn formatCheck
+        run: yarn formatCheck
+
+  lint:
+    needs: install
+    steps:
+      - name: yarn lint
+        run: yarn lint
+
+  depcruise:
+    needs: install
+    steps:
+      - name: yarn dc
+        run: yarn dc
+
+  test:
+    needs: install
+    steps:
+      - name: yarn testUnit
+        run: yarn testUnit
+
+  build:
+    needs: install
+    steps:
+      - name: yarn build
         run: |
           cp .env.local.example .env.test
           cat .env.development >> .env.test
-          yarn run build
+          yarn build
