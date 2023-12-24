@@ -16,13 +16,11 @@ export const decodeErrorString =
   (name: string) =>
   (value: unknown) =>
   (error: DecodeError): string =>
-    `Couldn't decode ${name}:\bError:\n${pipe(D.draw(error), ellipse(limit))}
-      |
-      |Value: ${pipe(
-        json.stringify(value),
-        either.getOrElse(() => `${value}`),
-        ellipse(limit),
-      )}`
+    `Couldn't decode ${name}:\nError:\n${pipe(D.draw(error), ellipse(limit))}\n\nValue: ${pipe(
+      json.stringify(value),
+      either.getOrElse(() => `${value}`),
+      ellipse(limit),
+    )}`
 
 export const decodeError =
   (name: string) =>

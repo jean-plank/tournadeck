@@ -1,5 +1,5 @@
 import type { Config } from '../Config'
-import { type HttpClient, statusesToUndefined } from '../helpers/HttpClient'
+import { type HttpClient } from '../helpers/HttpClient'
 import type { GameId } from '../models/riot/GameId'
 import type { Platform } from '../models/theQuest/Platform'
 import { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
@@ -10,17 +10,12 @@ type TheQuestService = ReturnType<typeof TheQuestService>
 function TheQuestService(config: Config, httpClient: HttpClient) {
   return { getMatchById }
 
-  async function getMatchById(
-    platform: Platform,
-    gameId: GameId,
-  ): Promise<TheQuestMatch | undefined> {
-    return httpClient
-      .get(
-        `${config.THE_QUEST_API_URL}/madosayentisuto/match/${platform}/${gameId}`,
-        { headers: { Authorization: config.THE_QUEST_TOKEN }, cache: 'no-store' },
-        [TheQuestMatch.codec, 'TheQuestMatch'],
-      )
-      .catch(statusesToUndefined(404))
+  async function getMatchById(platform: Platform, gameId: GameId): Promise<TheQuestMatch> {
+    return httpClient.get(
+      `${config.THE_QUEST_API_URL}/madosayentisuto/match/${platform}/${gameId}`,
+      { headers: { Authorization: config.THE_QUEST_TOKEN }, cache: 'no-store' },
+      [TheQuestMatch.codec, 'TheQuestMatch'],
+    )
   }
 }
 
