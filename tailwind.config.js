@@ -1,7 +1,7 @@
-import type { Config } from 'tailwindcss'
-import colors from 'tailwindcss/colors'
+const colors = require('tailwindcss/colors')
 
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+const config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     colors: {
@@ -10,6 +10,8 @@ const config: Config = {
       'blue-500': colors.blue[500],
       'blue-700': colors.blue[700],
       'discord-blurple': '#5865f2',
+      grey1: '#202225',
+      grey2: '#2f3136',
       'grey-400': colors.gray[400],
       'pink-600': colors.pink[600],
       'purple-600': colors.purple[600],
@@ -25,4 +27,4 @@ const config: Config = {
   plugins: [],
 }
 
-export default config
+module.exports = config
