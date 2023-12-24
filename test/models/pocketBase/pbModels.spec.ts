@@ -86,7 +86,7 @@ describe('pbModels', () => {
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId
           maybeSingleRelation?: UserId
-          multipleFile: ReadonlyArray<File>
+          multipleFile: ReadonlyArray<File | Blob>
           json: { foo: 123 }
           maybeJson?: { bar: boolean }
         }
@@ -152,8 +152,8 @@ describe('pbModels', () => {
         TestAuthInput,
         {
           username: string
-          verified: boolean
-          emailVisibility: boolean
+          verified?: boolean
+          emailVisibility?: boolean
           email: string
 
           password: string
@@ -166,7 +166,7 @@ describe('pbModels', () => {
           singleSelect: 'a' | 'b' | 'c'
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId
-          multipleFile: ReadonlyArray<File>
+          multipleFile: ReadonlyArray<File | Blob>
         }
       >
     >
