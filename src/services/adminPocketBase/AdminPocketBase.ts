@@ -1,11 +1,13 @@
 import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
+import { revalidateTag } from 'next/cache'
 import type { RecordSubscription } from 'pocketbase'
 import { ClientResponseError } from 'pocketbase'
 import util from 'util'
 
 import { Config } from '../../Config'
 import type { GetLogger } from '../../Logger'
+import { listMatchesForTournament } from '../../actions/matches'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
@@ -107,6 +109,8 @@ function load(
                   await pb.collection('matches').update(event.record.id, {
                     apiData: TheQuestMatch.codec.encode(newApiData),
                   })
+
+                  revalidateTag(listMatchesForTournament.tag)
                 }
               }
             },
