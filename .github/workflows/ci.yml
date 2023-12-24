@@ -37,6 +37,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
+      - run: yarn install --frozen-lockfile
 
       - run: yarn tsc
 
@@ -48,6 +49,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
+      - run: yarn install --frozen-lockfile
 
       - run: yarn formatCheck
 
@@ -59,6 +61,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
+      - run: yarn install --frozen-lockfile
 
       - run: yarn lint
 
@@ -70,6 +73,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
+      - run: yarn install --frozen-lockfile
 
       - run: yarn dc
 
@@ -81,6 +85,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
+      - run: yarn install --frozen-lockfile
 
       - run: yarn testUnit
 
@@ -92,6 +97,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
+      - run: yarn install --frozen-lockfile
 
       - run: |
           cp .env.local.example .env.test
