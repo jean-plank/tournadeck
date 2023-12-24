@@ -26,6 +26,8 @@ const decoder = D.struct({
   DISCORD_CLIENT_ID: D.string,
   DISCORD_CLIENT_SECRET: D.string,
 
+  THE_QUEST_API_URL: D.string,
+
   NEXT_PUBLIC_POCKET_BASE_URL: D.string,
 })
 
