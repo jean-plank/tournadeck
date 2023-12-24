@@ -6,6 +6,7 @@ import * as D from 'io-ts/Decoder'
 import type pino from 'pino'
 import type { IsEqual } from 'type-fest'
 
+import type { Platform } from './models/theQuest/Platform'
 import { eitherGetOrThrow } from './utils/fpTsUtils'
 import { decodeError } from './utils/ioTsUtils'
 import type { Expect } from './utils/typeUtils'
@@ -40,6 +41,13 @@ function load(): Config {
   )
 }
 
-const Config = { load }
+const platform: Platform = 'EUW'
+
+const Config = {
+  load,
+  constants: {
+    platform,
+  },
+}
 
 export { Config }

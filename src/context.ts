@@ -6,10 +6,10 @@ import { AdminPocketBase } from './services/adminPocketBase/AdminPocketBase'
 
 const config = Config.load()
 
-const getLogger = Logger(config.LOG_LEVEL)
+export const getLogger = Logger(config.LOG_LEVEL)
 
 const httpClient = HttpClient(getLogger)
 
-const theQuestService = TheQuestService(config, httpClient)
+export const theQuestService = TheQuestService(config, httpClient)
 
 export const adminPocketBase = AdminPocketBase.load(config, getLogger, theQuestService)

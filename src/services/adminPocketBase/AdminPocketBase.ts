@@ -4,7 +4,7 @@ import type { RecordSubscription } from 'pocketbase'
 import { ClientResponseError } from 'pocketbase'
 import util from 'util'
 
-import type { Config } from '../../Config'
+import { Config } from '../../Config'
 import type { GetLogger } from '../../Logger'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
@@ -100,9 +100,11 @@ function load(
             },
             async apiData => {
               if (MatchApiData.isGameId(apiData)) {
-                const newApiData = await theQuestService.getMatchById('EUW', apiData).catch(e => {
-                  logger.warn(`Failed to get match ${apiData}: ${formatError(e)}`)
-                })
+                const newApiData = await theQuestService
+                  .getMatchById(Config.constants.platform, apiData)
+                  .catch(e => {
+                    logger.warn(`Failed to get match ${apiData}: ${formatError(e)}`)
+                  })
 
                 if (newApiData !== undefined) {
                   await pb.collection('matches').update(event.record.id, {

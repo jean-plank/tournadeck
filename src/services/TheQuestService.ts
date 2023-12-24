@@ -7,6 +7,8 @@ import type { Platform } from '../models/theQuest/Platform'
 import { SummonerShort } from '../models/theQuest/SummonerShort'
 import { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
 
+const cacheDuration = 5 // seconds
+
 type TheQuestService = ReturnType<typeof TheQuestService>
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -18,10 +20,11 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
     puuid: Puuid,
   ): Promise<SummonerShort | undefined> {
     return httpClient
-      .get(`${config.THE_QUEST_API_URL}/summoner/byPuuid/${platform}/${puuid}`, {}, [
-        SummonerShort.codec,
-        'SummonerShort',
-      ])
+      .get(
+        `${config.THE_QUEST_API_URL}/summoner/byPuuid/${platform}/${puuid}`,
+        { next: { revalidate: cacheDuration } },
+        [SummonerShort.codec, 'SummonerShort'],
+      )
       .catch(statusesToUndefined(404))
   }
 
@@ -30,10 +33,11 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
     { gameName, tagLine }: RiotId,
   ): Promise<SummonerShort | undefined> {
     return httpClient
-      .get(`${config.THE_QUEST_API_URL}/summoner/byRiotId/${platform}/${gameName}/${tagLine}`, {}, [
-        SummonerShort.codec,
-        'SummonerShort',
-      ])
+      .get(
+        `${config.THE_QUEST_API_URL}/summoner/byRiotId/${platform}/${gameName}/${tagLine}`,
+        { next: { revalidate: cacheDuration } },
+        [SummonerShort.codec, 'SummonerShort'],
+      )
       .catch(statusesToUndefined(404))
   }
 
