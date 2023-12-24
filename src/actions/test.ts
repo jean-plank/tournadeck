@@ -19,10 +19,7 @@ export const listTest = immutableAssign(
     const adminPb = await adminPocketBase
 
     return await adminPb.collection('test').getFullList<Test>({
-      next: {
-        revalidate: cacheDuration,
-        tags: [listTestTag],
-      },
+      next: { revalidate: cacheDuration, tags: [listTestTag] },
     })
   },
   { tag: listTestTag },

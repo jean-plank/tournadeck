@@ -13,43 +13,48 @@ import type { TournamentId } from '../models/pocketBase/tables/Tournament'
 import { GameName } from '../models/riot/GameName'
 import { RiotId } from '../models/riot/RiotId'
 import { TagLine } from '../models/riot/TagLine'
+import { immutableAssign } from '../utils/fpTsUtils'
 
 const logger = getLogger('attendeesActions')
 
 // for GET actions
 const cacheDuration = 5 // seconds
 
-export async function listAttendeesForTournament(
-  tournamentId: TournamentId,
-): Promise<ReadonlyArray<AttendeeWithRiotId>> {
-  const { user } = await auth()
+const listAttendeesTag = 'attendees/list'
 
-  if (!Permissions.attendees.list(user.role)) {
-    throw Error('Forbidden')
-  }
+export const listAttendeesForTournament = immutableAssign(
+  async (tournamentId: TournamentId): Promise<ReadonlyArray<AttendeeWithRiotId>> => {
+    const { user } = await auth()
 
-  const adminPb = await adminPocketBase
+    if (!Permissions.attendees.list(user.role)) {
+      throw Error('Forbidden')
+    }
 
-  const attendees = await adminPb.collection('attendees').getFullList<Attendee>({
-    filter: `tournament="${tournamentId}"`,
-    next: { revalidate: cacheDuration },
-  })
+    const adminPb = await adminPocketBase
 
-  return Promise.all(
-    attendees.map(
-      (a): Promise<AttendeeWithRiotId> =>
-        theQuestService.getSummonerByPuuid(Config.constants.platform, a.puuid).then(summoner => {
-          if (summoner === undefined) {
-            logger.warn(`Summoner not found for attendee ${a.id}`)
-          }
-          return {
-            ...a,
-            riotId: summoner?.riotId ?? RiotId(GameName('undefined'), TagLine('undef')),
-          }
-        }),
-    ),
-  )
-}
+    const attendees = await adminPb.collection('attendees').getFullList<Attendee>({
+      filter: `tournament="${tournamentId}"`,
+      next: { revalidate: cacheDuration, tags: [listAttendeesTag] },
+    })
+
+    return Promise.all(
+      attendees.map(
+        (a): Promise<AttendeeWithRiotId> =>
+          theQuestService.getSummonerByPuuid(Config.constants.platform, a.puuid).then(summoner => {
+            if (summoner === undefined) {
+              logger.warn(`Summoner not found for attendee ${a.id}`)
+            }
+
+            return {
+              ...a,
+              riotId: summoner?.riotId ?? RiotId(GameName('undefined'), TagLine('undef')),
+            }
+          }),
+      ),
+    )
+  },
+  { tag: listAttendeesTag },
+)
 
 export async function createAttendee(
   tournament: TournamentId,
