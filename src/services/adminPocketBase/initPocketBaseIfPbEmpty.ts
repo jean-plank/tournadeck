@@ -1,12 +1,16 @@
 import type { AdminAuthResponse } from 'pocketbase'
 import { ClientResponseError } from 'pocketbase'
 
-import { config } from '../../config'
-import { logger } from '../../logger'
+import type { Config } from '../../Config'
+import type { Logger } from '../../Logger'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 
-export async function initPocketBaseIfPbEmpty(pb: MyPocketBase): Promise<void> {
-  const response = await authWithPassword(pb).catch(e => {
+export async function initPocketBaseIfPbEmpty(
+  config: Config,
+  logger: Logger,
+  pb: MyPocketBase,
+): Promise<void> {
+  const response = await authWithPassword(config, pb).catch(e => {
     if (
       e instanceof ClientResponseError &&
       e.status === 400 &&
@@ -32,7 +36,7 @@ export async function initPocketBaseIfPbEmpty(pb: MyPocketBase): Promise<void> {
     passwordConfirm: config.POCKET_BASE_ADMIN_PASSWORD,
   })
 
-  await authWithPassword(pb)
+  await authWithPassword(config, pb)
 
   await pb.settings.update({
     discordAuth: {
@@ -45,7 +49,7 @@ export async function initPocketBaseIfPbEmpty(pb: MyPocketBase): Promise<void> {
   logger.info('Created PocketBase admin and set up Discord OAuth2')
 }
 
-function authWithPassword(pb: MyPocketBase): Promise<AdminAuthResponse> {
+function authWithPassword(config: Config, pb: MyPocketBase): Promise<AdminAuthResponse> {
   return pb.admins.authWithPassword(
     config.POCKET_BASE_ADMIN_EMAIL,
     config.POCKET_BASE_ADMIN_PASSWORD,

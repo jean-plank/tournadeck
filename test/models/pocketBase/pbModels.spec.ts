@@ -67,8 +67,8 @@ describe('pbModels', () => {
           singleRelation: UserId
           maybeSingleRelation: UserId | ''
           multipleFile: ReadonlyArray<string>
-          json: { foo: 123 }
-          maybeJson: { bar: boolean } | null
+          json: unknown
+          maybeJson: unknown
         }
       >
     >

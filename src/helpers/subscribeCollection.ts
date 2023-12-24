@@ -1,20 +1,20 @@
-import { either, json, option, readonlyArray, readonlyRecord, string } from 'fp-ts'
-import type { Option } from 'fp-ts/Option'
+import { either, json, predicate, readonlyArray, readonlyRecord, string } from 'fp-ts'
 import { flow, pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 import type { RecordSubscription, UnsubscribeFunc } from 'pocketbase'
 
-import { logger } from '../logger'
+import type { Logger } from '../Logger'
 import { DayjsDuration } from '../models/Dayjs'
 import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { TableName, Tables } from '../models/pocketBase/Tables'
 import type { PbOutput } from '../models/pocketBase/pbModels'
-import { decodeErrorString } from '../utils/ioTsUtils'
+import { decodeErrorString, fromReadonlyArrayDecoder } from '../utils/ioTsUtils'
 import { sleep } from '../utils/promiseUtils'
 
 const retryDelay = DayjsDuration({ seconds: 1 })
 
 export async function subscribeCollection<N extends TableName>(
+  logger: Logger,
   pb: MyPocketBase,
   collection: N,
   topic: '*' | Tables[N]['id']['input'],
@@ -54,6 +54,10 @@ export async function subscribeCollection<N extends TableName>(
       cache: 'no-store',
       signal: abortController.signal,
     })
+
+    if (!response.ok) {
+      throw Error(`Fetch error: ${response.status}`)
+    }
 
     if (response.body === null) {
       throw Error('Empty SSE')
@@ -138,23 +142,23 @@ const lineRegex = /^([^:]+):(.+)$/
 
 const pbEventDecoder = pipe(
   D.id<string>(),
-  D.map(
-    flow(
-      string.split('\n'),
-      readonlyArray.filterMap((line): Option<string | [string, string]> => {
-        if (line === '') return option.none
+  D.map(flow(string.split('\n'), readonlyArray.filter(predicate.not(string.isEmpty)))),
+  D.compose(
+    fromReadonlyArrayDecoder(
+      pipe(
+        D.id<string>(),
+        D.parse(line => {
+          const match = line.match(lineRegex)
 
-        const match = line.match(lineRegex)
+          if (match === null) return D.failure(line, 'TupleFromLine')
 
-        if (match === null) return option.some(line)
+          const [, key, val] = match
 
-        const [, key, val] = match
-
-        return option.some([key, val] as const)
-      }),
+          return D.success([key, val] as const)
+        }),
+      ),
     ),
   ),
-  D.compose(D.array(D.tuple(D.string, D.string))),
   D.map(readonlyRecord.fromEntries),
   D.compose(
     D.struct({

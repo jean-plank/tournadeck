@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 
+// import to trigger all effectful startup actions
+import '../context'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
 import type { ChildrenFC } from '../models/ChildrenFC'
-// import to trigger `onDevelopmentServerStart`
-import '../services/adminPocketBase/adminPocketBase'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })

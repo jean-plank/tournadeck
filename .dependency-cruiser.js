@@ -196,6 +196,16 @@ module.exports = {
 
     /* my rules */
     {
+      name: 'not-to-context',
+      severity: 'error',
+      from: {
+        pathNot: ['^src/app', '^src/domain'],
+      },
+      to: {
+        path: 'src/context.ts',
+      },
+    },
+    {
       name: 'not-to-app',
       severity: 'error',
       from: {
