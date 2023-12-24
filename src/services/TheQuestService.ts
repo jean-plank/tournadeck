@@ -6,6 +6,7 @@ import type { RiotId } from '../models/riot/RiotId'
 import type { Platform } from '../models/theQuest/Platform'
 import { SummonerShort } from '../models/theQuest/SummonerShort'
 import { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
+import { StaticData } from '../models/theQuest/staticData/StaticData'
 
 const cacheDuration = 5 // seconds
 
@@ -13,7 +14,15 @@ type TheQuestService = ReturnType<typeof TheQuestService>
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function TheQuestService(config: Config, httpClient: HttpClient) {
-  return { getSummonerByPuuid, getSummonerByRiotId, getMatchById }
+  return { getStaticData, getSummonerByPuuid, getSummonerByRiotId, getMatchById }
+
+  function getStaticData(): Promise<StaticData> {
+    return httpClient.get(
+      `${config.THE_QUEST_API_URL}/staticData/fr_FR`,
+      { next: { revalidate: cacheDuration } },
+      [StaticData.decoder, 'StaticData'],
+    )
+  }
 
   function getSummonerByPuuid(
     platform: Platform,
