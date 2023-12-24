@@ -1,8 +1,10 @@
 'use client'
 
+import { RedirectType } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { Loader } from '../components/Loader'
+import { Redirect } from '../components/Redirect'
 import { DiscordLogoTitle } from '../components/svgs/DiscordLogoTitle'
 import { usePocketBase } from '../contexts/PocketBaseContext'
 
@@ -30,7 +32,9 @@ export const LoginButton: React.FC = () => {
         >
           Connexion avec <DiscordLogoTitle className="my-3 ml-3 h-6" />
         </button>
-      ) : null}
+      ) : (
+        <Redirect url="/tournois" type={RedirectType.replace} />
+      )}
     </div>
   )
 }

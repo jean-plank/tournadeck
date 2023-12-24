@@ -1,12 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-// import to trigger all effectful startup actions
-import Link from 'next/link'
 
+// import to trigger all effectful startup actions
 import '../context'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
-import { ClientLinks } from '../domain/ClientLinks'
-import { LogoutButton } from '../domain/LogoutButton'
+import { Header } from '../domain/Header'
 import type { ChildrenFC } from '../models/ChildrenFC'
 import './globals.css'
 
@@ -22,13 +20,7 @@ const RootLayout: ChildrenFC = ({ children }) => (
     <body className={inter.className}>
       <PocketBaseContextProvider>
         <div className="grid h-screen w-screen grid-rows-[auto_1fr]">
-          <header className="flex justify-between gap-1 border-b border-grey1 bg-grey2 p-4 text-white">
-            <nav className="flex gap-4">
-              <Link href="/">Accueil</Link>
-              <ClientLinks />
-            </nav>
-            <LogoutButton />
-          </header>
+          <Header />
           <main className="overflow-x-auto">{children}</main>
         </div>
       </PocketBaseContextProvider>
