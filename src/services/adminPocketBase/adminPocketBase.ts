@@ -71,11 +71,7 @@ async function loadPocketBase(): Promise<MyPocketBase> {
 }
 
 async function subscribeAll(pb: MyPocketBase): Promise<void> {
-  logger.debug('Subscribing all...')
-
   await subscribeCollection(pb, 'matches', '*', e => {
     console.log(`matches ${e.action}:`, e)
   })
-
-  logger.info('Subscribed all')
 }
