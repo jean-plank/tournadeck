@@ -99,7 +99,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
   return (
     <form
       action={handleSubmit}
-      className="flex w-[26rem] flex-col gap-3 rounded-lg border-2 border-grey-400 bg-white p-4"
+      className="flex min-w-[416px] flex-col gap-3 rounded-lg border-2 border-grey-400 bg-white p-4"
     >
       <Input
         label="Riot ID"
