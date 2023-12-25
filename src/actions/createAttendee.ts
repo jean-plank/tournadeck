@@ -9,11 +9,13 @@ import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
 import { AttendeeCreate } from '../models/attendee/AttendeeCreate'
+import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { Attendee } from '../models/pocketBase/tables/Attendee'
 import type { TournamentId } from '../models/pocketBase/tables/Tournament'
 import { RiotId } from '../models/riot/RiotId'
+import type { SummonerShort } from '../models/theQuest/SummonerShort'
 
-const { tags } = Config.constants
+const { getFromPbCacheDuration, tags } = Config.constants
 
 export async function createAttendee(
   tournament: TournamentId,
@@ -37,19 +39,12 @@ export async function createAttendee(
     throw Error('BadRequest')
   }
 
-  const { riotId } = attendeeCreate.right
-
-  const summoner = await theQuestService.getSummonerByRiotId(
-    Config.constants.platform,
-    riotId,
-    true,
-  )
-
-  if (summoner === undefined) {
-    throw Error(`BadRequest - Summoner not found: ${RiotId.stringify('#')(riotId)}`)
-  }
-
   const adminPb = await adminPocketBase
+
+  const [summoner] = await Promise.all([
+    validateRiotId(attendeeCreate.right.riotId),
+    validateCount(adminPb, tournament),
+  ])
 
   const attendee = await adminPb.collection('attendees').create({
     ...attendeeCreate.right,
@@ -61,4 +56,33 @@ export async function createAttendee(
   revalidateTag(tags.attendees.list)
 
   return attendee
+}
+
+async function validateRiotId(riotId: RiotId): Promise<SummonerShort> {
+  const summoner = await theQuestService.getSummonerByRiotId(
+    Config.constants.platform,
+    riotId,
+    true,
+  )
+
+  if (summoner === undefined) {
+    throw Error(`BadRequest - Summoner not found: ${RiotId.stringify('#')(riotId)}`)
+  }
+
+  return summoner
+}
+
+async function validateCount(adminPb: MyPocketBase, tournamentId: TournamentId): Promise<void> {
+  const [tournament, attendees] = await Promise.all([
+    adminPb.collection('tournaments').getOne(tournamentId),
+    adminPb.collection('attendees').getFullList<ReadonlyRecord<string, never>>({
+      filter: `tournament="${tournamentId}"`,
+      fields: 'none',
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees.list] },
+    }),
+  ])
+
+  if (tournament.teamsCount * 5 <= attendees.length) {
+    throw Error('BadRequest')
+  }
 }
