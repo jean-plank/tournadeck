@@ -22,14 +22,14 @@ import { initPocketBaseIfPbEmpty } from './initPocketBaseIfPbEmpty'
 
 const retryDelay = DayjsDuration({ seconds: 1 })
 
-function load(
+async function load(
   config: Config,
   getLogger: GetLogger,
   theQuestService: TheQuestService,
 ): Promise<MyPocketBase> {
   const logger = getLogger('AdminPocketBase')
 
-  return loadPocketBaseWithRetry()
+  return await loadPocketBaseWithRetry()
 
   async function loadPocketBaseWithRetry(isSilent: boolean = false): Promise<MyPocketBase> {
     try {
