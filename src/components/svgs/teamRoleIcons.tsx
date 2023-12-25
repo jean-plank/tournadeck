@@ -21,7 +21,11 @@ export const teamRoleIcons: ReadonlyRecord<
     </svg>
   ),
 
-  jun: props => (
+  jun: ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    secondaryClassName,
+    ...props
+  }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" {...props}>
       <path
         fill="currentColor"
@@ -58,7 +62,11 @@ export const teamRoleIcons: ReadonlyRecord<
     </svg>
   ),
 
-  sup: props => (
+  sup: ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    secondaryClassName,
+    ...props
+  }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" {...props}>
       <path
         fill="currentColor"

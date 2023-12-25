@@ -1,6 +1,8 @@
 import type { Newtype } from 'newtype-ts'
 
 declare global {
+  declare type Optional<A> = A | undefined
+
   declare type NonEmptyArray<A> = readonly [A, ...A[]]
 
   declare type ReadonlyRecord<K extends PropertyKey, A> = Readonly<Record<K, A>>

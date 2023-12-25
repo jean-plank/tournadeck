@@ -14,12 +14,17 @@ type TheQuestService = ReturnType<typeof TheQuestService>
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function TheQuestService(config: Config, httpClient: HttpClient) {
-  return { getStaticData, getSummonerByPuuid, getSummonerByRiotId, getMatchById }
+  return {
+    getStaticData,
+    getSummonerByPuuid,
+    getSummonerByRiotId,
+    getMatchById,
+  }
 
-  function getStaticData(): Promise<StaticData> {
+  function getStaticData(silent?: boolean): Promise<StaticData> {
     return httpClient.get(
       `${config.THE_QUEST_API_URL}/staticData/fr_FR`,
-      { next: { revalidate: cacheDuration } },
+      { next: { revalidate: cacheDuration }, silent },
       [StaticData.decoder, 'StaticData'],
     )
   }
@@ -27,11 +32,12 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
   function getSummonerByPuuid(
     platform: Platform,
     puuid: Puuid,
-  ): Promise<SummonerShort | undefined> {
+    silent?: boolean,
+  ): Promise<Optional<SummonerShort>> {
     return httpClient
       .get(
         `${config.THE_QUEST_API_URL}/summoner/byPuuid/${platform}/${puuid}`,
-        { next: { revalidate: cacheDuration } },
+        { next: { revalidate: cacheDuration }, silent },
         [SummonerShort.codec, 'SummonerShort'],
       )
       .catch(HttpClient.statusesToUndefined(404))
@@ -40,11 +46,12 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
   function getSummonerByRiotId(
     platform: Platform,
     { gameName, tagLine }: RiotId,
-  ): Promise<SummonerShort | undefined> {
+    silent?: boolean,
+  ): Promise<Optional<SummonerShort>> {
     return httpClient
       .get(
         `${config.THE_QUEST_API_URL}/summoner/byRiotId/${platform}/${gameName}/${tagLine}`,
-        { next: { revalidate: cacheDuration } },
+        { next: { revalidate: cacheDuration }, silent },
         [SummonerShort.codec, 'SummonerShort'],
       )
       .catch(HttpClient.statusesToUndefined(404))

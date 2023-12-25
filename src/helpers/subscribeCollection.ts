@@ -24,7 +24,7 @@ export async function subscribeCollection<N extends TableName>(
 
   subscribeWithRetry()
 
-  let clientId: string | undefined = undefined
+  let clientId: Optional<string> = undefined
 
   return async function unsubscribe(): Promise<void> {
     if (clientId !== undefined) {
@@ -114,7 +114,7 @@ export async function subscribeCollection<N extends TableName>(
 function postSubscription(
   pb: MyPocketBase,
   clientId: string,
-  subscription: string | undefined,
+  subscription: Optional<string>,
 ): Promise<unknown> {
   return pb.send('/api/realtime', {
     method: 'POST',

@@ -7,7 +7,6 @@ import util from 'util'
 
 import { Config } from '../../Config'
 import type { GetLogger } from '../../Logger'
-import { listMatchesTag } from '../../actions/matchesTag'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
@@ -22,14 +21,14 @@ import { initPocketBaseIfPbEmpty } from './initPocketBaseIfPbEmpty'
 
 const retryDelay = DayjsDuration({ seconds: 1 })
 
-function load(
+async function load(
   config: Config,
   getLogger: GetLogger,
   theQuestService: TheQuestService,
 ): Promise<MyPocketBase> {
   const logger = getLogger('AdminPocketBase')
 
-  return loadPocketBaseWithRetry()
+  return await loadPocketBaseWithRetry()
 
   async function loadPocketBaseWithRetry(isSilent: boolean = false): Promise<MyPocketBase> {
     try {
@@ -110,7 +109,7 @@ function load(
                     apiData: TheQuestMatch.codec.encode(newApiData),
                   })
 
-                  revalidateTag(listMatchesTag)
+                  revalidateTag(Config.constants.tags.matches.list)
                 }
               }
             },

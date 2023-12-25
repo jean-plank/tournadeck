@@ -1,36 +1,48 @@
 'use client'
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import type { RedirectType } from 'next/navigation'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
+import { redirectAction } from '../actions/redirectAction'
 import type { ChildrenFC } from '../models/ChildrenFC'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { User } from '../models/pocketBase/tables/User'
 
 type PocketBaseContext = {
   pb: MyPocketBase
-  user: User | null
+  user: Optional<User>
+  logoutAndRedirect: (type?: RedirectType) => void
 }
 
-const PocketBaseContext = createContext<PocketBaseContext | undefined>(undefined)
+const PocketBaseContext = createContext<Optional<PocketBaseContext>>(undefined)
 
 export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
   const pb = useMemo(() => MyPocketBase(), [])
 
-  const [user, setUser] = useState<PocketBaseContext['user']>(null)
+  const [user, setUser] = useState<PocketBaseContext['user']>(undefined)
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
       pb.authStore.loadFromCookie(document.cookie)
 
       pb.authStore.onChange((token, model) => {
-        setUser(model as User)
+        setUser((model as User | null) ?? undefined)
 
         document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
       })
     }
   }, [pb])
 
-  const value: PocketBaseContext = { pb, user }
+  const logoutAndRedirect = useCallback(
+    (type?: RedirectType) => {
+      pb.authStore.clear()
+
+      redirectAction('/', type)
+    },
+    [pb],
+  )
+
+  const value: PocketBaseContext = { pb, user, logoutAndRedirect }
 
   return <PocketBaseContext.Provider value={value}>{children}</PocketBaseContext.Provider>
 }

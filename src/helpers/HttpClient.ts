@@ -5,7 +5,7 @@ import type { Decoder } from 'io-ts/Decoder'
 import type { Encoder } from 'io-ts/Encoder'
 import type { Options as KyOptions, KyResponse } from 'ky'
 import ky, { HTTPError as KyHTTPError } from 'ky'
-import type { Except, OverrideProperties } from 'type-fest'
+import type { Except, Merge, OverrideProperties } from 'type-fest'
 
 import type { GetLogger } from '../Logger'
 import { immutableAssign } from '../utils/fpTsUtils'
@@ -13,10 +13,18 @@ import { decodeError } from '../utils/ioTsUtils'
 
 type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete'
 
-export type HttpOptions<O, B> = OverrideProperties<
-  Except<KyOptions, 'method'>,
+export type HttpOptions<O, B> = Merge<
+  OverrideProperties<
+    Except<KyOptions, 'method'>,
+    {
+      json?: readonly [Encoder<O, B>, B]
+    }
+  >,
   {
-    json?: readonly [Encoder<O, B>, B]
+    /**
+     * @default false
+     */
+    silent?: boolean
   }
 >
 
@@ -77,7 +85,7 @@ const HttpClient = immutableAssign(
         url: string | URL | Request,
         options: HttpOptions<O, B> = {},
       ): Promise<string> {
-        const json = ((): O | undefined => {
+        const json = ((): Optional<O> => {
           if (options.json === undefined) return undefined
           const [encoder, b] = options.json
           return encoder.encode(b)
@@ -91,22 +99,24 @@ const HttpClient = immutableAssign(
           .then(either.right)
           .catch(either.left)
 
-        // Log status
-        pipe(
-          result,
-          either.fold(
-            e => (e instanceof KyHTTPError ? option.some(e.response.status) : option.none),
-            res => option.some(res.status),
-          ),
-          option.fold(
-            () => undefined,
-            status => {
-              logger.debug(
-                `${method.toUpperCase()} ${url instanceof Request ? url.url : url} - ${status}`,
-              )
-            },
-          ),
-        )
+        if (options.silent !== true) {
+          // Log status
+          pipe(
+            result,
+            either.fold(
+              e => (e instanceof KyHTTPError ? option.some(e.response.status) : option.none),
+              res => option.some(res.status),
+            ),
+            option.fold(
+              () => undefined,
+              status => {
+                logger.debug(
+                  `${method.toUpperCase()} ${url instanceof Request ? url.url : url} - ${status}`,
+                )
+              },
+            ),
+          )
+        }
 
         return pipe(
           result,
