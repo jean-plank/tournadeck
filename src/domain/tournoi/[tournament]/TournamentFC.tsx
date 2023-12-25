@@ -36,7 +36,7 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
 
   const alreadySubscribed =
     attendees.length < tournament.teamsCount * 5 &&
-    user !== null &&
+    user !== undefined &&
     attendees.find(a => a.user === user.id) !== undefined
 
   return (

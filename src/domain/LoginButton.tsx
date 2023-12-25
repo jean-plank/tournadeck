@@ -15,6 +15,7 @@ export const LoginButton: React.FC = () => {
 
   const connectWithDiscord = useCallback(() => {
     setIsLoading(true)
+
     pb.collection('users')
       .authWithOAuth2({ provider: 'discord' })
       .finally(() => setIsLoading(false))
@@ -24,7 +25,7 @@ export const LoginButton: React.FC = () => {
     <div>
       {isLoading ? (
         <Loader className="h-6" />
-      ) : user === null ? (
+      ) : user === undefined ? (
         <button
           type="button"
           onClick={connectWithDiscord}

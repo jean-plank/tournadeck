@@ -1,12 +1,13 @@
+'use server'
+
 import Link from 'next/link'
 
-import { listTournaments } from '../../actions/tournaments'
+import { listTournaments } from '../../actions/listTournaments'
 import { TournamentTile } from '../../domain/tournois/TournamentTile'
+import { withRedirectOnAuthError } from '../../helpers/withRedirectOnAuthError'
 
-const Tournaments: React.FC = async () => {
-  const tournaments = await listTournaments()
-
-  return (
+const Tournaments: React.FC = () =>
+  withRedirectOnAuthError(listTournaments())(tournaments => (
     <div>
       <h2>Tournois</h2>
       {tournaments.map(t => (
@@ -15,7 +16,6 @@ const Tournaments: React.FC = async () => {
         </Link>
       ))}
     </div>
-  )
-}
+  ))
 
 export default Tournaments

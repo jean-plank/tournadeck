@@ -6,6 +6,7 @@ import * as D from 'io-ts/Decoder'
 import type pino from 'pino'
 import type { IsEqual } from 'type-fest'
 
+import { DayjsDuration } from './models/Dayjs'
 import type { Platform } from './models/theQuest/Platform'
 import { eitherGetOrThrow } from './utils/fpTsUtils'
 import { decodeError } from './utils/ioTsUtils'
@@ -47,6 +48,18 @@ const Config = {
   load,
   constants: {
     platform,
+    /**
+     * seconds
+     */
+    getFromPbCacheDuration: DayjsDuration({ seconds: 30 }).asSeconds(),
+    tags: {
+      attendees: { list: 'attendees/list' },
+      matches: { list: 'matches/list' },
+      tournaments: {
+        list: 'tournaments/list',
+        view: 'tournaments/view',
+      },
+    },
   },
 }
 

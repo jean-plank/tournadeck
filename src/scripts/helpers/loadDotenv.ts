@@ -18,7 +18,7 @@ export function loadDotenv(): void {
   console.info('Loaded environments:', right.join(', '))
 
   function loadDotenvs(
-    paths: NonEmptyArray<string | undefined>,
+    paths: NonEmptyArray<Optional<string>>,
   ): Separated<ReadonlyArray<string>, ReadonlyArray<string>> {
     return pipe(
       paths,

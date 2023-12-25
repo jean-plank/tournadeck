@@ -1,13 +1,11 @@
 import { readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import { redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
-import { listAttendeesForTournament } from '../../../actions/attendees'
-import { listMatchesForTournament } from '../../../actions/matches'
-import { viewTournament } from '../../../actions/tournaments'
+import { viewTournament } from '../../../actions/viewTournament'
 import { CroppedChampionSquare } from '../../../components/CroppedChampionSquare'
-import { theQuestService } from '../../../context'
 import { TournamentFC } from '../../../domain/tournoi/[tournament]/TournamentFC'
+import { withRedirectOnAuthError } from '../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
 import { ChampionId } from '../../../models/riot/ChampionId'
 import type { MatchDecoded } from '../../../models/riot/MatchDecoded'
@@ -19,69 +17,64 @@ type Props = {
   params: { tournament: TournamentId }
 }
 
-const TournamentPage: React.FC<Props> = async ({ params }) => {
-  const tournament = await viewTournament(params.tournament)
+const TournamentPage: React.FC<Props> = ({ params }) =>
+  withRedirectOnAuthError(viewTournament(params.tournament))(data => {
+    if (data === undefined) {
+      return notFound()
+    }
 
-  if (tournament === undefined) {
-    return redirect('/')
-  }
+    const { tournament, attendees, matches, staticData } = data
 
-  const [staticData, matches, attendees] = await Promise.all([
-    theQuestService.getStaticData(),
-    listMatchesForTournament(params.tournament),
-    listAttendeesForTournament(params.tournament),
-  ])
+    const { stillAvailable, alreadyPlayed } = partionChampions(staticData.champions, matches)
 
-  const { stillAvailable, alreadyPlayed } = partionChampions(staticData.champions, matches)
+    return (
+      <div className="min-h-full">
+        <div className="flex flex-col gap-4 p-4">
+          <h2>Champions disponibles :</h2>
+          <ul className="flex flex-wrap gap-1">
+            {stillAvailable.map(c => (
+              <CroppedChampionSquare
+                key={c.key}
+                version={staticData.version}
+                championId={c.id}
+                championName={c.name}
+                width={54}
+                height={54}
+                as="li"
+                className="h-12 w-12"
+              />
+            ))}
+          </ul>
 
-  return (
-    <div className="min-h-full">
-      <div className="flex flex-col gap-4 p-4">
-        <h2>Champions disponibles :</h2>
-        <ul className="flex flex-wrap gap-1">
-          {stillAvailable.map(c => (
-            <CroppedChampionSquare
-              key={c.key}
-              version={staticData.version}
-              championId={c.id}
-              championName={c.name}
-              width={54}
-              height={54}
-              as="li"
-              className="h-12 w-12"
-            />
-          ))}
-        </ul>
+          <h2>Champions déjà joués :</h2>
+          <ul className="flex flex-wrap gap-1">
+            {alreadyPlayed.map(c => (
+              <CroppedChampionSquare
+                key={c.key}
+                version={staticData.version}
+                championId={c.id}
+                championName={c.name}
+                width={54}
+                height={54}
+                as="li"
+                className="relative h-12 w-12"
+              >
+                <span className="absolute top-[calc(100%_-_2px)] w-20 origin-left -rotate-45 border-t-4 border-red-500 shadow-even shadow-black" />
+              </CroppedChampionSquare>
+            ))}
+          </ul>
+          <hr />
+        </div>
 
-        <h2>Champions déjà joués :</h2>
-        <ul className="flex flex-wrap gap-1">
-          {alreadyPlayed.map(c => (
-            <CroppedChampionSquare
-              key={c.key}
-              version={staticData.version}
-              championId={c.id}
-              championName={c.name}
-              width={54}
-              height={54}
-              as="li"
-              className="relative h-12 w-12"
-            >
-              <span className="absolute top-[calc(100%_-_2px)] w-20 origin-left -rotate-45 border-t-4 border-red-500 shadow-even shadow-black" />
-            </CroppedChampionSquare>
-          ))}
-        </ul>
-        <hr />
+        <div
+          className="bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/synthwave.jpg')" }}
+        >
+          <TournamentFC tournament={tournament} attendees={attendees} />
+        </div>
       </div>
-
-      <div
-        className="bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/synthwave.jpg')" }}
-      >
-        <TournamentFC tournament={tournament} attendees={attendees} />
-      </div>
-    </div>
-  )
-}
+    )
+  })
 
 export default TournamentPage
 

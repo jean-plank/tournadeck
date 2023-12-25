@@ -3,7 +3,7 @@
 import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 
-import { createAttendee } from '../../../actions/attendees'
+import { createAttendee } from '../../../actions/createAttendee'
 import { FileInput, Input, SelectInput } from '../../../components/FormInputs'
 import { ChampionPool } from '../../../models/ChampionPool'
 import { LolElo } from '../../../models/LolElo'
@@ -49,7 +49,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
 
   const [touched, setTouched] = useState<Touched>({})
 
-  const [submitError, setSubmitError] = useState<string | undefined>(undefined)
+  const [submitError, setSubmitError] = useState<Optional<string>>(undefined)
 
   const handleChange = (key: keyof Inputs) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputs(i => ({ ...i, [key]: event.target.value }))

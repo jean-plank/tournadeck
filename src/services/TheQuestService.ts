@@ -24,10 +24,7 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
     )
   }
 
-  function getSummonerByPuuid(
-    platform: Platform,
-    puuid: Puuid,
-  ): Promise<SummonerShort | undefined> {
+  function getSummonerByPuuid(platform: Platform, puuid: Puuid): Promise<Optional<SummonerShort>> {
     return httpClient
       .get(
         `${config.THE_QUEST_API_URL}/summoner/byPuuid/${platform}/${puuid}`,
@@ -40,7 +37,7 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
   function getSummonerByRiotId(
     platform: Platform,
     { gameName, tagLine }: RiotId,
-  ): Promise<SummonerShort | undefined> {
+  ): Promise<Optional<SummonerShort>> {
     return httpClient
       .get(
         `${config.THE_QUEST_API_URL}/summoner/byRiotId/${platform}/${gameName}/${tagLine}`,

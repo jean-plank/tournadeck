@@ -6,11 +6,7 @@ const isOrganiser = (role: UserRole): boolean => role === 'organiser'
 
 export const Permissions = {
   attendees: {
-    list: isAnyRole,
     create: isAnyRole,
-  },
-  matches: {
-    list: isAnyRole,
   },
   tournaments: {
     list: isAnyRole,

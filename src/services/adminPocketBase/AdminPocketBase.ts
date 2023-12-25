@@ -7,7 +7,6 @@ import util from 'util'
 
 import { Config } from '../../Config'
 import type { GetLogger } from '../../Logger'
-import { listMatchesTag } from '../../actions/matchesTag'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
@@ -110,7 +109,7 @@ async function load(
                     apiData: TheQuestMatch.codec.encode(newApiData),
                   })
 
-                  revalidateTag(listMatchesTag)
+                  revalidateTag(Config.constants.tags.matches.list)
                 }
               }
             },

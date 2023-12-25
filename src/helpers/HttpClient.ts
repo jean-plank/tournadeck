@@ -77,7 +77,7 @@ const HttpClient = immutableAssign(
         url: string | URL | Request,
         options: HttpOptions<O, B> = {},
       ): Promise<string> {
-        const json = ((): O | undefined => {
+        const json = ((): Optional<O> => {
           if (options.json === undefined) return undefined
           const [encoder, b] = options.json
           return encoder.encode(b)
