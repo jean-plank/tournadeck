@@ -39,7 +39,11 @@ export async function createAttendee(
 
   const { riotId } = attendeeCreate.right
 
-  const summoner = await theQuestService.getSummonerByRiotId(Config.constants.platform, riotId)
+  const summoner = await theQuestService.getSummonerByRiotId(
+    Config.constants.platform,
+    riotId,
+    true,
+  )
 
   if (summoner === undefined) {
     throw Error(`BadRequest - Summoner not found: ${RiotId.stringify('#')(riotId)}`)

@@ -56,7 +56,7 @@ export async function viewTournament(
   const [attendees, matches, staticData] = await Promise.all([
     listAttendeesForTournament(adminPb, tournamentId),
     listMatchesForTournament(adminPb, tournamentId),
-    theQuestService.getStaticData(),
+    theQuestService.getStaticData(true),
   ])
 
   return { tournament, attendees, matches, staticData }
@@ -74,16 +74,18 @@ async function listAttendeesForTournament(
   return Promise.all(
     attendees.map(
       (a): Promise<AttendeeWithRiotId> =>
-        theQuestService.getSummonerByPuuid(Config.constants.platform, a.puuid).then(summoner => {
-          if (summoner === undefined) {
-            logger.warn(`Summoner not found for attendee ${a.id}`)
-          }
+        theQuestService
+          .getSummonerByPuuid(Config.constants.platform, a.puuid, true)
+          .then(summoner => {
+            if (summoner === undefined) {
+              logger.warn(`Summoner not found for attendee ${a.id}`)
+            }
 
-          return {
-            ...a,
-            riotId: summoner?.riotId ?? RiotId(GameName('undefined'), TagLine('undef')),
-          }
-        }),
+            return {
+              ...a,
+              riotId: summoner?.riotId ?? RiotId(GameName('undefined'), TagLine('undef')),
+            }
+          }),
     ),
   )
 }
