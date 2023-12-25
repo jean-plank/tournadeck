@@ -22,6 +22,13 @@ const config = {
       'slate-400': colors.slate[400],
       white: colors.white,
       'yellow-500': colors.yellow[500],
+
+      orange: '#E58E5E',
+      green1: '#25787F',
+      green2: '#87AD92',
+      white1: '#FEFCF7',
+      yellow1: '#FEFCF7',
+      yellow2: '#FDEA95',
     },
     extend: {
       borderRadius: {

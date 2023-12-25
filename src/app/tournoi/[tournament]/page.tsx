@@ -66,10 +66,7 @@ const TournamentPage: React.FC<Props> = ({ params }) =>
           <hr />
         </div>
 
-        <div
-          className="bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/synthwave.jpg')" }}
-        >
+        <div>
           <TournamentFC tournament={tournament} attendees={attendees} />
         </div>
       </div>

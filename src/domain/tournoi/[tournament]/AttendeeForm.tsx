@@ -40,9 +40,10 @@ const keys = objectKeys(inputsEmpty)
 type Props = {
   tournament: TournamentId
   onSubscribeOk: () => void
+  avalaibleTeamRole: TeamRole[]
 }
 
-export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => {
+export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, onSubscribeOk }) => {
   const [inputs, setInputs] = useState(inputsEmpty)
 
   const errors = validate(inputs)
@@ -134,8 +135,8 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
       <SelectInput
         label="Rôle"
         value={inputs['role']}
-        values={TeamRole.values}
-        valuesLabels={TeamRole.values.map(v => TeamRole.label[v])}
+        values={avalaibleTeamRole}
+        valuesLabels={avalaibleTeamRole.map(v => TeamRole.label[v])}
         onChange={handleSelectChange('role')}
         errorMsg={errors.role ?? ''}
         showErrorMsg={showErrorMsg('role')}

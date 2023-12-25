@@ -49,13 +49,27 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
 
       {!alreadySubscribed && (
         <>
-          <button type="button" onClick={handleSuscribeClick} className="w-20 bg-black text-white">
+          <button
+            type="button"
+            onClick={handleSuscribeClick}
+            className="w-40 rounded bg-green1 text-white"
+          >
             S’inscrire
           </button>
 
           <dialog ref={dialog}>
             <h2>Inscription</h2>
-            <AttendeeForm tournament={tournament.id} onSubscribeOk={onSuscribeOk} />
+            <AttendeeForm
+              tournament={tournament.id}
+              onSubscribeOk={onSuscribeOk}
+              avalaibleTeamRole={TeamRole.values.reduce(
+                (acc: TeamRole[], v) =>
+                  attendees.filter(p => p.role === v).length < tournament.teamsCount
+                    ? [...acc, v]
+                    : acc,
+                [],
+              )}
+            />
             <button type="button" className="p-2" onClick={handleCancelClick}>
               Annuler
             </button>
@@ -63,20 +77,22 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
         </>
       )}
 
-      <div>
+      <div className="flex flex-col items-center">
         <h2 className="text-lg font-bold text-white">
           Participants ({attendees.length} / {tournament.teamsCount * 5})
         </h2>
         <div className="flex flex-row">
           {TeamRole.values.map(role => (
             <div key={role}>
-              <TeamRoleIcon role={role} className="h-32 w-32" />
+              <div className="flex min-w-[15rem] flex-row items-center justify-center ">
+                <TeamRoleIcon role={role} className="h-16 w-16" />
+                <div>{attendees.filter(p => p.role === role).length}/5</div>
+              </div>
               {attendees
                 .filter(p => p.role === role)
                 .map(p => (
                   <Fragment key={p.id}>
                     <AttendeeTile attendee={p} />
-                    <SmallAttendeeTile data={p} />
                   </Fragment>
                 ))}
             </div>

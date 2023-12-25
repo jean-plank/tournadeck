@@ -13,6 +13,6 @@ export const LolEloIcon: React.FC<Props> = ({ elo, className }) => (
     alt={`Icône ${LolElo.label[elo]}`}
     width={200}
     height={200}
-    src={`https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/images/${elo}.png`}
+    src={`https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/${elo}.svg`}
   />
 )
