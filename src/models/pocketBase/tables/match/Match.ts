@@ -2,7 +2,6 @@ import type { WinnerOrLoserOf } from '../../../WinnerOrLoserOf'
 import type {
   DateField,
   JsonField,
-  NullableField,
   PbBaseModel,
   PbInput,
   PbOutput,
@@ -18,11 +17,11 @@ export type PbMatch = PbBaseModel<
   MatchId,
   {
     tournament: SingleRelationField<'tournaments'>
-    team1ResultsFrom: NullableField<JsonField<WinnerOrLoserOf>>
-    team1: NullableField<SingleRelationField<'teams'>>
-    team2ResultsFrom: NullableField<JsonField<WinnerOrLoserOf>>
-    team2: NullableField<SingleRelationField<'teams'>>
-    plannedOn: NullableField<DateField>
-    apiData: NullableField<JsonField<MatchApiDataOutput>>
+    team1ResultsFrom: JsonField<WinnerOrLoserOf, 'nullable'>
+    team1: SingleRelationField<'teams', 'nullable'>
+    team2ResultsFrom: JsonField<WinnerOrLoserOf, 'nullable'>
+    team2: SingleRelationField<'teams', 'nullable'>
+    plannedOn: DateField<'nullable'>
+    apiData: JsonField<MatchApiDataOutput, 'nullable'>
   }
 >
