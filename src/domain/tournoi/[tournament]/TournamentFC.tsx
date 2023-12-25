@@ -10,7 +10,6 @@ import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
 import { SmallAttendeeTile } from './SmallAttendeeTile'
-import './test.css'
 
 type Props = {
   tournament: Tournament
@@ -53,7 +52,7 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
             S’inscrire
           </button>
 
-          <dialog ref={dialog}>
+          <dialog ref={dialog} className="backdrop:bg-white/40 backdrop:backdrop-blur-sm">
             <h2>Inscription</h2>
             <AttendeeForm tournament={tournament.id} onSubscribeOk={onSuscribeOk} />
             <button type="button" className="p-2" onClick={handleCancelClick}>
