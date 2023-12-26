@@ -35,7 +35,7 @@ export type PbAttendee = PbBaseModel<
     birthplace: TextField
     avatar: SingleFileField
     isCaptain: NullableField<BoolField>
-    seed: NullableField<TextField>
+    seed: NullableField<NumberField>
     price: NullableField<NumberField>
   }
 >

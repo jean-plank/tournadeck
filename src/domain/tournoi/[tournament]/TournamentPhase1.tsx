@@ -15,6 +15,29 @@ type Props = {
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
+function extractDateAndTime(dateString: string): { date: string; time: string } | null {
+  try {
+    const dateObject = new Date(dateString)
+
+    if (isNaN(dateObject.getTime())) {
+      throw new Error('Invalid date string')
+    }
+
+    const extractedDate = dateObject.toISOString().split('T')[0]
+    const extractedTime = `${('0' + dateObject.getUTCHours()).slice(-2)}:${(
+      '0' + dateObject.getUTCMinutes()
+    ).slice(-2)}`
+
+    return {
+      date: extractedDate,
+      time: extractedTime,
+    }
+  } catch (error) {
+    console.error('Error extracting date and time:', error)
+    return null
+  }
+}
+
 export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
   const { user } = usePocketBase()
 
@@ -37,48 +60,57 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
     user !== undefined &&
     attendees.find(a => a.user === user.id) !== undefined
 
+  const dateDebut = extractDateAndTime(tournament.start)
+  const dateFin = extractDateAndTime(tournament.end)
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="text-white">
-        <h1 className="text-lg font-bold">{tournament.name}</h1>
-        <div>Début : {tournament.start}</div>
-        <div>Fin : {tournament.end}</div>
+      <div className="flex flex-row items-center gap-16 text-black">
+        <h1 className="text-[3rem] font-bold">{tournament.name}</h1>
+        <div className="flex flex-col items-center">
+          <span className="font-bold">{dateDebut?.date}</span> <span>{dateDebut?.time}</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="font-bold">{dateFin?.date}</span> <span>{dateFin?.time}</span>
+        </div>
       </div>
 
       {!alreadySubscribed && (
-        <>
-          <button
-            type="button"
-            onClick={handleSuscribeClick}
-            className="w-40 rounded bg-green1 text-white"
-          >
-            S’inscrire
+        <dialog ref={dialog} className="bg-transparent">
+          <h2 className="bg-transparent text-center text-lg font-bold">Inscription</h2>
+          <AttendeeForm
+            tournament={tournament.id}
+            onSubscribeOk={onSuscribeOk}
+            avalaibleTeamRole={TeamRole.values.reduce(
+              (acc: TeamRole[], v) =>
+                attendees.filter(p => p.role === v).length < tournament.teamsCount
+                  ? [...acc, v]
+                  : acc,
+              [],
+            )}
+          />
+          <button type="button" className="p-2" onClick={handleCancelClick}>
+            Annuler
           </button>
-
-          <dialog ref={dialog} className="bg-transparent">
-            <h2 className="bg-transparent text-center text-lg font-bold">Inscription</h2>
-            <AttendeeForm
-              tournament={tournament.id}
-              onSubscribeOk={onSuscribeOk}
-              avalaibleTeamRole={TeamRole.values.reduce(
-                (acc: TeamRole[], v) =>
-                  attendees.filter(p => p.role === v).length < tournament.teamsCount
-                    ? [...acc, v]
-                    : acc,
-                [],
-              )}
-            />
-            <button type="button" className="p-2" onClick={handleCancelClick}>
-              Annuler
-            </button>
-          </dialog>
-        </>
+        </dialog>
       )}
 
       <div className="flex flex-col items-center">
-        <h2 className="text-lg font-bold text-white">
-          Participants ({attendees.length} / {tournament.teamsCount * 5})
-        </h2>
+        <div className="flex flex-col items-center">
+          <h2 className="text-lg font-bold text-black">
+            Participants ({attendees.length} / {tournament.teamsCount * 5})
+          </h2>
+
+          {!alreadySubscribed && (
+            <button
+              type="button"
+              onClick={handleSuscribeClick}
+              className="my-4 w-40 rounded bg-green1 py-2 text-xl font-bold text-white"
+            >
+              S’inscrire
+            </button>
+          )}
+        </div>
         <div className="flex flex-row">
           {TeamRole.values.map(role => (
             <div key={role}>
@@ -88,6 +120,7 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
               </div>
               {attendees
                 .filter(p => p.role === role)
+                .toSorted((a, b) => a.seed - b.seed)
                 .map(p => (
                   <Fragment key={p.id}>
                     <AttendeeTile attendee={p} />
