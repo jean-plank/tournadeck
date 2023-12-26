@@ -9,8 +9,6 @@ import type { AttendeeWithRiotId } from '../../../models/attendee/AttendeeWithRi
 import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
-import { SmallAttendeeTile } from './SmallAttendeeTile'
-import './test.css'
 
 type Props = {
   tournament: Tournament
@@ -57,8 +55,8 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
             S’inscrire
           </button>
 
-          <dialog ref={dialog}>
-            <h2>Inscription</h2>
+          <dialog ref={dialog} className="bg-transparent">
+            <h2 className="bg-transparent text-center text-lg font-bold">Inscription</h2>
             <AttendeeForm
               tournament={tournament.id}
               onSubscribeOk={onSuscribeOk}

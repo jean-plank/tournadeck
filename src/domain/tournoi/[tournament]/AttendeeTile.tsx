@@ -11,7 +11,7 @@ type Props = {
 }
 
 export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
-  <div className="relative  m-2 flex flex-col items-start justify-start overflow-hidden rounded-lg bg-green2 text-white1 shadow-lg">
+  <div className="relative  m-2 flex flex-col items-start justify-start overflow-hidden rounded-lg bg-green2 text-white1">
     <div className="z-30 font-bold">
       {/* RiotId and captain */}
       <div className="flex flex-row justify-between">

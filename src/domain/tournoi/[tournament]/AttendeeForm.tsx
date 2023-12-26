@@ -51,6 +51,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
   const [touched, setTouched] = useState<Touched>({})
 
   const [submitError, setSubmitError] = useState<Optional<string>>(undefined)
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null)
 
   const handleChange = (key: keyof Inputs) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputs(i => ({ ...i, [key]: event.target.value }))
@@ -69,6 +70,12 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
     if (files !== null && files.length > 0) {
       const selected = files[0]
       setInputs(i => ({ ...i, avatar: selected }))
+      // Image preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatarPreviewUrl(reader.result as string)
+      }
+      reader.readAsDataURL(selected)
     }
   }, [])
 
@@ -100,7 +107,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
   return (
     <form
       action={handleSubmit}
-      className="flex min-w-[416px] flex-col gap-3 rounded-lg border-2 border-grey-400 bg-white p-4"
+      className="flex min-w-[416px] flex-col gap-3 rounded-lg border border-orange bg-white1 p-4"
     >
       <Input
         label="Riot ID"
@@ -169,10 +176,18 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
         errorMsg={errors.avatar ?? ''}
         showErrorMsg={showErrorMsg('birthplace')}
       />
+      {avatarPreviewUrl !== null && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className="mr-1 h-36 w-36 rounded-r-lg border-2 border-orange object-cover"
+          alt="avatar-preview"
+          src={avatarPreviewUrl}
+        />
+      )}
 
       <button
         type="submit"
-        className="rounded-full bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+        className="rounded-full bg-orange px-4 py-2 font-bold text-white hover:text-black"
       >
         Valider
       </button>

@@ -22,6 +22,7 @@ const config = {
       'slate-400': colors.slate[400],
       white: colors.white,
       'yellow-500': colors.yellow[500],
+      transparent: colors.transparent,
 
       orange: '#E58E5E',
       green1: '#25787F',
