@@ -9,7 +9,7 @@ type InputProps = {
 }
 
 const inputStyle =
-  'outline-none w-full rounded-md border border-orange p-2 font-medium placeholder:text-opacity-60 focus-visible:border-2'
+  'outline-none w-full rounded-md border border-blue1 p-2 font-medium placeholder:text-opacity-60 focus-visible:border-2'
 const inputErrorStyle = 'text-red-500 text-xs'
 
 export const Input: React.FC<InputProps> = ({ label, errorMsg, showErrorMsg, ...props }) => (

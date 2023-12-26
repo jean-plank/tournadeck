@@ -24,12 +24,11 @@ const config = {
       'yellow-500': colors.yellow[500],
       transparent: colors.transparent,
 
-      orange: '#E58E5E',
-      green1: '#25787F',
-      green2: '#87AD92',
+      blue1: '#010D17',
+      gold: '#C79F49',
+      myGrey1: '#7F8587',
       white1: '#FEFCF7',
-      yellow1: '#FEFCF7',
-      yellow2: '#FDEA95',
+      green1: '#25787F',
     },
     extend: {
       borderRadius: {

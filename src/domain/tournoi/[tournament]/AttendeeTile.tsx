@@ -11,7 +11,7 @@ type Props = {
 }
 
 export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
-  <div className="relative  m-2 flex flex-col items-start justify-start overflow-hidden rounded-lg bg-green2 text-white1">
+  <div className="relative  m-2 flex flex-col items-start justify-start overflow-hidden rounded-lg border-2 text-gold">
     <div className="z-30 font-bold">
       {/* RiotId and captain */}
       <div className="flex flex-row justify-between">
@@ -34,7 +34,7 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
       <div className="flex flex-row justify-start">
         <Image
           src={getImageUrl('attendees', attendee.id, attendee.avatar)}
-          className="mr-1 h-40 w-40 rounded-r-lg border-y-2 border-r-2 border-green1 object-cover"
+          className="mr-1 h-40 w-40 rounded-r-lg border-y-2 border-r-2 border-gold object-cover"
           width={200}
           height={200}
           alt="avatar"
@@ -47,8 +47,8 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
     </div>
 
     {/* Lol Elo and comment */}
-    <div className=" flex w-full flex-row items-center pr-2 text-sm font-normal">
-      <LolEloIcon className="mr-1 h-16 w-16" elo={attendee.currentElo} />
+    <div className="flex w-full flex-row items-center p-2 text-sm font-normal">
+      <LolEloIcon className="mr-1 h-12 w-12" elo={attendee.currentElo} />
       {attendee.comment !== '' && <p>({attendee.comment})</p>}
     </div>
 

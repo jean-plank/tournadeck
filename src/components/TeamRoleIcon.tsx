@@ -10,5 +10,5 @@ type Props = {
 export const TeamRoleIcon: React.FC<Props> = ({ role, className }) => {
   const Role = teamRoleIcons[role]
 
-  return <Role className={cx('text-[#57827F]', className)} secondaryClassName="text-[#FEFCF7]/50" />
+  return <Role className={cx('text-[#C79F49]', className)} secondaryClassName="text-[#FEFCF7]/50" />
 }

@@ -10,6 +10,13 @@ const values = ['created', 'teamDraft', 'matches', 'finished'] as const
 
 const defaultPhase: TournamentPhase = 'created'
 
-const TournamentPhase = { values, defaultPhase }
+const label: ReadonlyRecord<TournamentPhase, string> = {
+  created: 'Phase 1 : inscription',
+  teamDraft: 'Phase 2 : conception des équipes',
+  matches: 'Phase 3 : matchs en cours',
+  finished: 'Tournoi terminé',
+}
+
+const TournamentPhase = { values, defaultPhase, label }
 
 export { TournamentPhase }
