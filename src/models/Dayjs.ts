@@ -54,3 +54,26 @@ type DayjsDuration = Duration
 const DayjsDuration = dayjs.duration
 
 export { DayjsDuration }
+
+export function extractDateAndTime(dateString: string): { date: string; time: string } | null {
+  try {
+    const dateObject = new Date(dateString)
+
+    if (isNaN(dateObject.getTime())) {
+      throw new Error('Invalid date string')
+    }
+
+    const extractedDate = dateObject.toISOString().split('T')[0]
+    const extractedTime = `${('0' + dateObject.getUTCHours()).slice(-2)}:${(
+      '0' + dateObject.getUTCMinutes()
+    ).slice(-2)}`
+
+    return {
+      date: extractedDate,
+      time: extractedTime,
+    }
+  } catch (error) {
+    console.error('Error extracting date and time:', error)
+    return null
+  }
+}

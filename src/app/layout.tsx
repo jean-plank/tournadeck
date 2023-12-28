@@ -21,7 +21,7 @@ const RootLayout: ChildrenFC = ({ children }) => (
       <PocketBaseContextProvider>
         <div className="grid h-screen w-screen grid-rows-[auto_1fr]">
           <Header />
-          <main className="w-full overflow-auto">{children}</main>
+          <main className="w-full overflow-auto bg-blue1">{children}</main>
         </div>
       </PocketBaseContextProvider>
     </body>

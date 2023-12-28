@@ -5,6 +5,9 @@ const plugin = require('tailwindcss/plugin')
 const config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
+    fontFamily: {
+      friz: ['"Friz Quadrata Std Medium"'],
+    },
     colors: {
       black: colors.black,
       'blue-200': colors.blue[200],
@@ -25,7 +28,8 @@ const config = {
       transparent: colors.transparent,
 
       blue1: '#010D17',
-      gold: '#C79F49',
+      // gold: '#C79F49',
+      gold: '#d1a036',
       myGrey1: '#7F8587',
       white1: '#FEFCF7',
       green1: '#25787F',

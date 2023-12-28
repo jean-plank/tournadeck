@@ -55,10 +55,17 @@ export const Header: React.FC = () => {
         {user !== undefined &&
           Permissions.tournaments.list(user.role) &&
           pathname.startsWith('/tournoi/') && (
-            <Link href={`/tournoi/${tournament?.id}`}>
-              {'>'} {tournament?.name} (
-              {tournament !== undefined && TournamentPhase.label[tournament.phase]})
-            </Link>
+            <>
+              {'>'}
+              <Link href={`/tournoi/${tournament?.id}`}>
+                {tournament?.name}
+                {tournament !== undefined && (
+                  <span className="p-1 text-sm text-green1">
+                    ({TournamentPhase.label[tournament.phase]})
+                  </span>
+                )}
+              </Link>
+            </>
           )}
       </nav>
 

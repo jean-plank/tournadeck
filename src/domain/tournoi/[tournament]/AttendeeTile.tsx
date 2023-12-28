@@ -55,10 +55,10 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
     {/* Champion pool */}
     <div className="flex w-full flex-row items-center pl-3 pr-2 text-sm font-normal">
       <Image
-        src="/icons/pool-icon.png"
+        src="/icons/pool.png"
         className="mr-2 object-cover"
-        width={40}
-        height={40}
+        width={50}
+        height={50}
         alt="Icône piscine"
       />
       <p>{ChampionPool.label[attendee.championPool]}</p>

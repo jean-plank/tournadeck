@@ -4,6 +4,7 @@ import { Fragment, useCallback, useRef } from 'react'
 
 import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../contexts/PocketBaseContext'
+import { extractDateAndTime } from '../../../models/Dayjs'
 import { TeamRole } from '../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
@@ -13,29 +14,6 @@ import { AttendeeTile } from './AttendeeTile'
 type Props = {
   tournament: Tournament
   attendees: ReadonlyArray<AttendeeWithRiotId>
-}
-
-function extractDateAndTime(dateString: string): { date: string; time: string } | null {
-  try {
-    const dateObject = new Date(dateString)
-
-    if (isNaN(dateObject.getTime())) {
-      throw new Error('Invalid date string')
-    }
-
-    const extractedDate = dateObject.toISOString().split('T')[0]
-    const extractedTime = `${('0' + dateObject.getUTCHours()).slice(-2)}:${(
-      '0' + dateObject.getUTCMinutes()
-    ).slice(-2)}`
-
-    return {
-      date: extractedDate,
-      time: extractedTime,
-    }
-  } catch (error) {
-    console.error('Error extracting date and time:', error)
-    return null
-  }
 }
 
 export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
@@ -64,9 +42,9 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
   const dateFin = extractDateAndTime(tournament.end)
 
   return (
-    <div className="flex flex-col items-start gap-5 bg-blue1 text-gold">
+    <div className="flex flex-col items-start gap-5 text-gold">
       <div className="flex w-full flex-col items-center justify-center">
-        <h1 className="text-[3rem] font-bold">{tournament.name}</h1>
+        <h1 className="font-friz text-[4rem] font-bold">{tournament.name}</h1>
 
         <div className="flex flex-row items-center gap-5 text-white">
           <span className="font-bold">{dateDebut?.date}</span>
