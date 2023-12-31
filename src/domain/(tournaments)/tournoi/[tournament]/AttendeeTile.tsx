@@ -1,10 +1,10 @@
 import Image from 'next/image'
 
-import { LolEloIcon } from '../../../components/LolEloIcon'
-import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
-import { ChampionPool } from '../../../models/ChampionPool'
-import type { AttendeeWithRiotId } from '../../../models/attendee/AttendeeWithRiotId'
-import { getImageUrl } from '../../../utils/pocketBaseImageUrl'
+import { LolEloIcon } from '../../../../components/LolEloIcon'
+import { TeamRoleIcon } from '../../../../components/TeamRoleIcon'
+import { ChampionPool } from '../../../../models/ChampionPool'
+import type { AttendeeWithRiotId } from '../../../../models/attendee/AttendeeWithRiotId'
+import { getImageUrl } from '../../../../utils/pocketBaseImageUrl'
 
 type Props = {
   attendee: AttendeeWithRiotId

@@ -11,9 +11,9 @@ const values = ['created', 'teamDraft', 'matches', 'finished'] as const
 const defaultPhase: TournamentPhase = 'created'
 
 const label: ReadonlyRecord<TournamentPhase, string> = {
-  created: 'Phase 1 : inscription',
-  teamDraft: 'Phase 2 : conception des équipes',
-  matches: 'Phase 3 : matchs en cours',
+  created: 'Inscriptions ouvertes',
+  teamDraft: 'Création des équipes',
+  matches: 'Matchs en cours',
   finished: 'Tournoi terminé',
 }
 

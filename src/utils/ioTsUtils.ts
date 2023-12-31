@@ -7,7 +7,7 @@ import * as D from 'io-ts/Decoder'
 import type { Encoder } from 'io-ts/Encoder'
 import type { AnyNewtype, CarrierOf } from 'newtype-ts'
 
-import { Dayjs, DayjsDuration } from '../models/Dayjs'
+import { DayjsDuration } from '../models/Dayjs'
 import { ellipse } from './stringUtils'
 
 const limit = 10000
@@ -41,30 +41,30 @@ export const fromReadonlyArrayDecoder = D.fromArray as unknown as <I, A>(
 ) => Decoder<ReadonlyArray<I>, ReadonlyArray<A>>
 
 /**
- * DayjsFromISOString
+ * DateFromISOString
  */
 
-const dayjsFromISOStringDecoder: Decoder<unknown, Dayjs> = pipe(
+const dateFromISOStringDecoder: Decoder<unknown, Date> = pipe(
   D.string,
   D.parse(str => {
-    const d = Dayjs(str)
-    return d.isValid() ? D.success(d) : D.failure(str, 'DayjsFromISOString')
+    const d = new Date(str)
+    return !isNaN(d.getTime()) ? D.success(d) : D.failure(str, 'DateFromISOString')
   }),
 )
 
-const dayjsFromISOStringEncoder: Encoder<string, Dayjs> = {
+const dateFromISOStringEncoder: Encoder<string, Date> = {
   encode: d => d.toISOString(),
 }
 
-const dayjsFromISOStringCodec: Codec<unknown, string, Dayjs> = C.make(
-  dayjsFromISOStringDecoder,
-  dayjsFromISOStringEncoder,
+const dateFromISOStringCodec: Codec<unknown, string, Date> = C.make(
+  dateFromISOStringDecoder,
+  dateFromISOStringEncoder,
 )
 
-export const DayjsFromISOString = {
-  decoder: dayjsFromISOStringDecoder,
-  encoder: dayjsFromISOStringEncoder,
-  codec: dayjsFromISOStringCodec,
+export const DateFromISOString = {
+  decoder: dateFromISOStringDecoder,
+  encoder: dateFromISOStringEncoder,
+  codec: dateFromISOStringCodec,
 }
 
 /**
@@ -89,4 +89,23 @@ export const DayjsDurationFromNumber = {
   decoder: dayjsDurationFromNumberDecoder,
   encoder: dayjsDurationFromNumberEncoder,
   codec: dayjsDurationFromNumberCodec,
+}
+
+/**
+ * URLFromString
+ */
+
+const urlFromStringDecoder: Decoder<unknown, URL> = pipe(
+  D.string,
+  D.parse(str => {
+    try {
+      return D.success(new URL(str))
+    } catch {
+      return D.failure(str, 'URLFromString')
+    }
+  }),
+)
+
+export const URLFromString = {
+  decoder: urlFromStringDecoder,
 }

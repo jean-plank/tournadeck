@@ -102,27 +102,33 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
       ),
     )
 
-  await pb.collection('attendees').create(
-    await genAttendee(
-      captain.id,
-      tournament1.id,
-      Puuid('Va3-hdGynMB4FMVbmT8N01DBue2OehklvdUYK-jJfRAfpnuoE4zgZy-0B82HgRU-pyF6YOgg653oGQ'), // styrale
-    ),
-  )
-  await pb.collection('attendees').create(
-    await genAttendee(
-      guy.id,
-      tournament1.id,
-      Puuid('b-z37sM-quwbTsD7M5Gk1AvhQpakpkZJfmedMT4ZxZ98B4VX1WD7F1szNU2687_Arr1jzTLdl2O-Ig'), // styrale
-    ),
-  )
-  await pb.collection('attendees').create(
-    await genAttendee(
-      marie.id,
-      tournament1.id,
-      Puuid('8-prW2qeG9-NSY3tM473FCzBR3jcWgjOPROsJIpp9bWlIuPC_0htvIRaDg8ZcbA6MSLc9ppPpCTXHg'), // styrale
-    ),
-  )
+  await pb
+    .collection('attendees')
+    .create(
+      await genAttendee(
+        captain.id,
+        tournament1.id,
+        Puuid('Va3-hdGynMB4FMVbmT8N01DBue2OehklvdUYK-jJfRAfpnuoE4zgZy-0B82HgRU-pyF6YOgg653oGQ'),
+      ),
+    )
+  await pb
+    .collection('attendees')
+    .create(
+      await genAttendee(
+        guy.id,
+        tournament1.id,
+        Puuid('b-z37sM-quwbTsD7M5Gk1AvhQpakpkZJfmedMT4ZxZ98B4VX1WD7F1szNU2687_Arr1jzTLdl2O-Ig'),
+      ),
+    )
+  await pb
+    .collection('attendees')
+    .create(
+      await genAttendee(
+        marie.id,
+        tournament1.id,
+        Puuid('8-prW2qeG9-NSY3tM473FCzBR3jcWgjOPROsJIpp9bWlIuPC_0htvIRaDg8ZcbA6MSLc9ppPpCTXHg'),
+      ),
+    )
 
   // teams
 
@@ -252,21 +258,18 @@ async function genAttendee(
     tournament,
     puuid,
     currentElo: random.randomElem(LolElo.values)(),
-    comment: Math.random() < 0.5 ? '' : random.randomElem(comments)(),
+    comment: Math.random() < 0.5 ? undefined : random.randomElem(comments)(),
     role: random.randomElem(TeamRole.values)(),
     championPool: random.randomElem(ChampionPool.values)(),
     birthplace: random.randomElem(places)(),
     avatar,
     isCaptain,
-    // seed: Math.random() < 0.5 ? undefined : random.randomElem(seeds)(),
-    seed: 0,
+    seed: Math.random() < 0.5 ? undefined : random.randomInt(1, 5)(),
     price: Math.random() < 0.5 ? undefined : random.randomInt(1, 100)(),
   }
 }
 
 const comments: NonEmptyArray<string> = ['Adedigado.', 'ses a cause de mes mate', '???']
-
-// const seeds: NonEmptyArray<string> = ['S', 'A', 'B', 'C', 'D', 'E']
 
 const places: NonEmptyArray<string> = ['Mulhouse', 'Bagdadie', 'Marseille, bébé', 'Limoges MDR']
 

@@ -4,7 +4,8 @@ import { either } from 'fp-ts'
 import { revalidateTag } from 'next/cache'
 
 import { Config } from '../Config'
-import { adminPocketBase, theQuestService } from '../context'
+import { theQuestService } from '../context/context'
+import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
@@ -16,6 +17,8 @@ import { RiotId } from '../models/riot/RiotId'
 import type { SummonerShort } from '../models/theQuest/SummonerShort'
 
 const { getFromPbCacheDuration, tags } = Config.constants
+
+// TODO: check tournament isVisible and role is still open
 
 export async function createAttendee(
   tournament: TournamentId,

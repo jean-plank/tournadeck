@@ -1,13 +1,13 @@
+'use server'
+
 import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 
 import { Config } from '../Config'
-import { adminPocketBase, getLogger, theQuestService } from '../context'
-import { Permissions } from '../helpers/Permissions'
-import { auth } from '../helpers/auth'
-import { AuthError } from '../models/AuthError'
+import { getLogger, theQuestService } from '../context/context'
+import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import type { AttendeeWithRiotId } from '../models/attendee/AttendeeWithRiotId'
-import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
+import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { Tournament, TournamentId } from '../models/pocketBase/tables/Tournament'
 import { MatchApiData } from '../models/pocketBase/tables/match/MatchApiData'
 import { GameName } from '../models/riot/GameName'
@@ -15,12 +15,13 @@ import type { MatchDecoded } from '../models/riot/MatchDecoded'
 import { RiotId } from '../models/riot/RiotId'
 import { TagLine } from '../models/riot/TagLine'
 import type { StaticData } from '../models/theQuest/staticData/StaticData'
+import { viewTournamentShortFromAdminPb } from './viewTournamentShort'
 
 const { getFromPbCacheDuration, tags } = Config.constants
 
 const logger = getLogger('viewTournament')
 
-type ViewTournament = {
+export type ViewTournament = {
   tournament: Tournament
   attendees: ReadonlyArray<AttendeeWithRiotId>
   matches: ReadonlyArray<MatchDecoded>
@@ -30,26 +31,9 @@ type ViewTournament = {
 export async function viewTournament(
   tournamentId: TournamentId,
 ): Promise<Optional<ViewTournament>> {
-  const maybeAuth = await auth()
-
-  if (maybeAuth === undefined) {
-    throw new AuthError('Unauthorized')
-  }
-
-  const { user } = maybeAuth
-
-  if (!Permissions.tournaments.view(user.role)) {
-    throw new AuthError('Forbidden')
-  }
-
   const adminPb = await adminPocketBase
 
-  const tournament = await adminPb
-    .collection('tournaments')
-    .getOne(tournamentId, {
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments.view] },
-    })
-    .catch(MyPocketBase.statusesToUndefined(404))
+  const tournament = await viewTournamentShortFromAdminPb(adminPb, tournamentId)
 
   if (tournament === undefined) return undefined
 

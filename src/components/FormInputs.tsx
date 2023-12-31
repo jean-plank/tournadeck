@@ -8,17 +8,17 @@ type InputProps = {
   showErrorMsg: boolean
 }
 
-const inputStyle =
+const inputClassName =
   'outline-none w-full rounded-md border border-blue1 p-2 font-medium placeholder:text-opacity-60 focus-visible:border-2'
-const inputErrorStyle = 'text-red-500 text-xs'
+const inputErrorClassName = 'text-red-500 text-xs'
 
 export const Input: React.FC<InputProps> = ({ label, errorMsg, showErrorMsg, ...props }) => (
   <label className="flex w-full flex-col gap-2">
     <div className="flex justify-between font-semibold">{label}</div>
 
-    <input {...props} className={inputStyle} />
+    <input {...props} className={inputClassName} />
 
-    {showErrorMsg && <p className={inputErrorStyle}>{errorMsg}</p>}
+    {showErrorMsg && <p className={inputErrorClassName}>{errorMsg}</p>}
   </label>
 )
 
@@ -34,9 +34,9 @@ export const FileInput: React.FC<FileProps> = ({ label, errorMsg, showErrorMsg, 
   <label className="flex w-full flex-col gap-2">
     <div className="flex justify-between font-semibold">{label}</div>
 
-    <input {...props} type="file" accept="image/*" className={inputStyle} />
+    <input {...props} type="file" accept="image/*" className={inputClassName} />
 
-    {showErrorMsg && <p className={inputErrorStyle}>{errorMsg}</p>}
+    {showErrorMsg && <p className={inputErrorClassName}>{errorMsg}</p>}
   </label>
 )
 
@@ -62,7 +62,7 @@ export const SelectInput: React.FC<SelectProps> = ({
   <label className="flex w-full flex-col gap-2">
     <div className="flex justify-between font-semibold">{label}</div>
 
-    <select value={value} onChange={onChange} className={inputStyle}>
+    <select value={value} onChange={onChange} className={inputClassName}>
       {values.map((v, i) => (
         <option key={v} value={v}>
           {valuesLabels[i]}
@@ -70,6 +70,6 @@ export const SelectInput: React.FC<SelectProps> = ({
       ))}
     </select>
 
-    {showErrorMsg && <p className={inputErrorStyle}>{errorMsg}</p>}
+    {showErrorMsg && <p className={inputErrorClassName}>{errorMsg}</p>}
   </label>
 )

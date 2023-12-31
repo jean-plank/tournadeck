@@ -2,21 +2,23 @@
 
 import { Fragment, useCallback, useRef } from 'react'
 
-import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
-import { usePocketBase } from '../../../contexts/PocketBaseContext'
-import { extractDateAndTime } from '../../../models/Dayjs'
-import { TeamRole } from '../../../models/TeamRole'
-import type { AttendeeWithRiotId } from '../../../models/attendee/AttendeeWithRiotId'
-import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
+import { TeamRoleIcon } from '../../../../components/TeamRoleIcon'
+import { usePocketBase } from '../../../../contexts/PocketBaseContext'
+import { Dayjs } from '../../../../models/Dayjs'
+import { TeamRole } from '../../../../models/TeamRole'
+import type { AttendeeWithRiotId } from '../../../../models/attendee/AttendeeWithRiotId'
+import type { Tournament } from '../../../../models/pocketBase/tables/Tournament'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
+
+const dateTimeFormat = 'dddd D MMMM YYYY, hh:mm'
 
 type Props = {
   tournament: Tournament
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
-export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
+export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
   const { user } = usePocketBase()
 
   const dialog = useRef<HTMLDialogElement>(null)
@@ -33,23 +35,21 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
     if (dialog.current !== null) dialog.current.close()
   }, [])
 
+  // TODO: check role is still open
   const alreadySubscribed =
     attendees.length < tournament.teamsCount * 5 &&
     user !== undefined &&
     attendees.find(a => a.user === user.id) !== undefined
 
-  const dateDebut = extractDateAndTime(tournament.start)
-  const dateFin = extractDateAndTime(tournament.end)
-
   return (
     <div className="flex flex-col items-start gap-5 text-gold">
-      <div className="flex w-full flex-col items-center justify-center">
-        <h1 className="font-friz text-[4rem] font-bold">{tournament.name}</h1>
+      <div className="flex w-full flex-col items-center justify-center pt-6">
+        <h1 className="font-friz text-6xl font-bold">{tournament.name}</h1>
 
-        <div className="flex flex-row items-center gap-5 text-white">
-          <span className="font-bold">{dateDebut?.date}</span>
-
-          <span className="font-bold">{dateFin?.date}</span>
+        <div className="flex flex-row items-center gap-3 text-white">
+          <span className="font-bold">{Dayjs(tournament.start).format(dateTimeFormat)}</span>
+          <span>—</span>
+          <span className="font-bold">{Dayjs(tournament.end).format(dateTimeFormat)}</span>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
             <button
               type="button"
               onClick={handleSuscribeClick}
-              className="my-2 rounded bg-gold px-8 py-2 text-[2rem] font-bold text-white"
+              className="my-2 rounded bg-gold px-8 py-2 text-3xl font-bold text-white"
             >
               S’inscrire
             </button>
@@ -105,7 +105,7 @@ export const TournamentFC: React.FC<Props> = ({ tournament, attendees }) => {
               </div>
               {attendees
                 .filter(p => p.role === role)
-                .toSorted((a, b) => a.seed - b.seed)
+                .sort((a, b) => a.seed - b.seed)
                 .map(p => (
                   <Fragment key={p.id}>
                     <AttendeeTile attendee={p} />

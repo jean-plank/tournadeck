@@ -11,6 +11,22 @@ migrate(
       schema: [
         {
           system: false,
+          id: 'qykeqguy',
+          name: 'tournament',
+          type: 'relation',
+          required: true,
+          presentable: false,
+          unique: false,
+          options: {
+            collectionId: '3pbep6z2nrnxa9k',
+            cascadeDelete: false,
+            minSelect: null,
+            maxSelect: 1,
+            displayFields: null,
+          },
+        },
+        {
+          system: false,
           id: 'pmlkrrmf',
           name: 'team1ResultsFrom',
           type: 'json',

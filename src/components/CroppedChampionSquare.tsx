@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import type { HTMLAttributes } from 'react'
 import { createElement, forwardRef } from 'react'
 
@@ -11,8 +10,6 @@ type Props<A extends HTMLTag> = {
   version: DDragonVersion
   championId: ChampionId
   championName: string
-  width: number
-  height: number
   as?: A
   isDraggable?: boolean
   children?: React.ReactNode
@@ -23,8 +20,6 @@ export const CroppedChampionSquare = forwardRef(function <A extends HTMLTag>(
     version,
     championId,
     championName,
-    width,
-    height,
     as = 'div' as A,
     isDraggable,
     className,
@@ -36,11 +31,10 @@ export const CroppedChampionSquare = forwardRef(function <A extends HTMLTag>(
   return createElement(
     as,
     { ...props, ref, className: cx('overflow-hidden', className) },
-    <Image
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       src={DDragonUtils.champion.square(version, championId)}
       alt={`Icône de ${championName}`}
-      width={width}
-      height={height}
       draggable={isDraggable}
       className="m-[-6%] w-[112%] max-w-none"
     />,

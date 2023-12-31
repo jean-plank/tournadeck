@@ -5,15 +5,15 @@ const plugin = require('tailwindcss/plugin')
 const config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
-    fontFamily: {
-      friz: ['"Friz Quadrata Std Medium"'],
-    },
     colors: {
       black: colors.black,
+      blue1: '#010d17',
       'blue-200': colors.blue[200],
       'blue-500': colors.blue[500],
       'blue-700': colors.blue[700],
       'discord-blurple': '#5865f2',
+      gold: '#d1a036',
+      green1: '#25787f',
       grey1: '#202225',
       grey2: '#2f3136',
       'grey-400': colors.gray[400],
@@ -23,18 +23,16 @@ const config = {
       'red-500': colors.red[500],
       'sky-300': colors.sky[300],
       'slate-400': colors.slate[400],
-      white: colors.white,
-      'yellow-500': colors.yellow[500],
       transparent: colors.transparent,
-
-      blue1: '#010D17',
-      // gold: '#C79F49',
-      gold: '#d1a036',
-      myGrey1: '#7F8587',
-      white1: '#FEFCF7',
-      green1: '#25787F',
+      white: colors.white,
+      white1: '#fefcf7',
+      'yellow-500': colors.yellow[500],
     },
     extend: {
+      fontFamily: {
+        inter: ['var(--font-inter)'],
+        friz: ['var(--font-friz)'],
+      },
       borderRadius: {
         '1/2': '50%',
       },

@@ -3,13 +3,13 @@
 import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 
-import { createAttendee } from '../../../actions/createAttendee'
-import { FileInput, Input, SelectInput } from '../../../components/FormInputs'
-import { ChampionPool } from '../../../models/ChampionPool'
-import { LolElo } from '../../../models/LolElo'
-import { TeamRole } from '../../../models/TeamRole'
-import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
-import { objectEntries, objectKeys } from '../../../utils/fpTsUtils'
+import { createAttendee } from '../../../../actions/createAttendee'
+import { FileInput, Input, SelectInput } from '../../../../components/FormInputs'
+import { ChampionPool } from '../../../../models/ChampionPool'
+import { LolElo } from '../../../../models/LolElo'
+import { TeamRole } from '../../../../models/TeamRole'
+import type { TournamentId } from '../../../../models/pocketBase/tables/Tournament'
+import { objectEntries, objectKeys } from '../../../../utils/fpTsUtils'
 
 type Inputs = {
   riotId: string
