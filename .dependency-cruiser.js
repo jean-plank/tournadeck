@@ -200,7 +200,7 @@ module.exports = {
       name: 'not-to-context',
       severity: 'error',
       from: {
-        pathNot: ['^src/actions/', '^src/context/'],
+        pathNot: ['^src/actions/', '^src/context/', 'src/helpers/auth.ts'],
       },
       to: {
         path: '^src/context/',

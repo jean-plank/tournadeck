@@ -8,6 +8,9 @@ const url = (() => {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
+  compress: false,
+  poweredByHeader: false,
   logging: {
     fetches: {
       fullUrl: process.env.NODE_ENV !== 'production',
@@ -19,22 +22,20 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      url !== undefined
-        ? {
-            protocol: url.protocol.slice(0, -1),
-            hostname: url.hostname,
-            port: url.port,
-          }
-        : undefined,
-      {
-        protocol: 'https',
-        hostname: 'ddragon.leagueoflegends.com',
-      },
+      ...(url !== undefined
+        ? [
+            {
+              protocol: url.protocol.slice(0, -1),
+              hostname: url.hostname,
+              port: url.port,
+            },
+          ]
+        : []),
       {
         protocol: 'https',
         hostname: 'raw.communitydragon.org',
       },
-    ].filter(p => p !== undefined),
+    ],
   },
 }
 

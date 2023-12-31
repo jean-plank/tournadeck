@@ -77,10 +77,8 @@ type Tag = { readonly MyPocketBase: unique symbol }
 type MyPocketBase = Branded<Tag, MyPocketBase_>
 
 const MyPocketBase = immutableAssign(
-  (authStore?: BaseAuthStore | null, lang?: string): MyPocketBase =>
-    brand<Tag>()(
-      new PocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL, authStore, lang) as MyPocketBase_,
-    ),
+  (baseUrl: string | undefined, authStore?: BaseAuthStore | null, lang?: string): MyPocketBase =>
+    brand<Tag>()(new PocketBase(baseUrl, authStore, lang) as MyPocketBase_),
   {
     statusesToUndefined:
       (...statuses: NonEmptyArray<number>) =>

@@ -1,0 +1,9 @@
+.env.*
+.containerignore
+.git
+.next
+node_modules/
+podman/Containerfile
+test/
+yarn-*.log
+README.md

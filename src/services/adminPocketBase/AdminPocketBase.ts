@@ -57,7 +57,7 @@ async function load(
   async function loadPocketBase(): Promise<MyPocketBase> {
     const isDev = process.env.NODE_ENV === 'development'
 
-    const pb = MyPocketBase()
+    const pb = MyPocketBase(config.POCKET_BASE_URL)
 
     logger.debug('Connecting to PocketBase...')
 

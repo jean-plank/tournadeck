@@ -31,6 +31,14 @@ const decoder = D.struct({
   THE_QUEST_API_URL: D.string,
   THE_QUEST_TOKEN: D.string,
 
+  /**
+   * URL for direct backend connection
+   */
+  POCKET_BASE_URL: D.string,
+
+  /**
+   * URL for public access
+   */
   NEXT_PUBLIC_POCKET_BASE_URL: D.string,
 })
 

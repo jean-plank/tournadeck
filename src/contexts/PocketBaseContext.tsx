@@ -17,7 +17,7 @@ type PocketBaseContext = {
 const PocketBaseContext = createContext<Optional<PocketBaseContext>>(undefined)
 
 export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
-  const pb = useMemo(() => MyPocketBase(), [])
+  const pb = useMemo(() => MyPocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL), [])
 
   const [user, setUser] = useState<PocketBaseContext['user']>(undefined)
 

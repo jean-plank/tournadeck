@@ -14,7 +14,7 @@ const Tournaments: React.FC = () =>
           </Link>
         ))
       ) : (
-        <div className="text-gold">Aucun tournoi n’est disponible actuellement.</div>
+        <div className="text-gold">Aucun tournoi n’a encore été créé.</div>
       )}
     </div>
   ))

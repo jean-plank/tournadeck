@@ -1,0 +1,74 @@
+# Build Dockerfile, push it to registry and call deploy webhook.
+
+name: deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    environment: prod
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create .env
+        run: |
+          echo "
+          LOG_LEVEL = debug
+
+          POCKET_BASE_ADMIN_EMAIL    = ${{ secrets.POCKET_BASE_ADMIN_EMAIL }}
+          POCKET_BASE_ADMIN_PASSWORD = ${{ secrets.POCKET_BASE_ADMIN_PASSWORD }}
+
+          DISCORD_CLIENT_ID     =
+          DISCORD_CLIENT_SECRET =
+
+          THE_QUEST_API_URL = ${{ vars.THE_QUEST_API_URL }}
+          THE_QUEST_TOKEN = ${{ secrets.THE_QUEST_TOKEN }}
+
+          POCKET_BASE_URL = ${{ vars.POCKET_BASE_URL }}
+
+          NEXT_PUBLIC_POCKET_BASE_URL = ${{ vars.NEXT_PUBLIC_POCKET_BASE_URL }}
+          " > .env
+
+      - name: Create .pbEncryptionKey
+        run: |
+          echo "${{ secrets.PB_ENCRYPTION_KEY }}" > .pbEncryptionKey
+
+      - name: Download PocketBase
+        env:
+          POCKET_BASE_VERSION: 0.20.2
+        run: |
+          wget -nv https://github.com/pocketbase/pocketbase/releases/download/v${{ env.POCKET_BASE_VERSION }}/pocketbase_${{ env.POCKET_BASE_VERSION }}_linux_amd64.zip
+          unzip pocketbase_${{ env.POCKET_BASE_VERSION }}_linux_amd64.zip
+
+      - name: Build image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ vars.IMAGE_NAME }}
+          containerfiles: podman/Containerfile
+
+      - name: Push image
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ vars.IMAGE_NAME }}
+          registry: ${{ vars.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Call deploy webhook
+        run: |
+          payload='{ "image": { "name": "${{ vars.IMAGE_NAME }}" } }'
+          signature=$(echo -n "$payload" | openssl dgst -sha512 -hmac "${{ secrets.WEBHOOK_SECRET }}" | cut -c18-)
+          curl -i -X POST "${{ vars.WEBHOOK_URL }}" \
+            -H "X-Signature: $signature" \
+            -H "Content-Type: application/json" \
+            --data-raw "$payload"

@@ -6,6 +6,7 @@ import * as D from 'io-ts/Decoder'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
 
+import { config } from '../context/context'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { User } from '../models/pocketBase/tables/User'
 
@@ -38,7 +39,7 @@ export async function auth(): Promise<Optional<Auth>> {
 }
 
 const cachedAuth = cache(async (token: string) => {
-  const pb = MyPocketBase()
+  const pb = MyPocketBase(config.POCKET_BASE_URL)
 
   pb.authStore.save(token)
 
