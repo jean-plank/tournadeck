@@ -163,14 +163,14 @@ migrate(
           system: false,
           id: 'mulebzrn',
           name: 'seed',
-          type: 'text',
+          type: 'number',
           required: false,
           presentable: false,
           unique: false,
           options: {
             min: null,
             max: null,
-            pattern: '',
+            noDecimal: false,
           },
         },
         {

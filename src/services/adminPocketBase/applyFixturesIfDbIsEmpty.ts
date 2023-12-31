@@ -49,6 +49,14 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
 
   const adedigado = await pb.collection('users').create(genUser('adedigado', 'Jean Prendnote'))
 
+  const guy = await pb.collection('users').create(genUser('guy', 'Guy le mécano'))
+
+  const tintin = await pb.collection('users').create(genUser('tintin', 'TINTIN'))
+
+  const captain = await pb.collection('users').create(genUser('captain', 'Captain Craps'))
+
+  const marie = await pb.collection('users').create(genUser('marie', 'Marie'))
+
   // tournaments
 
   const tournament1 = await pb
@@ -83,6 +91,44 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
       Puuid('oZst1CMmHY3E_j3JluDlsSzCVgLNkOqjFd73nQN5GJfjLzHoU17aocL2JDE787QSWXhWfXNYiUn1Sw'), // styrale
     ),
   )
+
+  await pb
+    .collection('attendees')
+    .create(
+      await genAttendee(
+        tintin.id,
+        tournament1.id,
+        Puuid('YQLXLM9etyh_B74QjvlW6nWNsmvChJP2uig3llCtratiq2sruuX9pH8c0RVoO7j_xVaE_A0JRlKnRQ'),
+      ),
+    )
+
+  await pb
+    .collection('attendees')
+    .create(
+      await genAttendee(
+        captain.id,
+        tournament1.id,
+        Puuid('Va3-hdGynMB4FMVbmT8N01DBue2OehklvdUYK-jJfRAfpnuoE4zgZy-0B82HgRU-pyF6YOgg653oGQ'),
+      ),
+    )
+  await pb
+    .collection('attendees')
+    .create(
+      await genAttendee(
+        guy.id,
+        tournament1.id,
+        Puuid('b-z37sM-quwbTsD7M5Gk1AvhQpakpkZJfmedMT4ZxZ98B4VX1WD7F1szNU2687_Arr1jzTLdl2O-Ig'),
+      ),
+    )
+  await pb
+    .collection('attendees')
+    .create(
+      await genAttendee(
+        marie.id,
+        tournament1.id,
+        Puuid('8-prW2qeG9-NSY3tM473FCzBR3jcWgjOPROsJIpp9bWlIuPC_0htvIRaDg8ZcbA6MSLc9ppPpCTXHg'),
+      ),
+    )
 
   // teams
 
@@ -218,14 +264,12 @@ async function genAttendee(
     birthplace: random.randomElem(places)(),
     avatar,
     isCaptain,
-    seed: Math.random() < 0.5 ? undefined : random.randomElem(seeds)(),
+    seed: Math.random() < 0.5 ? undefined : random.randomInt(1, 5)(),
     price: Math.random() < 0.5 ? undefined : random.randomInt(1, 100)(),
   }
 }
 
 const comments: NonEmptyArray<string> = ['Adedigado.', 'ses a cause de mes mate', '???']
-
-const seeds: NonEmptyArray<string> = ['S', 'A', 'B', 'C', 'D', 'E']
 
 const places: NonEmptyArray<string> = ['Mulhouse', 'Bagdadie', 'Marseille, bébé', 'Limoges MDR']
 

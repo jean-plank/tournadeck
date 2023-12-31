@@ -7,10 +7,13 @@ const config = {
   theme: {
     colors: {
       black: colors.black,
+      blue1: '#010d17',
       'blue-200': colors.blue[200],
       'blue-500': colors.blue[500],
       'blue-700': colors.blue[700],
       'discord-blurple': '#5865f2',
+      gold: '#d1a036',
+      green1: '#25787f',
       grey1: '#202225',
       grey2: '#2f3136',
       'grey-400': colors.gray[400],
@@ -20,10 +23,16 @@ const config = {
       'red-500': colors.red[500],
       'sky-300': colors.sky[300],
       'slate-400': colors.slate[400],
+      transparent: colors.transparent,
       white: colors.white,
+      white1: '#fefcf7',
       'yellow-500': colors.yellow[500],
     },
     extend: {
+      fontFamily: {
+        inter: ['var(--font-inter)'],
+        friz: ['var(--font-friz)'],
+      },
       borderRadius: {
         '1/2': '50%',
       },

@@ -7,11 +7,12 @@ module.exports = {
       comment:
         'This dependency is part of a circular relationship. You might want to revise ' +
         'your solution (i.e. use dependency inversion, make sure the modules have a single responsibility) ',
-      from: {
-        pathNot: '^src/models/pocketBase',
-      },
+      from: {},
       to: {
         circular: true,
+        viaOnly: {
+          dependencyTypesNot: ['type-only'],
+        },
       },
     },
     {
@@ -128,10 +129,10 @@ module.exports = {
         "or there's something in the test folder that isn't a test.",
       severity: 'error',
       from: {
-        pathNot: '^(test)',
+        pathNot: '^test/',
       },
       to: {
-        path: '^(test)',
+        path: '^test/',
       },
     },
     {
@@ -199,30 +200,30 @@ module.exports = {
       name: 'not-to-context',
       severity: 'error',
       from: {
-        pathNot: ['^src/actions', '^src/app', '^src/domain'],
+        pathNot: ['^src/actions/', '^src/context/'],
       },
       to: {
-        path: 'src/context.ts',
+        path: '^src/context/',
       },
     },
     {
       name: 'not-to-app',
       severity: 'error',
       from: {
-        pathNot: '^src/app',
+        pathNot: '^src/app/',
       },
       to: {
-        path: '^src/app',
+        path: '^src/app/',
       },
     },
     {
       name: 'not-components-to-domain',
       severity: 'error',
       from: {
-        path: '^src/components',
+        path: '^src/components/',
       },
       to: {
-        path: '^src/domain',
+        path: '^src/domain/',
       },
     },
     {

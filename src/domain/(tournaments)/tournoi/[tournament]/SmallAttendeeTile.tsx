@@ -1,8 +1,8 @@
 import Image from 'next/image'
 
-import { TeamRoleIcon } from '../../../components/TeamRoleIcon'
-import type { AttendeeWithRiotId } from '../../../models/attendee/AttendeeWithRiotId'
-import { getImageUrl } from '../../../utils/pocketBaseImageUrl'
+import { TeamRoleIcon } from '../../../../components/TeamRoleIcon'
+import type { AttendeeWithRiotId } from '../../../../models/attendee/AttendeeWithRiotId'
+import { getImageUrl } from '../../../../utils/pocketBaseImageUrl'
 
 type Props = {
   data: AttendeeWithRiotId

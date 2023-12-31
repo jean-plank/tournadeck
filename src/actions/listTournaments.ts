@@ -1,5 +1,5 @@
 import { Config } from '../Config'
-import { adminPocketBase } from '../context'
+import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
@@ -23,6 +23,7 @@ export async function listTournaments(): Promise<ReadonlyArray<Tournament>> {
   const adminPb = await adminPocketBase
 
   return await adminPb.collection('tournaments').getFullList({
+    ...(user.role === 'organiser' ? {} : { filter: 'isVisible=true' }),
     next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments.list] },
   })
 }

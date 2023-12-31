@@ -1,3 +1,4 @@
+import type { Tournament } from '../models/pocketBase/tables/Tournament'
 import type { UserRole } from '../models/pocketBase/tables/User'
 
 const isAnyRole: (role: UserRole) => boolean = () => true
@@ -10,7 +11,13 @@ export const Permissions = {
   },
   tournaments: {
     list: isAnyRole,
-    view: isAnyRole,
+
+    view: (role: UserRole, tournament: Tournament): boolean => {
+      if (isOrganiser(role)) return true
+
+      return tournament.isVisible
+    },
+
     create: isOrganiser,
   },
 }

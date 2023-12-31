@@ -3,13 +3,13 @@
 import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 
-import { createAttendee } from '../../../actions/createAttendee'
-import { FileInput, Input, SelectInput } from '../../../components/FormInputs'
-import { ChampionPool } from '../../../models/ChampionPool'
-import { LolElo } from '../../../models/LolElo'
-import { TeamRole } from '../../../models/TeamRole'
-import type { TournamentId } from '../../../models/pocketBase/tables/Tournament'
-import { objectEntries, objectKeys } from '../../../utils/fpTsUtils'
+import { createAttendee } from '../../../../actions/createAttendee'
+import { FileInput, Input, SelectInput } from '../../../../components/FormInputs'
+import { ChampionPool } from '../../../../models/ChampionPool'
+import { LolElo } from '../../../../models/LolElo'
+import { TeamRole } from '../../../../models/TeamRole'
+import type { TournamentId } from '../../../../models/pocketBase/tables/Tournament'
+import { objectEntries, objectKeys } from '../../../../utils/fpTsUtils'
 
 type Inputs = {
   riotId: string
@@ -40,9 +40,10 @@ const keys = objectKeys(inputsEmpty)
 type Props = {
   tournament: TournamentId
   onSubscribeOk: () => void
+  avalaibleTeamRole: TeamRole[]
 }
 
-export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => {
+export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, onSubscribeOk }) => {
   const [inputs, setInputs] = useState(inputsEmpty)
 
   const errors = validate(inputs)
@@ -50,6 +51,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
   const [touched, setTouched] = useState<Touched>({})
 
   const [submitError, setSubmitError] = useState<Optional<string>>(undefined)
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null)
 
   const handleChange = (key: keyof Inputs) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputs(i => ({ ...i, [key]: event.target.value }))
@@ -68,6 +70,12 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
     if (files !== null && files.length > 0) {
       const selected = files[0]
       setInputs(i => ({ ...i, avatar: selected }))
+      // Image preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatarPreviewUrl(reader.result as string)
+      }
+      reader.readAsDataURL(selected)
     }
   }, [])
 
@@ -99,7 +107,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
   return (
     <form
       action={handleSubmit}
-      className="flex min-w-[416px] flex-col gap-3 rounded-lg border-2 border-grey-400 bg-white p-4"
+      className="flex min-w-[416px] flex-col gap-3 rounded-lg border-2 border-gold bg-white1 p-4"
     >
       <Input
         label="Riot ID"
@@ -134,8 +142,8 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
       <SelectInput
         label="Rôle"
         value={inputs['role']}
-        values={TeamRole.values}
-        valuesLabels={TeamRole.values.map(v => TeamRole.label[v])}
+        values={avalaibleTeamRole}
+        valuesLabels={avalaibleTeamRole.map(v => TeamRole.label[v])}
         onChange={handleSelectChange('role')}
         errorMsg={errors.role ?? ''}
         showErrorMsg={showErrorMsg('role')}
@@ -168,10 +176,18 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, onSubscribeOk }) => 
         errorMsg={errors.avatar ?? ''}
         showErrorMsg={showErrorMsg('birthplace')}
       />
+      {avatarPreviewUrl !== null && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className="mr-1 h-36 w-36 rounded-r-lg border-2 border-gold object-cover"
+          alt="avatar-preview"
+          src={avatarPreviewUrl}
+        />
+      )}
 
       <button
         type="submit"
-        className="rounded-full bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+        className="rounded-full bg-gold px-4 py-2 font-bold text-white hover:text-black"
       >
         Valider
       </button>
