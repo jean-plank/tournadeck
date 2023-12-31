@@ -1,0 +1,53 @@
+# Build Dockerfile, push it to registry and call deploy webhook.
+
+name: Build and deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    environment: prod
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create .env
+        run: |
+          echo "
+          " > .env
+
+      - name: Create .pbEncryptionKey
+        run: |
+          echo "${{ secrets.PB_ENCRYPTION_KEY }}" > .pbEncryptionKey
+
+      - name: Build image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ vars.IMAGE_NAME }}
+          containerfiles: podman/Containerfile
+
+      - name: Push image
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ vars.IMAGE_NAME }}
+          registry: ${{ vars.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Call deploy webhook
+        run: |
+          payload='{ "image": { "name": "${{ vars.IMAGE_NAME }}" } }'
+          signature=$(echo -n "$payload" | openssl dgst -sha512 -hmac "${{ secrets.WEBHOOK_SECRET }}" | cut -c18-)
+          curl -i -X POST "${{ vars.WEBHOOK_URL }}" \
+            -H "X-Signature: $signature" \
+            -H "Content-Type: application/json" \
+            --data-raw "$payload"
