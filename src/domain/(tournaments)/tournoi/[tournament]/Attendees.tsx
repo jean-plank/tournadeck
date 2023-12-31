@@ -1,6 +1,8 @@
 'use client'
 
-import { Fragment, useCallback, useRef } from 'react'
+import { number, ord, readonlyArray } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
+import { useCallback, useRef } from 'react'
 
 import { TeamRoleIcon } from '../../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../../contexts/PocketBaseContext'
@@ -8,10 +10,16 @@ import { Dayjs } from '../../../../models/Dayjs'
 import { TeamRole } from '../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament } from '../../../../models/pocketBase/tables/Tournament'
+import { arrayGroupBy, partialRecord } from '../../../../utils/fpTsUtils'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
 
 const dateTimeFormat = 'dddd D MMMM YYYY, hh:mm'
+
+const bySeed = pipe(
+  number.Ord,
+  ord.contramap((a: { seed: number }) => a.seed),
+)
 
 type Props = {
   tournament: Tournament
@@ -40,6 +48,12 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
     attendees.length < tournament.teamsCount * 5 &&
     user !== undefined &&
     attendees.find(a => a.user === user.id) !== undefined
+
+  const grouped = pipe(
+    attendees,
+    arrayGroupBy(a => a.role),
+    partialRecord.map(readonlyArray.sort(bySeed)),
+  )
 
   return (
     <div className="flex flex-col items-start gap-5 text-gold">
@@ -96,21 +110,14 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
 
         <div className="flex w-full flex-col items-start">
           {TeamRole.values.map(role => (
-            <div className="flex flex-row justify-start gap-2 pl-2" key={role}>
+            <div className="flex w-full flex-row justify-start gap-2 pl-2 odd:bg-black" key={role}>
               <div className="flex min-h-[10rem] flex-col items-center justify-center">
                 <TeamRoleIcon role={role} className="h-16 w-16" />
                 <div>
-                  {attendees.filter(p => p.role === role).length}/{tournament.teamsCount}
+                  {grouped[role]?.length ?? 0}/{tournament.teamsCount}
                 </div>
               </div>
-              {attendees
-                .filter(p => p.role === role)
-                .sort((a, b) => a.seed - b.seed)
-                .map(p => (
-                  <Fragment key={p.id}>
-                    <AttendeeTile attendee={p} />
-                  </Fragment>
-                ))}
+              {grouped[role]?.map(p => <AttendeeTile key={p.id} attendee={p} />)}
             </div>
           ))}
         </div>

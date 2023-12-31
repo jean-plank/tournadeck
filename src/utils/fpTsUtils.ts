@@ -1,4 +1,4 @@
-import { either } from 'fp-ts'
+import { either, readonlyNonEmptyArray, readonlyRecord } from 'fp-ts'
 import type { Either } from 'fp-ts/Either'
 
 /**
@@ -15,6 +15,16 @@ export function immutableAssign<
 export const eitherGetOrThrow: <A>(fa: Either<Error, A>) => A = either.getOrElseW(e => {
   throw e
 })
+
+export const arrayGroupBy = readonlyNonEmptyArray.groupBy as <A, K extends string>(
+  f: (a: A) => K,
+) => (as: ReadonlyArray<A>) => Partial<ReadonlyRecord<K, NonEmptyArray<A>>>
+
+export const partialRecord = {
+  map: readonlyRecord.map as <A, B>(
+    f: (a: A) => B,
+  ) => <K extends string>(fa: Partial<ReadonlyRecord<K, A>>) => Partial<ReadonlyRecord<K, B>>,
+}
 
 export const objectKeys: <A extends Partial<ReadonlyRecord<PropertyKey, unknown>>>(
   a: A,
