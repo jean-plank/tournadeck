@@ -4,6 +4,7 @@ import { either, json } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 
 import { config } from '../context/context'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
@@ -30,19 +31,23 @@ export async function auth(): Promise<Optional<Auth>> {
 
   const { token } = maybeToken
 
+  const response = await cachedAuth(token)
+
+  if (response === undefined) return undefined
+
+  return { user: response.record }
+}
+
+const cachedAuth = cache(async (token: string) => {
   const pb = MyPocketBase(config.POCKET_BASE_URL)
 
   pb.authStore.save(token)
 
-  const res = await pb
+  return await pb
     .collection('users')
     .authRefresh({ cache: 'no-store' })
     .catch(() => undefined)
-
-  if (res === undefined) return undefined
-
-  return { user: res.record }
-}
+})
 
 const cookieValueDecoder = D.struct({
   token: D.string,
