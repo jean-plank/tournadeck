@@ -22,19 +22,17 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
   const [user, setUser] = useState<PocketBaseContext['user']>(undefined)
 
   useEffect(() => {
-    console.log('>>> loading pb')
+    console.log('document.cookie =', document.cookie)
+    console.log('pb =', pb)
 
-    if (typeof document !== 'undefined') {
-      pb.authStore.loadFromCookie(document.cookie)
+    pb.authStore.loadFromCookie(document.cookie)
 
-      pb.authStore.onChange((token, model) => {
-        setUser((model as User | null) ?? undefined)
+    pb.authStore.onChange((token, model) => {
+      setUser((model as User | null) ?? undefined)
 
-        document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+      document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
+    })
+  }, [pb])
 
   const logoutAndRedirect = useCallback(
     (type?: RedirectType) => {
@@ -42,8 +40,7 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
 
       redirectAction('/', type)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [pb],
   )
 
   const value: PocketBaseContext = { pb, user, logoutAndRedirect }
