@@ -12,8 +12,7 @@ import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { Match } from '../../models/pocketBase/tables/match/Match'
-import { MatchApiData } from '../../models/pocketBase/tables/match/MatchApiData'
-import { TheQuestMatch } from '../../models/theQuest/TheQuestMatch'
+import { MatchApiData, MatchApiDatas } from '../../models/pocketBase/tables/match/MatchApiDatas'
 import { decodeErrorString } from '../../utils/ioTsUtils'
 import { sleep } from '../../utils/promiseUtils'
 import type { TheQuestService } from '../TheQuestService'
@@ -90,30 +89,40 @@ async function load(
     function handleMatchesEvent(event: RecordSubscription<Match>): void {
       if (event.action === 'create' || event.action === 'update') {
         pipe(
-          MatchApiData.codec.decode(event.record.apiData),
+          MatchApiDatas.codec.decode(event.record.apiData),
           either.fold(
             e => {
               logger.warn(
-                `Invalid match ${event.action}: ${decodeErrorString('MatchApiData')(
+                `Invalid match ${event.action}: ${decodeErrorString('MatchApiDatas')(
                   event.record.apiData,
                 )(e)}`,
               )
             },
-            async apiData => {
-              if (MatchApiData.isGameId(apiData)) {
-                const newApiData = await theQuestService
-                  .getMatchById(constants.platform, apiData)
-                  .catch(e => {
-                    logger.warn(`Failed to get match ${apiData}: ${formatError(e)}`)
-                  })
+            async apiDatas => {
+              if (apiDatas === null) return
 
-                if (newApiData !== undefined) {
-                  await pb.collection('matches').update(event.record.id, {
-                    apiData: TheQuestMatch.codec.encode(newApiData),
-                  })
+              const newApiDatas = await Promise.all(
+                apiDatas.map(async (apiData): Promise<MatchApiData> => {
+                  if (!MatchApiData.isGameId(apiData)) return apiData
 
-                  revalidateTag(Config.constants.tags.matches.list)
-                }
+                  const newApiData = await theQuestService
+                    .getMatchById(constants.platform, apiData)
+                    .catch(e => {
+                      logger.warn(`Failed to get match ${apiData}: ${formatError(e)}`)
+                    })
+
+                  if (newApiData === undefined) return apiData
+
+                  return newApiData
+                }),
+              )
+
+              if (!MatchApiDatas.Eq.equals(apiDatas, newApiDatas)) {
+                await pb.collection('matches').update(event.record.id, {
+                  apiData: MatchApiDatas.codec.encode(newApiDatas),
+                })
+
+                revalidateTag(Config.constants.tags.matches.list)
               }
             },
           ),

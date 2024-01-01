@@ -1,3 +1,5 @@
+import { eq, number } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import * as C from 'io-ts/Codec'
 import { type Newtype, iso } from 'newtype-ts'
 
@@ -10,6 +12,8 @@ const { wrap, unwrap } = iso<GameId>()
 
 const codec = fromNewtype<GameId>(C.number)
 
-const GameId = immutableAssign(wrap, { unwrap, codec })
+const Eq: eq.Eq<GameId> = pipe(number.Eq, eq.contramap(unwrap))
+
+const GameId = immutableAssign(wrap, { unwrap, codec, Eq })
 
 export { GameId }

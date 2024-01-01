@@ -13,11 +13,12 @@ import { AuthError } from '../models/AuthError'
 import type { AttendeeWithRiotId } from '../models/attendee/AttendeeWithRiotId'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { Tournament, TournamentId } from '../models/pocketBase/tables/Tournament'
-import { MatchApiData } from '../models/pocketBase/tables/match/MatchApiData'
+import type { MatchApiDataDecoded } from '../models/pocketBase/tables/match/Match'
+import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/MatchApiDatas'
 import { GameName } from '../models/riot/GameName'
-import type { MatchDecoded } from '../models/riot/MatchDecoded'
 import { RiotId } from '../models/riot/RiotId'
 import { TagLine } from '../models/riot/TagLine'
+import type { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
 import type { StaticData } from '../models/theQuest/staticData/StaticData'
 
 const { getFromPbCacheDuration, tags } = Config.constants
@@ -27,7 +28,7 @@ const logger = getLogger('viewTournament')
 export type ViewTournament = {
   tournament: Tournament
   attendees: ReadonlyArray<AttendeeWithRiotId>
-  matches: ReadonlyArray<MatchDecoded>
+  matches: ReadonlyArray<MatchApiDataDecoded>
   staticData: StaticData
 }
 
@@ -95,20 +96,25 @@ async function listAttendeesForTournament(
 async function listMatchesForTournament(
   adminPb: MyPocketBase,
   tournamentId: TournamentId,
-): Promise<ReadonlyArray<MatchDecoded>> {
+): Promise<ReadonlyArray<MatchApiDataDecoded>> {
   const matches = await adminPb.collection('matches').getFullList({
     filter: `tournament="${tournamentId}"`,
     next: { revalidate: getFromPbCacheDuration, tags: [tags.matches.list] },
   })
 
   return matches.map(
-    (m): MatchDecoded => ({
+    (m): MatchApiDataDecoded => ({
       ...m,
       apiData: pipe(
-        MatchApiData.codec.decode(m.apiData),
+        MatchApiDatas.codec.decode(m.apiData),
         either.fold(
-          () => null,
-          d => (MatchApiData.isGameId(d) ? null : d),
+          () => [],
+          apiData =>
+            apiData !== null
+              ? apiData.map(
+                  (d): Optional<TheQuestMatch> => (MatchApiData.isGameId(d) ? undefined : d),
+                )
+              : [],
         ),
       ),
     }),
