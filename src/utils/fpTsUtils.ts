@@ -16,9 +16,12 @@ export const eitherGetOrThrow: <A>(fa: Either<Error, A>) => A = either.getOrElse
   throw e
 })
 
-export const arrayGroupBy = readonlyNonEmptyArray.groupBy as <A, K extends string>(
-  f: (a: A) => K,
-) => (as: ReadonlyArray<A>) => Partial<ReadonlyRecord<K, NonEmptyArray<A>>>
+export const array = {
+  empty: <A>(): ReadonlyArray<A> => [],
+  groupBy: readonlyNonEmptyArray.groupBy as <A, K extends string>(
+    f: (a: A) => K,
+  ) => (as: ReadonlyArray<A>) => Partial<ReadonlyRecord<K, NonEmptyArray<A>>>,
+}
 
 export const partialRecord = {
   map: readonlyRecord.map as <A, B>(
@@ -38,6 +41,6 @@ export const objectValues: <A extends Partial<ReadonlyRecord<PropertyKey, unknow
   a: A,
 ) => ReadonlyArray<A[keyof A]> = Object.values
 
-export function emptyRecord<K extends PropertyKey, A>(): ReadonlyRecord<K, A> {
-  return {} as ReadonlyRecord<K, A>
+export const record = {
+  empty: <K extends PropertyKey, A>(): ReadonlyRecord<K, A> => ({}) as ReadonlyRecord<K, A>,
 }

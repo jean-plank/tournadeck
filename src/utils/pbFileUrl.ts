@@ -1,6 +1,6 @@
 import type { TableName, Tables } from '../models/pocketBase/Tables'
 
-export function getImageUrl<A extends TableName>(
+export function pbFileUrl<A extends TableName>(
   collectionName: A,
   recordId: Tables[A]['id']['output'],
   name: string,

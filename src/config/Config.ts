@@ -6,11 +6,10 @@ import * as D from 'io-ts/Decoder'
 import type pino from 'pino'
 import type { IsEqual } from 'type-fest'
 
-import { DayjsDuration } from './models/Dayjs'
-import type { Platform } from './models/theQuest/Platform'
-import { eitherGetOrThrow } from './utils/fpTsUtils'
-import { decodeError } from './utils/ioTsUtils'
-import type { Expect } from './utils/typeUtils'
+import { DayjsDuration } from '../models/Dayjs'
+import { eitherGetOrThrow } from '../utils/fpTsUtils'
+import { decodeError } from '../utils/ioTsUtils'
+import type { Expect } from '../utils/typeUtils'
 
 const levelDecoder = D.literal('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent')
 
@@ -50,12 +49,9 @@ function load(): Config {
   )
 }
 
-const platform: Platform = 'EUW'
-
 const Config = {
   load,
   constants: {
-    platform,
     /**
      * seconds
      */

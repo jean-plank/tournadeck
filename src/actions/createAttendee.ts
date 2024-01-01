@@ -3,7 +3,8 @@
 import { either } from 'fp-ts'
 import { revalidateTag } from 'next/cache'
 
-import { Config } from '../Config'
+import { Config } from '../config/Config'
+import { constants } from '../config/constants'
 import { theQuestService } from '../context/context'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
@@ -62,11 +63,7 @@ export async function createAttendee(
 }
 
 async function validateRiotId(riotId: RiotId): Promise<SummonerShort> {
-  const summoner = await theQuestService.getSummonerByRiotId(
-    Config.constants.platform,
-    riotId,
-    true,
-  )
+  const summoner = await theQuestService.getSummonerByRiotId(constants.platform, riotId, true)
 
   if (summoner === undefined) {
     throw Error(`BadRequest - Summoner not found: ${RiotId.stringify('#')(riotId)}`)

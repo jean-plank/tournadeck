@@ -40,7 +40,7 @@ const keys = objectKeys(inputsEmpty)
 type Props = {
   tournament: TournamentId
   onSubscribeOk: () => void
-  avalaibleTeamRole: TeamRole[]
+  avalaibleTeamRole: ReadonlyArray<TeamRole>
 }
 
 export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, onSubscribeOk }) => {
@@ -107,7 +107,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
   return (
     <form
       action={handleSubmit}
-      className="flex min-w-[416px] flex-col gap-3 rounded-lg border-2 border-gold bg-white1 p-4"
+      className="flex min-w-[416px] flex-col gap-3 rounded-lg border-2 border-goldenrod bg-white1 p-4"
     >
       <Input
         label="Riot ID"
@@ -179,7 +179,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
       {avatarPreviewUrl !== null && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          className="mr-1 h-36 w-36 rounded-r-lg border-2 border-gold object-cover"
+          className="mr-1 h-36 w-36 rounded-r-lg border-2 border-goldenrod object-cover"
           alt="avatar-preview"
           src={avatarPreviewUrl}
         />
@@ -187,7 +187,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
 
       <button
         type="submit"
-        className="rounded-full bg-gold px-4 py-2 font-bold text-white hover:text-black"
+        className="rounded-full bg-goldenrod px-4 py-2 font-bold text-white hover:text-black"
       >
         Valider
       </button>

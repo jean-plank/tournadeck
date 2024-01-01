@@ -1,11 +1,14 @@
-import { Header } from '../../domain/(tournaments)/Header'
+import { TournamentHeader } from '../../domain/(tournaments)/TournamentHeader'
 import type { ChildrenFC } from '../../models/ChildrenFC'
+import { TournamentContextProvider } from './TournamentContext'
 
 const TournamentLayout: ChildrenFC = async ({ children }) => (
-  <div className="grid h-full grid-rows-[auto_1fr]">
-    <Header />
-    <main className="w-full overflow-auto">{children}</main>
-  </div>
+  <TournamentContextProvider>
+    <div className="grid h-full grid-rows-[auto_1fr]">
+      <TournamentHeader />
+      <main className="w-full overflow-auto">{children}</main>
+    </div>
+  </TournamentContextProvider>
 )
 
 export default TournamentLayout

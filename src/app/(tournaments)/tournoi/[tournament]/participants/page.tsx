@@ -1,23 +1,36 @@
 import { notFound, redirect } from 'next/navigation'
 
+import type { ViewTournament } from '../../../../../actions/viewTournament'
 import { viewTournament } from '../../../../../actions/viewTournament'
 import { Attendees } from '../../../../../domain/(tournaments)/tournoi/[tournament]/Attendees'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import { SetTournament } from '../../../TournamentContext'
 
 type Props = {
   params: { tournament: TournamentId }
 }
 
 const AttendeesPage: React.FC<Props> = ({ params }) =>
-  withRedirectOnAuthError(viewTournament(params.tournament))(data => {
-    if (data === undefined) return notFound()
+  withRedirectOnAuthError(viewTournament(params.tournament))(data => (
+    <>
+      <SetTournament tournament={data?.tournament} />
+      <AttendeesPageLoaded data={data} />
+    </>
+  ))
 
-    const { tournament, attendees } = data
+type AttendeesPageLoadedProps = {
+  data: Optional<ViewTournament>
+}
 
-    if (tournament.phase !== 'created') return redirect(`/tournoi/${params.tournament}/equipes`)
+const AttendeesPageLoaded: React.FC<AttendeesPageLoadedProps> = ({ data }) => {
+  if (data === undefined) return notFound()
 
-    return <Attendees tournament={tournament} attendees={attendees} />
-  })
+  const { tournament, attendees } = data
+
+  if (tournament.phase !== 'created') return redirect(`/tournoi/${tournament.id}/equipes`)
+
+  return <Attendees tournament={tournament} attendees={attendees} />
+}
 
 export default AttendeesPage

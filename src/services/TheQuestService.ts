@@ -1,4 +1,4 @@
-import type { Config } from '../Config'
+import type { Config } from '../config/Config'
 import { HttpClient } from '../helpers/HttpClient'
 import type { GameId } from '../models/riot/GameId'
 import type { Puuid } from '../models/riot/Puuid'

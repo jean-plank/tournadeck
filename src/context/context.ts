@@ -1,5 +1,5 @@
-import { Config } from '../Config'
 import { Logger } from '../Logger'
+import { Config } from '../config/Config'
 import { HttpClient } from '../helpers/HttpClient'
 import { TheQuestService } from '../services/TheQuestService'
 

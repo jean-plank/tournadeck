@@ -74,10 +74,10 @@ In an other shell, start Next.js:
 yarn dev
 ```
 
-You can view Tailwind's config by running:
+Fancy Tailwind's config viewer:
 
 ```bash
-npx tailwind-config-viewer
+yarn tailwindConfigViewer
 ```
 
 ## Clean db

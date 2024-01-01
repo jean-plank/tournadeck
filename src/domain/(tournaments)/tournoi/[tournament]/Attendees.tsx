@@ -6,19 +6,16 @@ import { useCallback, useRef } from 'react'
 
 import { TeamRoleIcon } from '../../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../../contexts/PocketBaseContext'
-import { Dayjs } from '../../../../models/Dayjs'
 import { TeamRole } from '../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament } from '../../../../models/pocketBase/tables/Tournament'
-import { arrayGroupBy, partialRecord } from '../../../../utils/fpTsUtils'
+import { array, partialRecord } from '../../../../utils/fpTsUtils'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
 
-const dateTimeFormat = 'dddd D MMMM YYYY, hh:mm'
-
 const bySeed = pipe(
   number.Ord,
-  ord.contramap((a: { seed: number }) => a.seed),
+  ord.contramap((a: { seed: number }) => (a.seed === 0 ? Infinity : a.seed)),
 )
 
 type Props = {
@@ -51,22 +48,12 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
 
   const grouped = pipe(
     attendees,
-    arrayGroupBy(a => a.role),
+    array.groupBy(a => a.role),
     partialRecord.map(readonlyArray.sort(bySeed)),
   )
 
   return (
-    <div className="flex flex-col items-start gap-5 text-gold">
-      <div className="flex w-full flex-col items-center justify-center pt-6">
-        <h1 className="font-friz text-6xl font-bold">{tournament.name}</h1>
-
-        <div className="flex flex-row items-center gap-3 text-white">
-          <span className="font-bold">{Dayjs(tournament.start).format(dateTimeFormat)}</span>
-          <span>—</span>
-          <span className="font-bold">{Dayjs(tournament.end).format(dateTimeFormat)}</span>
-        </div>
-      </div>
-
+    <div className="flex flex-col items-start gap-5">
       {!alreadySubscribed && (
         <dialog ref={dialog} className="bg-transparent">
           <div className="flex flex-col items-end">
@@ -74,16 +61,16 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
               tournament={tournament.id}
               onSubscribeOk={onSuscribeOk}
               avalaibleTeamRole={TeamRole.values.reduce(
-                (acc: TeamRole[], v) =>
+                (acc, v) =>
                   attendees.filter(p => p.role === v).length < tournament.teamsCount
                     ? [...acc, v]
                     : acc,
-                [],
+                array.empty<TeamRole>(),
               )}
             />
             <button
               type="button"
-              className="m-1 rounded bg-white1 px-1 text-xs text-gold"
+              className="m-1 rounded bg-white1 px-1 text-xs text-goldenrod"
               onClick={handleCancelClick}
             >
               Annuler
@@ -92,30 +79,30 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
         </dialog>
       )}
 
-      <div className="flex w-full flex-col items-center">
-        <div className="flex flex-col items-center">
+      <div className="flex w-full flex-col items-center gap-6 py-6">
+        <div className="flex flex-col items-center gap-6">
           {!alreadySubscribed && (
             <button
               type="button"
               onClick={handleSuscribeClick}
-              className="my-2 rounded bg-gold px-8 py-2 text-3xl font-bold text-white"
+              className="rounded bg-goldenrod px-8 py-2 text-3xl font-bold text-white"
             >
               S’inscrire
             </button>
           )}
-          <h2 className="font-bold">
+          <span className="font-bold">
             Participants ({attendees.length} / {tournament.teamsCount * 5})
-          </h2>
+          </span>
         </div>
 
-        <div className="flex w-full flex-col items-start">
+        <div className="grid w-full grid-rows-5">
           {TeamRole.values.map(role => (
-            <div className="flex w-full flex-row justify-start gap-2 pl-2 odd:bg-black" key={role}>
-              <div className="flex min-h-[10rem] flex-col items-center justify-center">
+            <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
+              <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
                 <TeamRoleIcon role={role} className="h-16 w-16" />
-                <div>
+                <span>
                   {grouped[role]?.length ?? 0}/{tournament.teamsCount}
-                </div>
+                </span>
               </div>
               {grouped[role]?.map(p => <AttendeeTile key={p.id} attendee={p} />)}
             </div>
