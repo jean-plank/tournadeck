@@ -220,10 +220,10 @@ export type MultipleFileField<N extends NullReq = 'required'> = PbField<
   N
 >
 
-export type JsonField<A extends PbJson, N extends NullReq = 'required'> = PbField<
+export type JsonField<A extends PbJson, N extends NullReq = 'required', O = A> = PbField<
   'Json',
   A,
-  N extends 'nullable' ? unknown | null : unknown,
+  N extends 'nullable' ? O | null : O,
   N
 >
 

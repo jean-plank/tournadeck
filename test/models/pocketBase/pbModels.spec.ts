@@ -75,8 +75,8 @@ describe('pbModels', () => {
           singleRelation: UserId
           maybeSingleRelation: UserId | ''
           multipleFile: ReadonlyArray<string>
-          json: unknown
-          maybeJson: unknown
+          json: { foo: 123 }
+          maybeJson: { bar: boolean } | null
         }
       >
     >
@@ -155,7 +155,7 @@ describe('pbModels', () => {
           multipleRelation: ReadonlyArray<TournamentId>
           singleFile: string
           multipleFile: ReadonlyArray<string>
-          json: unknown
+          json: { foo: 123 }
         }
       >
     >
@@ -235,7 +235,7 @@ describe('pbModels', () => {
           multipleRelation: ReadonlyArray<TournamentId>
           singleFile: string
           multipleFile: ReadonlyArray<string>
-          json: unknown
+          json: { foo: 123 } | null
         }
       >
     >

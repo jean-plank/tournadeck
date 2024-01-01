@@ -29,6 +29,7 @@ function LoserOf(match: MatchId): LoserOf {
 // ---
 
 type WinnerOrLoserOf = C.TypeOf<typeof codec>
+type WinnerOrLoserOfOutput = C.OutputOf<typeof codec>
 
 const codec = C.sum('type')({
   WinnerOf: winnerOfCodec,
@@ -37,4 +38,4 @@ const codec = C.sum('type')({
 
 const WinnerOrLoserOf = { codec }
 
-export { LoserOf, WinnerOf, WinnerOrLoserOf }
+export { LoserOf, WinnerOf, WinnerOrLoserOf, type WinnerOrLoserOfOutput }
