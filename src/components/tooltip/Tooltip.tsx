@@ -1,3 +1,5 @@
+'use client'
+
 import type { Placement } from '@popperjs/core'
 import { readonlyNonEmptyArray } from 'fp-ts'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -9,13 +11,7 @@ import { CaretUpSharpCropped } from '../svgs/icons'
 import type { ReactPopperParams } from './useVisiblePopper'
 import { useVisiblePopper } from './useVisiblePopper'
 
-const tooltipLayerId = 'tooltip-layer'
-
-const tooltipLayer = document.getElementById(tooltipLayerId)
-
-if (tooltipLayer === null) {
-  throw Error(`Tooltip layer not found: #${tooltipLayerId}`)
-}
+let tooltipLayer: Optional<HTMLDivElement> = undefined
 
 type Props = {
   hoverRef: React.RefObject<Element> | NonEmptyArray<React.RefObject<Element>>
@@ -145,11 +141,13 @@ export const Tooltip: React.FC<Props> = ({
   // Set hover / click listeners to display or hide the tooltip.
   useEffect(setupHoverClickListeners, [setupHoverClickListeners])
 
+  if (tooltipLayer === undefined) return null
+
   return createPortal(
     <div
       ref={tooltipRef}
       className={cx(
-        'group z-40 whitespace-nowrap border border-tooltip bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black transition-opacity duration-300',
+        'group z-40 whitespace-nowrap border border-brown bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black transition-opacity duration-300',
         shouldDisplay ? 'visible opacity-100' : 'invisible opacity-0',
         className,
       )}
@@ -159,12 +157,12 @@ export const Tooltip: React.FC<Props> = ({
       {children}
       <div
         ref={arrowRef}
-        className="group-data-popper-top:-bottom-1.5 group-data-popper-bottom:-top-1.5 group-data-popper-left:-right-2 group-data-popper-right:-left-2 h-1.5 w-2.5"
+        className="h-1.5 w-2.5 group-data-popper-top:-bottom-1.5 group-data-popper-bottom:-top-1.5 group-data-popper-left:-right-2 group-data-popper-right:-left-2"
         style={styles['arrow']}
       >
         <CaretUpSharpCropped
           className={cx(
-            'text-tooltip group-data-popper-top:rotate-180',
+            'text-brown group-data-popper-top:rotate-180',
             ['group-data-popper-bottom:rotate-0', placement.startsWith('top')],
             [
               'group-data-popper-left:rotate-90 group-data-popper-right:-rotate-90',
@@ -183,3 +181,9 @@ export const Tooltip: React.FC<Props> = ({
 }
 
 const isArray = Array.isArray as unknown as <A>(a: A | NonEmptyArray<A>) => a is NonEmptyArray<A>
+
+export const TooltipLayer: React.FC = () => <div ref={onMount} />
+
+function onMount(e: HTMLDivElement | null): void {
+  tooltipLayer = e ?? undefined
+}
