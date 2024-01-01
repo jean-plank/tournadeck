@@ -23,9 +23,6 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
     const pb_ = MyPocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
 
     pb_.authStore.onChange((token, model) => {
-      console.log('token =', token)
-      console.log('model =', model)
-
       setUser((model as User | null) ?? undefined)
 
       document.cookie = pb_.authStore.exportToCookie({ httpOnly: false })
@@ -35,9 +32,6 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    console.log('document.cookie =', document.cookie)
-    console.log('pb =', pb)
-
     pb.authStore.loadFromCookie(document.cookie)
   }, [pb])
 
