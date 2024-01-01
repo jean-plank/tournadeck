@@ -20,7 +20,7 @@ export async function listTournaments(): Promise<ReadonlyArray<Tournament>> {
     throw new AuthError('Forbidden')
   }
 
-  const adminPb = await adminPocketBase
+  const adminPb = await adminPocketBase()
 
   return await adminPb.collection('tournaments').getFullList({
     ...(user.role === 'organiser' ? {} : { filter: 'isVisible=true' }),

@@ -31,7 +31,7 @@ export type ViewTournament = {
 export async function viewTournament(
   tournamentId: TournamentId,
 ): Promise<Optional<ViewTournament>> {
-  const adminPb = await adminPocketBase
+  const adminPb = await adminPocketBase()
 
   const tournament = await viewTournamentShortFromAdminPb(adminPb, tournamentId)
 

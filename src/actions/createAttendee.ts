@@ -42,7 +42,7 @@ export async function createAttendee(
     throw Error('BadRequest')
   }
 
-  const adminPb = await adminPocketBase
+  const adminPb = await adminPocketBase()
 
   const [summoner] = await Promise.all([
     validateRiotId(attendeeCreate.right.riotId),

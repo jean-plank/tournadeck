@@ -13,7 +13,7 @@ const { getFromPbCacheDuration, tags } = Config.constants
 export async function viewTournamentShort(
   tournamentId: TournamentId,
 ): Promise<Optional<Tournament>> {
-  return viewTournamentShortFromAdminPb(await adminPocketBase, tournamentId)
+  return viewTournamentShortFromAdminPb(await adminPocketBase(), tournamentId)
 }
 
 export async function viewTournamentShortFromAdminPb(
