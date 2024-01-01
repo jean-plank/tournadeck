@@ -1,12 +1,12 @@
 import Image from 'next/image'
 
-import { LolEloIcon } from '../../../../components/LolEloIcon'
-import { TeamRoleIcon } from '../../../../components/TeamRoleIcon'
-import { MapMarkerStar } from '../../../../components/svgs/icons'
-import { ChampionPool } from '../../../../models/ChampionPool'
-import type { AttendeeWithRiotId } from '../../../../models/attendee/AttendeeWithRiotId'
-import { TheQuestUtils } from '../../../../utils/TheQuestUtils'
-import { pbFileUrl } from '../../../../utils/pbFileUrl'
+import { LolEloIcon } from '../../../../../components/LolEloIcon'
+import { TeamRoleIcon } from '../../../../../components/TeamRoleIcon'
+import { MapMarkerStar } from '../../../../../components/svgs/icons'
+import { ChampionPool } from '../../../../../models/ChampionPool'
+import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import { TheQuestUtils } from '../../../../../utils/TheQuestUtils'
+import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
 type Props = {
   attendee: AttendeeWithRiotId

@@ -34,42 +34,36 @@ export type ViewTournament = {
 export async function viewTournament(
   tournamentId: TournamentId,
 ): Promise<Optional<ViewTournament>> {
-  try {
-    const maybeAuth = await auth()
+  const maybeAuth = await auth()
 
-    if (maybeAuth === undefined) {
-      throw new AuthError('Unauthorized')
-    }
-
-    const { user } = maybeAuth
-
-    const adminPb = await adminPocketBase()
-
-    const tournament = await adminPb
-      .collection('tournaments')
-      .getOne(tournamentId, {
-        next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments.view] },
-      })
-      .catch(MyPocketBase.statusesToUndefined(404))
-
-    if (tournament === undefined) return undefined
-
-    if (!Permissions.tournaments.view(user.role, tournament)) {
-      throw new AuthError('Forbidden')
-    }
-
-    const [attendees, matches, staticData] = await Promise.all([
-      listAttendeesForTournament(adminPb, tournamentId),
-      listMatchesForTournament(adminPb, tournamentId),
-      theQuestService.getStaticData(true),
-    ])
-
-    return { tournament, attendees, matches, staticData }
-  } catch (e) {
-    console.log('e =', e)
-
-    throw e
+  if (maybeAuth === undefined) {
+    throw new AuthError('Unauthorized')
   }
+
+  const { user } = maybeAuth
+
+  const adminPb = await adminPocketBase()
+
+  const tournament = await adminPb
+    .collection('tournaments')
+    .getOne(tournamentId, {
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments.view] },
+    })
+    .catch(MyPocketBase.statusesToUndefined(404))
+
+  if (tournament === undefined) return undefined
+
+  if (!Permissions.tournaments.view(user.role, tournament)) {
+    throw new AuthError('Forbidden')
+  }
+
+  const [attendees, matches, staticData] = await Promise.all([
+    listAttendeesForTournament(adminPb, tournamentId),
+    listMatchesForTournament(adminPb, tournamentId),
+    theQuestService.getStaticData(true),
+  ])
+
+  return { tournament, attendees, matches, staticData }
 }
 
 async function listAttendeesForTournament(

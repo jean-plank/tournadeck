@@ -19,18 +19,6 @@ declare module 'newtype-ts' {
   }
 }
 
-declare module 'next/navigation' {
-  import type { LinkProps } from 'next/link'
-  import type { RedirectType } from 'next/navigation'
-
-  function redirectFn<RouteInferType>(
-    url: LinkProps<RouteInferType>['href'],
-    type?: RedirectType,
-  ): never
-
-  export { redirectFn as redirect }
-}
-
 declare module 'react' {
   export = React
   export as namespace React

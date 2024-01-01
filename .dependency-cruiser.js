@@ -217,16 +217,6 @@ module.exports = {
       },
     },
     {
-      name: 'not-components-to-domain',
-      severity: 'error',
-      from: {
-        path: '^src/components/',
-      },
-      to: {
-        path: '^src/domain/',
-      },
-    },
-    {
       name: 'not-to-dayjs',
       severity: 'error',
       from: {
