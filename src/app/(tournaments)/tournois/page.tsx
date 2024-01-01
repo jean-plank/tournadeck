@@ -1,9 +1,9 @@
 import Link from 'next/link'
 
 import { listTournaments } from '../../../actions/listTournaments'
-import { SetTournament } from '../../../domain/(tournaments)/TournamentContext'
-import { TournamentTile } from '../../../domain/(tournaments)/tournois/TournamentTile'
 import { withRedirectOnAuthError } from '../../../helpers/withRedirectOnAuthError'
+import { SetTournament } from '../TournamentContext'
+import { TournamentTile } from './TournamentTile'
 
 const Tournaments: React.FC = () =>
   withRedirectOnAuthError(listTournaments())(tournaments => (

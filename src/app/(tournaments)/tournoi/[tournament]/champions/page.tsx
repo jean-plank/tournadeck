@@ -6,7 +6,6 @@ import type { Merge } from 'type-fest'
 import type { ViewTournament } from '../../../../../actions/viewTournament'
 import { viewTournament } from '../../../../../actions/viewTournament'
 import { CroppedChampionSquare } from '../../../../../components/CroppedChampionSquare'
-import { SetTournament } from '../../../../../domain/(tournaments)/TournamentContext'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { ChampionId } from '../../../../../models/riot/ChampionId'
@@ -14,6 +13,7 @@ import type { MatchDecoded } from '../../../../../models/riot/MatchDecoded'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
 import { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { objectValues } from '../../../../../utils/fpTsUtils'
+import { SetTournament } from '../../../TournamentContext'
 
 type Props = {
   params: { tournament: TournamentId }
