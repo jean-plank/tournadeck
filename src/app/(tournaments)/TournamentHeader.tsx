@@ -32,9 +32,9 @@ export const TournamentHeader: React.FC = () => {
   }, [logoutAndRedirect])
 
   return (
-    <header className="flex justify-between gap-1 border-b border-goldenrod bg-gradient-to-br from-zinc-950 to-zinc-900 p-4">
+    <header className="flex min-h-[59px] items-center justify-between gap-1 border-b border-goldenrod bg-gradient-to-br from-zinc-950 to-zinc-900 p-4">
       <nav className="flex items-center gap-4">
-        {user === undefined && <Link href="/">Accueil</Link>}
+        {user === undefined && <Link href="/">Connexion</Link>}
 
         {user !== undefined && Permissions.tournaments.list(user.role) && (
           <Link href="/tournois" className={cx(['underline', pathname === '/tournois'])}>
@@ -44,7 +44,7 @@ export const TournamentHeader: React.FC = () => {
 
         {isLoading && (
           <>
-            <ChevronForwardFilled className="h-4" />
+            {user !== undefined && <ChevronForwardFilled className="h-4" />}
             <Loader className="h-4" />
           </>
         )}
