@@ -80,11 +80,11 @@ const RootLayout: ChildrenFC = ({ children }) => (
         baloo2.variable,
         liberationMono.variable,
         friz.variable,
-        'font-baloo text-wheat',
+        'h-screen w-screen overflow-hidden font-baloo text-wheat',
       )}
     >
       <PocketBaseContextProvider>
-        <div className="h-screen w-screen bg-gradient-to-br from-slate-dark to-slate">
+        <div className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-dark to-slate">
           {children}
         </div>
       </PocketBaseContextProvider>
