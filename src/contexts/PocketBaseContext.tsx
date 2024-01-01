@@ -17,24 +17,28 @@ type PocketBaseContext = {
 const PocketBaseContext = createContext<Optional<PocketBaseContext>>(undefined)
 
 export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
-  const pb = useMemo(() => MyPocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL), [])
-
   const [user, setUser] = useState<PocketBaseContext['user']>(undefined)
+
+  const pb = useMemo((): MyPocketBase => {
+    const pb_ = MyPocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
+
+    pb_.authStore.onChange((token, model) => {
+      console.log('token =', token)
+      console.log('model =', model)
+
+      setUser((model as User | null) ?? undefined)
+
+      document.cookie = pb_.authStore.exportToCookie({ httpOnly: false })
+    })
+
+    return pb_
+  }, [])
 
   useEffect(() => {
     console.log('document.cookie =', document.cookie)
     console.log('pb =', pb)
 
     pb.authStore.loadFromCookie(document.cookie)
-
-    pb.authStore.onChange((token, model) => {
-      console.log('token =', token)
-      console.log('model =', model)
-
-      setUser((model as User | null) ?? undefined)
-
-      document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
-    })
   }, [pb])
 
   const logoutAndRedirect = useCallback(
