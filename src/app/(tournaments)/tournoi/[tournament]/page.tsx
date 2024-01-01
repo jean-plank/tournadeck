@@ -6,6 +6,7 @@ import { SetTournament } from '../../../../domain/(tournaments)/TournamentContex
 import { TournamentSubPagesNav } from '../../../../domain/(tournaments)/TournamentSubPagesNav'
 import { withRedirectOnAuthError } from '../../../../helpers/withRedirectOnAuthError'
 import { Dayjs } from '../../../../models/Dayjs'
+import { TournamentPhase } from '../../../../models/TournamentPhase'
 import type { TournamentId } from '../../../../models/pocketBase/tables/Tournament'
 
 const dateTimeFormat = 'dddd D MMMM YYYY, hh:mm'
@@ -40,6 +41,8 @@ const TournamentPageLoaded: React.FC<TournamentPageLoadedProps> = ({ data }) => 
         <span>—</span>
         <span className="font-bold">{Dayjs(tournament.end).format(dateTimeFormat)}</span>
       </div>
+
+      <div className="text-lg font-bold text-green1">{TournamentPhase.label[tournament.phase]}</div>
 
       <span className="font-bold text-goldenrod">
         Participants ({attendees.length} / {tournament.teamsCount * 5})
