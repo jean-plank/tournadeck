@@ -73,25 +73,35 @@ export const metadata: Metadata = {
   title: 'Tournadeck',
 }
 
-const RootLayout: ChildrenFC = ({ children }) => (
-  <html lang="fr">
-    <body
-      className={cx(
-        baloo2.variable,
-        liberationMono.variable,
-        friz.variable,
-        'font-baloo text-wheat',
-      )}
-    >
-      <PocketBaseContextProvider>
-        <div className="h-screen w-screen bg-gradient-to-br from-slate-dark to-slate">
-          {children}
-        </div>
-      </PocketBaseContextProvider>
+const RootLayout: ChildrenFC = async ({ children }) => {
+  if (process.env.NODE_ENV === 'development') {
+    // import to trigger all effectful startup actions
 
-      <TooltipLayer />
-    </body>
-  </html>
-)
+    const { adminPocketBase } = await import('../context/singletons/adminPocketBase')
+
+    await adminPocketBase()
+  }
+
+  return (
+    <html lang="fr">
+      <body
+        className={cx(
+          baloo2.variable,
+          liberationMono.variable,
+          friz.variable,
+          'h-screen w-screen overflow-hidden font-baloo text-wheat',
+        )}
+      >
+        <PocketBaseContextProvider>
+          <div className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-dark to-slate">
+            {children}
+          </div>
+        </PocketBaseContextProvider>
+
+        <TooltipLayer />
+      </body>
+    </html>
+  )
+}
 
 export default RootLayout
