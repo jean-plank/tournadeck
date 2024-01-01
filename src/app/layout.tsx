@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
+import { TooltipLayer } from '../components/tooltip/Tooltip'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
 import type { ChildrenFC } from '../models/ChildrenFC'
 import { DayjsDuration } from '../models/Dayjs'
@@ -79,10 +80,16 @@ const RootLayout: ChildrenFC = ({ children }) => (
         baloo2.variable,
         liberationMono.variable,
         friz.variable,
-        'h-screen w-screen bg-blue1 font-baloo text-wheat bg-gradient-to-br from-slate-dark to-slate',
+        'font-baloo text-wheat',
       )}
     >
-      <PocketBaseContextProvider>{children}</PocketBaseContextProvider>
+      <PocketBaseContextProvider>
+        <div className="h-screen w-screen bg-gradient-to-br from-slate-dark to-slate">
+          {children}
+        </div>
+      </PocketBaseContextProvider>
+
+      <TooltipLayer />
     </body>
   </html>
 )

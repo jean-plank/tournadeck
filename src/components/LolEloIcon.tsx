@@ -1,7 +1,9 @@
 import Image from 'next/image'
+import { useRef } from 'react'
 
 import { LolElo } from '../models/LolElo'
 import { cx } from '../utils/cx'
+import { Tooltip } from './tooltip/Tooltip'
 
 type Props = {
   type?: LolEloIconType
@@ -12,13 +14,29 @@ type Props = {
 type LolEloIconType = 'normal' | 'flat'
 
 export const LolEloIcon: React.FC<Props> = ({ type = 'normal', elo, className }) => {
+  const ref = useRef(null)
+
+  return (
+    <>
+      {renderIcon(ref, type, elo, className)}
+      <Tooltip hoverRef={ref}>{LolElo.label[elo]}</Tooltip>
+    </>
+  )
+}
+
+function renderIcon(
+  ref: React.Ref<HTMLImageElement>,
+  type: LolEloIconType,
+  elo: LolElo,
+  className: string | undefined,
+): React.ReactElement {
   switch (type) {
     case 'normal':
       return (
         <Image
+          ref={ref}
           src={leagueIconUrl(elo)}
           alt={`Icône ${LolElo.label[elo]}`}
-          title={LolElo.label[elo]}
           width={200}
           height={200}
           className={className}
@@ -27,10 +45,7 @@ export const LolEloIcon: React.FC<Props> = ({ type = 'normal', elo, className })
 
     case 'flat':
       return (
-        <span
-          title={LolElo.label[elo]}
-          className={cx('flex items-center overflow-hidden', className)}
-        >
+        <span ref={ref} className={cx('flex items-center overflow-hidden', className)}>
           <Image
             src={miniCrestIconUrl(elo)}
             alt={`Icône ${LolElo.label[elo]}`}

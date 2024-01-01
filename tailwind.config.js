@@ -16,6 +16,7 @@ const config = {
       'blue-200': colors.blue[200],
       'blue-500': colors.blue[500],
       'blue-700': colors.blue[700],
+      brown: '#725a34',
       'dark-red': '#261622',
       'discord-blurple': '#5865f2',
       green1: '#25787f',
@@ -55,6 +56,12 @@ const config = {
       },
       boxShadow: {
         even: '0 0 8px 0 var(--tw-shadow-color)',
+      },
+      data: {
+        'popper-top': "popper-placement^='top'",
+        'popper-bottom': "popper-placement^='bottom'",
+        'popper-left': "popper-placement^='left'",
+        'popper-right': "popper-placement^='right'",
       },
       gridArea: {
         1: '1 / 1', // useful for superposing multiple elements in a grid element

@@ -99,7 +99,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
           {TeamRole.values.map(role => (
             <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
               <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
-                <TeamRoleIcon role={role} className="h-16 w-16" />
+                <TeamRoleIcon role={role} className="h-12 w-12" />
                 <span>
                   {grouped[role]?.length ?? 0}/{tournament.teamsCount}
                 </span>
