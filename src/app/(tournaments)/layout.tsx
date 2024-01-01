@@ -1,6 +1,6 @@
+import { TournamentContextProvider } from '../../domain/(tournaments)/TournamentContext'
 import { TournamentHeader } from '../../domain/(tournaments)/TournamentHeader'
 import type { ChildrenFC } from '../../models/ChildrenFC'
-import { TournamentContextProvider } from './TournamentContext'
 
 const TournamentLayout: ChildrenFC = async ({ children }) => (
   <TournamentContextProvider>

@@ -2,10 +2,10 @@ import { notFound, redirect } from 'next/navigation'
 
 import type { ViewTournament } from '../../../../../actions/viewTournament'
 import { viewTournament } from '../../../../../actions/viewTournament'
+import { SetTournament } from '../../../../../domain/(tournaments)/TournamentContext'
 import { Attendees } from '../../../../../domain/(tournaments)/tournoi/[tournament]/Attendees'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
-import { SetTournament } from '../../../TournamentContext'
 
 type Props = {
   params: { tournament: TournamentId }

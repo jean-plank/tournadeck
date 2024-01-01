@@ -2,11 +2,11 @@ import { notFound } from 'next/navigation'
 
 import type { ViewTournament } from '../../../../actions/viewTournament'
 import { viewTournament } from '../../../../actions/viewTournament'
+import { SetTournament } from '../../../../domain/(tournaments)/TournamentContext'
 import { TournamentSubPagesNav } from '../../../../domain/(tournaments)/TournamentSubPagesNav'
 import { withRedirectOnAuthError } from '../../../../helpers/withRedirectOnAuthError'
 import { Dayjs } from '../../../../models/Dayjs'
 import type { TournamentId } from '../../../../models/pocketBase/tables/Tournament'
-import { SetTournament } from '../../TournamentContext'
 
 const dateTimeFormat = 'dddd D MMMM YYYY, hh:mm'
 
