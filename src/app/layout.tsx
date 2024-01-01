@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import localFont from 'next/font/local'
 
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
@@ -15,9 +14,52 @@ import './globals.css'
  */
 export const revalidate = DayjsDuration({ seconds: 30 }).asSeconds()
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
+const baloo2 = localFont({
+  src: [
+    {
+      path: './fonts/baloo2/400-normal.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './fonts/baloo2/500-medium.ttf',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: './fonts/baloo2/600-semibold.ttf',
+      weight: '600',
+      style: 'normal',
+    },
+    {
+      path: './fonts/baloo2/700-bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: './fonts/baloo2/800-extrabold.ttf',
+      weight: '800',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-baloo2',
+})
+
+const liberationMono = localFont({
+  src: [
+    {
+      path: './fonts/liberationMono/400-normal.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+
+    {
+      path: './fonts/liberationMono/700-bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-liberationMono',
 })
 
 const friz = localFont({
@@ -34,9 +76,10 @@ const RootLayout: ChildrenFC = ({ children }) => (
   <html lang="fr">
     <body
       className={cx(
-        inter.variable,
+        baloo2.variable,
+        liberationMono.variable,
         friz.variable,
-        'h-screen w-screen bg-blue1 text-white font-inter',
+        'h-screen w-screen bg-blue1 font-baloo text-wheat bg-gradient-to-br from-slate-dark to-slate',
       )}
     >
       <PocketBaseContextProvider>{children}</PocketBaseContextProvider>

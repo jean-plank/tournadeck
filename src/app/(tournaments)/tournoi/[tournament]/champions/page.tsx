@@ -6,6 +6,7 @@ import type { Merge } from 'type-fest'
 import type { ViewTournament } from '../../../../../actions/viewTournament'
 import { viewTournament } from '../../../../../actions/viewTournament'
 import { CroppedChampionSquare } from '../../../../../components/CroppedChampionSquare'
+import { SetTournament } from '../../../../../domain/(tournaments)/TournamentContext'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { ChampionId } from '../../../../../models/riot/ChampionId'
@@ -19,45 +20,56 @@ type Props = {
 }
 
 const Champions: React.FC<Props> = ({ params }) =>
-  withRedirectOnAuthError(getTournament(params.tournament))(data => {
-    if (data === undefined) return notFound()
+  withRedirectOnAuthError(getTournament(params.tournament))(data => (
+    <>
+      <SetTournament tournament={data?.tournament} />
+      <ChampionsLoaded data={data} />
+    </>
+  ))
 
-    const { staticData, stillAvailable, alreadyPlayed } = data
+type ChampionsLoadedProps = {
+  data: Optional<GetTournament>
+}
 
-    return (
-      <div className="flex flex-col gap-4 p-4">
-        <h2>Champions disponibles :</h2>
-        <ul className="flex flex-wrap gap-1">
-          {stillAvailable.map(c => (
-            <CroppedChampionSquare
-              key={c.key}
-              version={staticData.version}
-              championId={c.id}
-              championName={c.name}
-              as="li"
-              className="h-12 w-12"
-            />
-          ))}
-        </ul>
+const ChampionsLoaded: React.FC<ChampionsLoadedProps> = ({ data }) => {
+  if (data === undefined) return notFound()
 
-        <h2>Champions déjà joués :</h2>
-        <ul className="flex flex-wrap gap-1">
-          {alreadyPlayed.map(c => (
-            <CroppedChampionSquare
-              key={c.key}
-              version={staticData.version}
-              championId={c.id}
-              championName={c.name}
-              as="li"
-              className="relative h-12 w-12"
-            >
-              <span className="absolute top-[calc(100%_-_2px)] w-20 origin-left -rotate-45 border-t-4 border-red-500 shadow-even shadow-black" />
-            </CroppedChampionSquare>
-          ))}
-        </ul>
-      </div>
-    )
-  })
+  const { staticData, stillAvailable, alreadyPlayed } = data
+
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      <h2>Champions disponibles :</h2>
+      <ul className="flex flex-wrap gap-1">
+        {stillAvailable.map(c => (
+          <CroppedChampionSquare
+            key={c.key}
+            version={staticData.version}
+            championId={c.id}
+            championName={c.name}
+            as="li"
+            className="h-12 w-12"
+          />
+        ))}
+      </ul>
+
+      <h2>Champions déjà joués :</h2>
+      <ul className="flex flex-wrap gap-1">
+        {alreadyPlayed.map(c => (
+          <CroppedChampionSquare
+            key={c.key}
+            version={staticData.version}
+            championId={c.id}
+            championName={c.name}
+            as="li"
+            className="relative h-12 w-12"
+          >
+            <span className="absolute top-[calc(100%_-_2px)] w-20 origin-left -rotate-45 border-t-4 border-red-500 shadow-even shadow-black" />
+          </CroppedChampionSquare>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 export default Champions
 

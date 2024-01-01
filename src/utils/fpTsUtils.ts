@@ -1,4 +1,4 @@
-import { either } from 'fp-ts'
+import { either, readonlyNonEmptyArray, readonlyRecord } from 'fp-ts'
 import type { Either } from 'fp-ts/Either'
 
 /**
@@ -16,6 +16,19 @@ export const eitherGetOrThrow: <A>(fa: Either<Error, A>) => A = either.getOrElse
   throw e
 })
 
+export const array = {
+  empty: <A>(): ReadonlyArray<A> => [],
+  groupBy: readonlyNonEmptyArray.groupBy as <A, K extends string>(
+    f: (a: A) => K,
+  ) => (as: ReadonlyArray<A>) => Partial<ReadonlyRecord<K, NonEmptyArray<A>>>,
+}
+
+export const partialRecord = {
+  map: readonlyRecord.map as <A, B>(
+    f: (a: A) => B,
+  ) => <K extends string>(fa: Partial<ReadonlyRecord<K, A>>) => Partial<ReadonlyRecord<K, B>>,
+}
+
 export const objectKeys: <A extends Partial<ReadonlyRecord<PropertyKey, unknown>>>(
   a: A,
 ) => ReadonlyArray<keyof A> = Object.keys
@@ -28,6 +41,6 @@ export const objectValues: <A extends Partial<ReadonlyRecord<PropertyKey, unknow
   a: A,
 ) => ReadonlyArray<A[keyof A]> = Object.values
 
-export function emptyRecord<K extends PropertyKey, A>(): ReadonlyRecord<K, A> {
-  return {} as ReadonlyRecord<K, A>
+export const record = {
+  empty: <K extends PropertyKey, A>(): ReadonlyRecord<K, A> => ({}) as ReadonlyRecord<K, A>,
 }

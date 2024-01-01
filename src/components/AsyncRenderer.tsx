@@ -11,7 +11,7 @@ export function AsyncRenderer<A>({ data, error, children }: Props<A>): React.Rea
     return (
       <div className="flex justify-center">
         {/* TODO: if 404, not found? */}
-        <span className="mt-4 font-mono">error.</span>
+        <span className="mt-4 font-lib-mono">error.</span>
       </div>
     )
   }

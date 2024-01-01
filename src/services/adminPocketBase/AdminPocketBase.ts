@@ -5,8 +5,9 @@ import type { RecordSubscription } from 'pocketbase'
 import { ClientResponseError } from 'pocketbase'
 import util from 'util'
 
-import { Config } from '../../Config'
 import type { GetLogger } from '../../Logger'
+import { Config } from '../../config/Config'
+import { constants } from '../../config/constants'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
 import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
@@ -59,6 +60,8 @@ async function load(
 
     const pb = MyPocketBase(config.POCKET_BASE_URL)
 
+    pb.autoCancellation(false)
+
     logger.debug('Connecting to PocketBase...')
 
     if (isDev) {
@@ -99,7 +102,7 @@ async function load(
             async apiData => {
               if (MatchApiData.isGameId(apiData)) {
                 const newApiData = await theQuestService
-                  .getMatchById(Config.constants.platform, apiData)
+                  .getMatchById(constants.platform, apiData)
                   .catch(e => {
                     logger.warn(`Failed to get match ${apiData}: ${formatError(e)}`)
                   })

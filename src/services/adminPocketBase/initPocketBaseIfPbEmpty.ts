@@ -1,8 +1,8 @@
 import type { AdminAuthResponse } from 'pocketbase'
 import { ClientResponseError } from 'pocketbase'
 
-import type { Config } from '../../Config'
 import type { Logger } from '../../Logger'
+import type { Config } from '../../config/Config'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 
 export async function initPocketBaseIfPbEmpty(

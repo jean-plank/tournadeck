@@ -15,6 +15,7 @@
     "testUnit": "yarn test --testPathPattern=.*\\.spec\\.ts",
     "dc": "depcruise src test",
     "dcGraph": "depcruise -v -T dot src -x '(node_modules|pocketbase)' | dot -T svg | depcruise-wrap-stream-in-html > dependency-graph.html",
+    "tailwindConfigViewer": "npx tailwind-config-viewer serve -p 3001",
     "ci": "yarn tsc && yarn formatCheck && yarn lint && yarn dc && yarn testUnit"
   },
   "dependencies": {

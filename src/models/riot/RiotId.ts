@@ -20,7 +20,7 @@ function construct(gameName: GameName, tagLine: TagLine): RiotId {
   return { gameName, tagLine }
 }
 
-type Sep = '#'
+type Sep = '#' | '-'
 
 // {3-16}#{3-5}
 function getRegex(sep: Sep): RegExp {

@@ -71,6 +71,7 @@ module.exports = {
       },
     ],
     'react/no-array-index-key': 'warn',
+    'react/jsx-no-target-blank': 'warn',
     'react/no-unescaped-entities': 'off',
     'react/prop-types': 'off',
     'react/self-closing-comp': ['warn', { component: true, html: true }],
