@@ -2,6 +2,7 @@ import Image from 'next/image'
 
 import { LolEloIcon } from '../../../../components/LolEloIcon'
 import { TeamRoleIcon } from '../../../../components/TeamRoleIcon'
+import { MapMarkerStar } from '../../../../components/svgs/icons'
 import { ChampionPool } from '../../../../models/ChampionPool'
 import type { AttendeeWithRiotId } from '../../../../models/attendee/AttendeeWithRiotId'
 import { TheQuestUtils } from '../../../../utils/TheQuestUtils'
@@ -13,7 +14,7 @@ type Props = {
 
 export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
   <div className="grid bg-dark-red shadow-even shadow-burgundy/50">
-    <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-6 area-1">
+    <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-2 area-1">
       <div className="h-48 bg-black">
         <Image
           src={pbFileUrl('attendees', attendee.id, attendee.avatar)}
@@ -24,15 +25,17 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
         />
       </div>
 
-      <div className="flex justify-center">
+      <div className="-mb-1 mt-0.5 flex justify-center">
         <a
           href={TheQuestUtils.summonerUrl(attendee.riotId)}
           target="_blank"
           rel="noreferrer"
-          className="flex flex-wrap items-center"
+          className="group flex flex-wrap items-center"
         >
-          <span className="font-bold text-goldenrod underline">{attendee.riotId.gameName}</span>
-          <span className="text-grey-500 underline">#{attendee.riotId.tagLine}</span>
+          <span className="font-bold text-goldenrod group-hover:underline">
+            {attendee.riotId.gameName}
+          </span>
+          <span className="text-grey-500 group-hover:underline">#{attendee.riotId.tagLine}</span>
         </a>
       </div>
 
@@ -55,9 +58,18 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
         <img
           src="/icons/pool-icon.png"
           alt="Icône piscine"
+          title="Piscine de champions"
           className="mx-2 h-6 self-end object-cover"
         />
         <span className="text-sm leading-3.5">{ChampionPool.label[attendee.championPool]}</span>
+      </div>
+
+      <div
+        title={`Lieu de naissance : ${attendee.birthplace}`}
+        className="flex max-w-full items-center gap-0.5 self-center px-3.5 pt-1.5 text-sm leading-3.5"
+      >
+        <MapMarkerStar className="h-5 shrink-0 text-white" />
+        <span className="truncate text-sm leading-3.5">{attendee.birthplace}</span>
       </div>
     </div>
 
@@ -77,7 +89,7 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
     )}
 
     {attendee.isCaptain && (
-      <div className="self-end justify-self-start bg-dark-red area-1">
+      <div title="Capitaine" className="self-end justify-self-start bg-dark-red area-1">
         <Image
           src="/icons/crown-64.png"
           alt="Icône de capitaine"

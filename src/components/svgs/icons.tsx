@@ -14,10 +14,30 @@ export const ChevronForwardFilled: SVGIcon = props => (
   </svg>
 )
 
+// https://pictogrammers.com/library/mdi/icon/city
+export const City: SVGIcon = props => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+    <path
+      fill="currentColor"
+      d="M19,15H17V13H19M19,19H17V17H19M13,7H11V5H13M13,11H11V9H13M13,15H11V13H13M13,19H11V17H13M7,11H5V9H7M7,15H5V13H7M7,19H5V17H7M15,11V5L12,2L9,5V7H3V21H21V11H15Z"
+    />
+  </svg>
+)
+
 // https://unpkg.com/ionicons@7.1.0/dist/svg/ellipse.svg
 export const EllipseFilled: SVGIcon = props => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" {...props}>
     <path d="M256 464c-114.69 0-208-93.31-208-208S141.31 48 256 48s208 93.31 208 208-93.31 208-208 208z" />
+  </svg>
+)
+
+// https://pictogrammers.com/library/mdi/icon/map-marker-star
+export const MapMarkerStar: SVGIcon = props => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+    <path
+      fill="currentColor"
+      d="M12 2C8.1 2 5 5.1 5 9C5 14.2 12 22 12 22S19 14.2 19 9C19 5.1 15.9 2 12 2M14.5 13L12 11.5L9.5 13L10.2 10.2L8 8.3L10.9 8.1L12 5.4L13.1 8L16 8.3L13.8 10.2L14.5 13Z"
+    />
   </svg>
 )
 
