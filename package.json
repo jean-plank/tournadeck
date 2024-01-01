@@ -19,6 +19,7 @@
     "ci": "yarn tsc && yarn formatCheck && yarn lint && yarn dc && yarn testUnit"
   },
   "dependencies": {
+    "@popperjs/core": "2.11.8",
     "dayjs": "1.11.10",
     "dotenv": "16.3.1",
     "fp-ts": "2.16.1",
@@ -32,6 +33,7 @@
     "pocketbase": "0.20.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-popper": "2.3.0",
     "server-cli-only": "0.2.2",
     "sharp": "0.33.1",
     "swr": "2.2.4",
