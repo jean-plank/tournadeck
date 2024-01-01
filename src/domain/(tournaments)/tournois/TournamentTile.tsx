@@ -2,7 +2,7 @@ import { Dayjs } from '../../../models/Dayjs'
 import { TournamentPhase } from '../../../models/TournamentPhase'
 import type { Tournament } from '../../../models/pocketBase/tables/Tournament'
 
-const dateTimeFormat = 'DD/MM/YYYY, hh:mm'
+const dateTimeFormat = 'DD/MM/YYYY, HH:mm'
 
 type Props = {
   tournament: Tournament

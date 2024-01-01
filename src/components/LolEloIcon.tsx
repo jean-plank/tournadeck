@@ -27,7 +27,10 @@ export const LolEloIcon: React.FC<Props> = ({ type = 'normal', elo, className })
 
     case 'flat':
       return (
-        <span className={cx('flex items-center overflow-hidden', className)}>
+        <span
+          title={LolElo.label[elo]}
+          className={cx('flex items-center overflow-hidden', className)}
+        >
           <Image
             src={miniCrestIconUrl(elo)}
             alt={`Icône ${LolElo.label[elo]}`}

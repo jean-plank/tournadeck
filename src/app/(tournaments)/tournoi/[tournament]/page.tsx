@@ -9,7 +9,7 @@ import { Dayjs } from '../../../../models/Dayjs'
 import { TournamentPhase } from '../../../../models/TournamentPhase'
 import type { TournamentId } from '../../../../models/pocketBase/tables/Tournament'
 
-const dateTimeFormat = 'dddd D MMMM YYYY, hh:mm'
+const dateTimeFormat = 'dddd D MMMM YYYY, HH:mm'
 
 type Props = {
   params: { tournament: TournamentId }

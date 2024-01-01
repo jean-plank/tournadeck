@@ -40,7 +40,10 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => (
         <LolEloIcon type="flat" elo={attendee.currentElo} className="h-10 w-10 shrink-0" />
         {attendee.comment !== '' && (
           <div className="flex h-7 items-center border-l border-goldenrod pl-1">
-            <p className="overflow-hidden whitespace-pre-wrap text-sm leading-3.5 vertical-ellipsis-2">
+            <p
+              title={attendee.comment}
+              className="overflow-hidden whitespace-pre-wrap text-sm leading-3.5 vertical-ellipsis-2"
+            >
               {attendee.comment}
             </p>
           </div>
