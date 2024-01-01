@@ -45,7 +45,7 @@ COPY --from=builder /app/pocketbase ./
 COPY --from=builder /app/podman/entrypoint.sh ./
 
 # PocketBase
-EXPOSE 8090 
+EXPOSE 8090
 
 # Next.js
 EXPOSE 3000
