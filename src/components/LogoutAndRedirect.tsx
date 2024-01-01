@@ -7,14 +7,15 @@ import { usePocketBase } from '../contexts/PocketBaseContext'
 
 type Props = {
   type?: RedirectType
+  goBack?: boolean
 }
 
-export const LogoutAndRedirect: React.FC<Props> = ({ type }) => {
+export const LogoutAndRedirect: React.FC<Props> = ({ type, goBack }) => {
   const { logoutAndRedirect } = usePocketBase()
 
   useEffect(() => {
-    logoutAndRedirect(type)
-  }, [logoutAndRedirect, type])
+    logoutAndRedirect(type, goBack)
+  }, [goBack, logoutAndRedirect, type])
 
   return null
 }

@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
 import type { ViewTournament } from '../../../../../actions/viewTournament'
 import { viewTournament } from '../../../../../actions/viewTournament'
@@ -6,6 +6,7 @@ import { SetTournament } from '../../../../../domain/(tournaments)/TournamentCon
 import { Attendees } from '../../../../../domain/(tournaments)/tournoi/[tournament]/Attendees'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import { redirectAppRoute } from '../../../../../utils/redirectAppRoute'
 
 type Props = {
   params: { tournament: TournamentId }
@@ -29,7 +30,7 @@ const TeamsLoaded: React.FC<TeamsLoadedProps> = ({ data }) => {
   const { tournament, attendees } = data
 
   if (tournament.phase === 'created') {
-    return redirect(`/tournoi/${tournament.id}/participants`)
+    return redirectAppRoute(`/tournoi/${tournament.id}/participants`)
   }
 
   return <Attendees tournament={tournament} attendees={attendees} />

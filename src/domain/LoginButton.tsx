@@ -1,6 +1,6 @@
 'use client'
 
-import { RedirectType } from 'next/navigation'
+import { RedirectType, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { Loader } from '../components/Loader'
@@ -9,6 +9,7 @@ import { DiscordLogoTitle } from '../components/svgs/DiscordLogoTitle'
 import { usePocketBase } from '../contexts/PocketBaseContext'
 
 export const LoginButton: React.FC = () => {
+  const backUrl = useSearchParams().get('back')
   const { pb, user } = usePocketBase()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -34,7 +35,7 @@ export const LoginButton: React.FC = () => {
           Connexion avec <DiscordLogoTitle className="my-3 ml-3 h-6" />
         </button>
       ) : (
-        <Redirect url="/tournois" type={RedirectType.replace} />
+        <Redirect url={backUrl !== null ? backUrl : '/tournois'} type={RedirectType.replace} />
       )}
     </div>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import type { RedirectType } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { redirectAction } from '../actions/redirectAction'
@@ -11,12 +12,14 @@ import type { User } from '../models/pocketBase/tables/User'
 type PocketBaseContext = {
   pb: MyPocketBase
   user: Optional<User>
-  logoutAndRedirect: (type?: RedirectType) => void
+  logoutAndRedirect: (type?: RedirectType, goBack?: boolean) => void
 }
 
 const PocketBaseContext = createContext<Optional<PocketBaseContext>>(undefined)
 
 export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
+  const pathname = usePathname()
+
   const [user, setUser] = useState<PocketBaseContext['user']>(undefined)
 
   const pb = useMemo((): MyPocketBase => {
@@ -36,12 +39,12 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
   }, [pb])
 
   const logoutAndRedirect = useCallback(
-    (type?: RedirectType) => {
+    (type?: RedirectType, goBack: boolean = false) => {
       pb.authStore.clear()
 
-      redirectAction('/', type)
+      redirectAction(goBack ? `/?back=${encodeURIComponent(pathname)}` : '/', type)
     },
-    [pb],
+    [pathname, pb],
   )
 
   const value: PocketBaseContext = { pb, user, logoutAndRedirect }

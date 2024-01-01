@@ -8,11 +8,12 @@ import { promiseEither } from '../utils/promiseUtils'
 
 export const withRedirectOnAuthError =
   <A,>(fa: Promise<A>) =>
-  async (f: (a: A) => JSX.Element | null): Promise<JSX.Element | null> =>
+  async <B,>(f: (a: A) => B): Promise<B | JSX.Element> =>
     pipe(
       await promiseEither(fa),
-      either.fold(e => {
-        if (e instanceof AuthError) return <LogoutAndRedirect type={RedirectType.replace} />
+      either.foldW(e => {
+        if (e instanceof AuthError)
+          return <LogoutAndRedirect type={RedirectType.replace} goBack={true} />
         throw e
       }, f),
     )
