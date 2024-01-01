@@ -1,5 +1,13 @@
 import type { SVGIcon } from './SVGIcon'
 
+export const CaretUpSharpCropped: SVGIcon = props => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 224" {...props}>
+    <g transform="translate(-64,-144)">
+      <path d="M448 368L256 144 64 368h384z" fill="currentColor" />
+    </g>
+  </svg>
+)
+
 // https://unpkg.com/ionicons@7.1.0/dist/svg/chevron-forward.svg
 export const ChevronForwardFilled: SVGIcon = props => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" {...props}>
