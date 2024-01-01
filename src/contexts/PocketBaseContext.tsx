@@ -28,6 +28,9 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
     pb.authStore.loadFromCookie(document.cookie)
 
     pb.authStore.onChange((token, model) => {
+      console.log('token =', token)
+      console.log('model =', model)
+
       setUser((model as User | null) ?? undefined)
 
       document.cookie = pb.authStore.exportToCookie({ httpOnly: false })
