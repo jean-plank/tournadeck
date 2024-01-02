@@ -68,7 +68,7 @@ describe('pbModels', () => {
           text: Puuid
           editor: string
           date: string
-          maybeDate: string
+          maybeDate: string | ''
           singleSelect: 'a' | 'b' | 'c'
           maybeSingleSelect: 'a' | 'b' | 'c' | ''
           multipleSelect: ReadonlyArray<1 | 2 | 3>
@@ -87,17 +87,17 @@ describe('pbModels', () => {
         TestBaseInput,
         {
           text: Puuid
-          editor?: string
+          editor: string
           date: Date | string
-          maybeDate?: Date | string
+          maybeDate: Date | string | ''
           singleSelect: 'a' | 'b' | 'c'
-          maybeSingleSelect?: 'a' | 'b' | 'c'
+          maybeSingleSelect: 'a' | 'b' | 'c' | ''
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId
-          maybeSingleRelation?: UserId
+          maybeSingleRelation: UserId | ''
           multipleFile: ReadonlyArray<File | Blob>
           json: { foo: 123 }
-          maybeJson?: { bar: boolean }
+          maybeJson: { bar: boolean } | null
         }
       >
     >
@@ -245,19 +245,19 @@ describe('pbModels', () => {
       IsEqual<
         TestBaseNullableInput,
         {
-          text?: Puuid
-          editor?: string
-          number?: number
-          bool?: boolean
-          email?: string
-          url?: string
-          singleSelect?: 'a' | 'b' | 'c'
-          multipleSelect?: ReadonlyArray<1 | 2 | 3>
-          singleRelation?: UserId
-          multipleRelation?: ReadonlyArray<TournamentId>
-          singleFile?: File | Blob
-          multipleFile?: ReadonlyArray<File | Blob>
-          json?: { foo: 123 }
+          text: Puuid | ''
+          editor: string
+          number: number
+          bool: boolean
+          email: string
+          url: string
+          singleSelect: 'a' | 'b' | 'c' | ''
+          multipleSelect: ReadonlyArray<1 | 2 | 3>
+          singleRelation: UserId | ''
+          multipleRelation: ReadonlyArray<TournamentId>
+          singleFile: File | Blob | ''
+          multipleFile: ReadonlyArray<File | Blob>
+          json: { foo: 123 } | null
         }
       >
     >
@@ -321,17 +321,17 @@ describe('pbModels', () => {
         TestAuthInput,
         {
           username: string
-          verified?: boolean
-          emailVisibility?: boolean
+          verified: boolean
+          emailVisibility: boolean
           email: string
 
           password: string
           passwordConfirm: string
 
           text: string
-          editor?: string
+          editor: string
           date: Date | string
-          maybeDate?: Date | string
+          maybeDate: Date | string | ''
           singleSelect: 'a' | 'b' | 'c'
           multipleSelect: ReadonlyArray<1 | 2 | 3>
           singleRelation: UserId

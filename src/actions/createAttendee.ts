@@ -55,6 +55,10 @@ export async function createAttendee(
     user: user.id,
     tournament,
     puuid: summoner.puuid,
+    team: '',
+    isCaptain: false,
+    seed: 0,
+    price: 0,
   })
 
   revalidateTag(tags.attendees.list)

@@ -1,7 +1,7 @@
 import type { File } from 'buffer'
 import type { Literal } from 'io-ts/lib/Schemable'
 import type { Newtype } from 'newtype-ts'
-import type { ConditionalKeys, Merge } from 'type-fest'
+import type { Merge } from 'type-fest'
 
 import type { TableName, Tables } from './Tables'
 
@@ -53,14 +53,8 @@ export type PbInput<A extends PbBaseModel<PbAnyId, PbAnyModel>> = A extends PbAu
   : InputBis<A>
 
 type InputBis<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Omit<
-  Merge<{ [K in RequiredKeys<A>]: A[K]['input'] }, { [K in NullableKeys<A>]?: A[K]['input'] }>,
+  { [K in keyof A]: A[K]['input'] },
   BaseModelKeys
->
-
-type RequiredKeys<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Exclude<keyof A, NullableKeys<A>>
-type NullableKeys<A extends PbBaseModel<PbAnyId, PbAnyModel>> = ConditionalKeys<
-  A,
-  { nullable: 'nullable' }
 >
 
 export type PbOutput<A extends PbBaseModel<PbAnyId, PbAnyModel>> = {
@@ -100,6 +94,11 @@ type ExpandableKeys<A extends PbBaseModel<PbAnyId, PbAnyModel>> = {
     : never
 }[keyof A]
 
+type RequiredKeys<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Exclude<keyof A, NullableKeys<A>>
+type NullableKeys<A extends PbBaseModel<PbAnyId, PbAnyModel>> = {
+  [K in keyof A]: A[K]['nullable'] extends 'nullable' ? K : never
+}[keyof A]
+
 // ---
 
 type PbField<Tag, I, O, N extends NullReq> = {
@@ -124,18 +123,18 @@ type IdField<Id extends PbAnyId> = PbField<'Id', Id, Id, 'required'>
 export type TextField<
   A extends string | Newtype<unknown, string> = string,
   N extends NullReq = 'required',
-> = PbField<'Text', A, N extends 'nullable' ? A | '' : A, N>
+> = PbField<'Text', N extends 'nullable' ? A | '' : A, N extends 'nullable' ? A | '' : A, N>
 
 export type EditorField<N extends NullReq = 'required'> = PbField<
   'Editor',
-  string,
+  N extends 'nullable' ? string | '' : string,
   N extends 'nullable' ? string | '' : string,
   N
 >
 
 export type NumberField<N extends NullReq = 'required'> = PbField<
   'Number',
-  number,
+  N extends 'nullable' ? number | 0 : number,
   N extends 'nullable' ? number | 0 : number,
   N
 >
@@ -149,7 +148,7 @@ export type BoolField<N extends NullReq = 'required'> = N extends 'nullable'
 
 export type EmailField<N extends NullReq = 'required'> = PbField<
   'Email',
-  string,
+  N extends 'nullable' ? string | '' : string,
   N extends 'nullable' ? string | '' : string,
   N
 >
@@ -157,20 +156,20 @@ export type EmailField<N extends NullReq = 'required'> = PbField<
 export type UrlField<N extends NullReq = 'required'> = PbField<
   'Url',
   N extends 'nullable' ? string | '' : string,
-  string,
+  N extends 'nullable' ? string | '' : string,
   N
 >
 
 export type DateField<N extends NullReq = 'required'> = PbField<
   'Date',
-  Date | string,
+  N extends 'nullable' ? Date | string | '' : Date | string,
   N extends 'nullable' ? string | '' : string,
   N
 >
 
 export type SingleSelectField<A extends Literal, N extends NullReq = 'required'> = PbField<
   'SingleSelect',
-  A,
+  N extends 'nullable' ? A | '' : A,
   N extends 'nullable' ? A | '' : A,
   N
 >
@@ -185,7 +184,7 @@ export type MultipleSelectField<A extends Literal, N extends NullReq = 'required
 export type SingleRelationField<Name extends TableName, N extends NullReq = 'required'> = Merge<
   PbField<
     'SingleRelation',
-    Tables[Name]['id']['input'],
+    N extends 'nullable' ? Tables[Name]['id']['input'] | '' : Tables[Name]['id']['input'],
     N extends 'nullable' ? Tables[Name]['id']['output'] | '' : Tables[Name]['id']['output'],
     N
   >,
@@ -208,7 +207,7 @@ export type MultipleRelationField<Name extends TableName, N extends NullReq = 'r
 
 export type SingleFileField<N extends NullReq = 'required'> = PbField<
   'SingleFile',
-  File | Blob,
+  N extends 'nullable' ? File | Blob | '' : File | Blob,
   N extends 'nullable' ? string | '' : string,
   N
 >
@@ -222,7 +221,7 @@ export type MultipleFileField<N extends NullReq = 'required'> = PbField<
 
 export type JsonField<A extends PbJson, N extends NullReq = 'required', O = A> = PbField<
   'Json',
-  A,
+  N extends 'nullable' ? A | null : A,
   N extends 'nullable' ? O | null : O,
   N
 >
