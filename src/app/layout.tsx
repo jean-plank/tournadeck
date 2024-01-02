@@ -93,7 +93,7 @@ const RootLayout: ChildrenFC = async ({ children }) => {
         )}
       >
         <PocketBaseContextProvider>
-          <div className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-dark to-slate">
+          <div className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-950 to-slate-900">
             {children}
           </div>
         </PocketBaseContextProvider>
