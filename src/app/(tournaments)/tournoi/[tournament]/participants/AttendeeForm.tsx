@@ -100,7 +100,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
 
       createAttendee(tournament, formData)
         .then(onSubscribeOk)
-        .catch(() => setSubmitError('Erreur serveur — le nom d’invocateur est-il correct ?'))
+        .catch(() => setSubmitError('Erreur serveur — le Riot ID est-il correct ?'))
     }
   }, [inputs, onSubscribeOk, tournament])
 
