@@ -73,7 +73,7 @@ export type PbExpand<
 > = Merge<
   PbOutput<A>,
   {
-    expand: Merge<
+    expand?: Merge<
       {
         // required
         [K_ in K]: ExpandField<A, K_>

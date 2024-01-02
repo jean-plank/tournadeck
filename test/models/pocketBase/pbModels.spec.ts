@@ -381,7 +381,7 @@ describe('pbModels', () => {
           multipleRelation: ReadonlyArray<TournamentId>
           maybeMultipleRelation: ReadonlyArray<TournamentId>
 
-          expand: {
+          expand?: {
             singleRelation: User
             maybeSingleRelation?: User
             multipleRelation: ReadonlyArray<Tournament>
