@@ -1,6 +1,5 @@
 import type { OverrideProperties } from 'type-fest'
 
-import type { MatchRoundOutput } from '../../../match/MatchRound'
 import type { TheQuestMatch } from '../../../theQuest/TheQuestMatch'
 import type {
   DateField,
@@ -13,6 +12,7 @@ import type {
 } from '../../pbModels'
 import type { MatchApiDatasOutput } from './MatchApiDatas'
 import type { MatchId } from './MatchId'
+import type { MatchRound } from './MatchRound'
 
 export type Match = PbOutput<PbMatch>
 export type MatchInput = PbInput<PbMatch>
@@ -21,7 +21,7 @@ export type PbMatch = PbBaseModel<
   MatchId,
   {
     tournament: SingleRelationField<'tournaments'>
-    round: JsonField<MatchRoundOutput>
+    round: JsonField<MatchRound>
     bestOf: NumberField
     team1: SingleRelationField<'teams', 'nullable'>
     team2: SingleRelationField<'teams', 'nullable'>
