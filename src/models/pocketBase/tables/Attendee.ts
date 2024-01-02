@@ -29,6 +29,7 @@ export type PbAttendee = PbBaseModel<
     puuid: TextField<Puuid>
     currentElo: SingleSelectField<LolElo>
     comment: TextField<string, 'nullable'>
+    team: SingleRelationField<'teams', 'nullable'>
     role: SingleSelectField<TeamRole>
     championPool: SingleSelectField<ChampionPool>
     birthplace: TextField
