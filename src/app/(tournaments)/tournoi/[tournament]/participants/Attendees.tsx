@@ -46,10 +46,13 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
     user !== undefined &&
     attendees.find(a => a.user === user.id) !== undefined
 
-  const grouped = pipe(
+  const grouped: Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>> = pipe(
     attendees,
     array.groupBy(a => a.role),
-    partialRecord.map(readonlyArray.sort(bySeed)),
+  )
+  const groupedAndSorted = pipe(
+    grouped,
+    partialRecord.map(as => (as !== undefined ? pipe(as, readonlyArray.sort(bySeed)) : undefined)),
   )
 
   return (
@@ -101,10 +104,10 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
               <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
                 <TeamRoleIcon role={role} className="h-12 w-12" />
                 <span>
-                  {grouped[role]?.length ?? 0}/{tournament.teamsCount}
+                  {groupedAndSorted[role]?.length ?? 0}/{tournament.teamsCount}
                 </span>
               </div>
-              {grouped[role]?.map(p => <AttendeeTile key={p.id} attendee={p} />)}
+              {groupedAndSorted[role]?.map(p => <AttendeeTile key={p.id} attendee={p} />)}
             </div>
           ))}
         </div>
