@@ -50,7 +50,7 @@ export const Tooltip: React.FC<Props> = ({
   const hoverRefs_ = isArray(hoverRef_) ? hoverRef_ : readonlyNonEmptyArray.of(hoverRef_)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const hoverRefs = useMemo(() => hoverRefs_, hoverRefs_)
-  const placementRef_ = maybePlacementRef ?? readonlyNonEmptyArray.head(hoverRefs)
+  const placementRef_ = maybePlacementRef ?? hoverRefs[0]
 
   const [shouldDisplay_, setShouldDisplay_] = useState(false)
   const tooltipRef = useRef<HTMLDivElement>(null)
