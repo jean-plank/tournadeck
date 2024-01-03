@@ -27,7 +27,7 @@ export const GameTeam: React.FC<GameTeamProps> = ({ team, victoryCount, members,
         ref={hoverRef}
         className="flex grow flex-wrap items-center gap-1.5 group-even:flex-row-reverse"
       >
-        <span ref={placementRef} className="font-lib-mono text-sm font-semibold text-yellow-500">
+        <span ref={placementRef} className="font-lib-mono text-sm font-semibold text-wheat">
           {team.tag}
         </span>
         <span className="group-even:text-end">{team.name}</span>
@@ -56,7 +56,7 @@ export const GameTeam: React.FC<GameTeamProps> = ({ team, victoryCount, members,
         </ul>
       </Tooltip>
 
-      <span className={cx('font-medium', isWinner ? 'text-goldenrod' : 'text-blue-200')}>
+      <span className={cx('font-medium', isWinner ? 'text-yellow-500' : 'text-sky-300')}>
         {victoryCount}
       </span>
     </>
