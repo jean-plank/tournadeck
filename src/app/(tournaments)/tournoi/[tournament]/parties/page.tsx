@@ -203,7 +203,7 @@ type GameProps = {
   match: MatchApiDataDecoded
 }
 
-export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
+const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
   const { winner, plannedOn } = match
 
   const { team1, team2, withTeam1 } = useMemo((): {
