@@ -25,7 +25,9 @@ import type {
 import { cx } from '../../../../../utils/cx'
 import { array, objectEntries, partialRecord } from '../../../../../utils/fpTsUtils'
 import { SetTournament } from '../../../TournamentContext'
+import { GameDuration } from './GameDuration'
 import { GameTeam } from './GameTeam'
+import { GoldDiff } from './GoldDiff'
 import { PlannedOn } from './PlannedOn'
 
 type Props = {
@@ -316,12 +318,15 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
                 )}
               >
                 {formatKda(blueIsLeft ? t1Stats : t2Stats)}
-                {leftWon &&
-                  formatGolds(
-                    blueWon
-                      ? t1Stats.goldEarned - t2Stats.goldEarned
-                      : t2Stats.goldEarned - t1Stats.goldEarned,
-                  )}
+                {leftWon && (
+                  <GoldDiff
+                    goldDiff={
+                      blueWon
+                        ? t1Stats.goldEarned - t2Stats.goldEarned
+                        : t2Stats.goldEarned - t1Stats.goldEarned
+                    }
+                  />
+                )}
               </span>
 
               <div
@@ -339,13 +344,13 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
                     secondaryClassName="text-slate-900"
                   />
                 </div>
-                <span className="py-1 text-base">
+                <GameDuration>
                   {d.match.gameDuration.format(
                     ord.lt(DayjsDuration.Ord)(d.match.gameDuration, DayjsDuration({ hours: 1 }))
                       ? 'mm:ss'
                       : 'HH:mm:ss',
                   )}
-                </span>
+                </GameDuration>
                 <span className="w-4" />
               </div>
 
@@ -356,11 +361,13 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
                 )}
               >
                 {!leftWon ? (
-                  formatGolds(
-                    blueIsLeft
-                      ? t2Stats.goldEarned - t1Stats.goldEarned
-                      : t1Stats.goldEarned - t2Stats.goldEarned,
-                  )
+                  <GoldDiff
+                    goldDiff={
+                      blueIsLeft
+                        ? t2Stats.goldEarned - t1Stats.goldEarned
+                        : t1Stats.goldEarned - t2Stats.goldEarned
+                    }
+                  />
                 ) : (
                   <span />
                 )}
@@ -424,15 +431,6 @@ function formatKda({ kills, deaths, assists }: TeamStats): React.ReactElement {
   return (
     <span>
       {kills} / {deaths} / {assists}
-    </span>
-  )
-}
-
-function formatGolds(goldDiff: number): React.ReactElement {
-  return (
-    <span className="font-semibold text-goldenrod">
-      {0 <= goldDiff && '+'}
-      {Math.round(goldDiff / 100) / 10} k
     </span>
   )
 }
