@@ -15,7 +15,7 @@ export const GoldDiff: React.FC<Props> = ({ goldDiff }) => {
     <>
       <span ref={ref} className="font-semibold text-goldenrod">
         {0 <= goldDiff && '+'}
-        {Math.round(goldDiff / 100) / 10} k
+        {(Math.round(goldDiff / 100) / 10).toLocaleString('fr-FR')} k
       </span>
       <Tooltip hoverRef={ref}>Écart aux golds</Tooltip>
     </>
