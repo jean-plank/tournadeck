@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
+import { startupLoad } from '../actions/startupLoad'
 import { TooltipLayer } from '../components/tooltip/Tooltip'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
 import type { ChildrenFC } from '../models/ChildrenFC'
@@ -73,25 +74,32 @@ export const metadata: Metadata = {
   title: 'Tournadeck',
 }
 
-const RootLayout: ChildrenFC = ({ children }) => (
-  <html lang="fr">
-    <body
-      className={cx(
-        baloo2.variable,
-        liberationMono.variable,
-        friz.variable,
-        'h-screen w-screen overflow-hidden font-baloo text-wheat',
-      )}
-    >
-      <PocketBaseContextProvider>
-        <div className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-dark to-slate">
-          {children}
-        </div>
-      </PocketBaseContextProvider>
+const RootLayout: ChildrenFC = async ({ children }) => {
+  if (process.env.NODE_ENV === 'development') {
+    // import to trigger all effectful startup actions
+    await startupLoad()
+  }
 
-      <TooltipLayer />
-    </body>
-  </html>
-)
+  return (
+    <html lang="fr">
+      <body
+        className={cx(
+          baloo2.variable,
+          liberationMono.variable,
+          friz.variable,
+          'h-screen w-screen overflow-hidden font-baloo text-wheat',
+        )}
+      >
+        <PocketBaseContextProvider>
+          <div className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-950 to-slate-900">
+            {children}
+          </div>
+        </PocketBaseContextProvider>
+
+        <TooltipLayer />
+      </body>
+    </html>
+  )
+}
 
 export default RootLayout

@@ -10,9 +10,9 @@ type ReactPopperReturnType = ReturnType<typeof usePopper>
  */
 export function useVisiblePopper(
   isVisible: boolean,
-  referenceElement: ReactPopperParams[0] | undefined,
-  popperElement: ReactPopperParams[1] | undefined,
-  options: ReactPopperParams[2] | undefined,
+  referenceElement: Optional<ReactPopperParams[0]>,
+  popperElement: Optional<ReactPopperParams[1]>,
+  options: Optional<ReactPopperParams[2]>,
 ): ReactPopperReturnType {
   const result = usePopper(referenceElement, popperElement, options)
   const { update } = result

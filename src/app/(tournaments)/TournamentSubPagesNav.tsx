@@ -5,7 +5,7 @@ import { cx } from '../../utils/cx'
 
 type TournamentSubPage = (typeof values)[number]
 
-const values = ['participants', 'equipes', 'champions'] as const
+const values = ['participants', 'equipes', 'champions', 'parties'] as const
 
 const TournamentSubPage = { values }
 
@@ -44,6 +44,15 @@ export const TournamentSubPagesNav: React.FC<Props> = ({ tournament, subPage, li
       className={cx(['underline', subPage === 'champions'], linkClassName)}
     >
       Champions
+    </Link>
+
+    <span>·</span>
+
+    <Link
+      href={`/tournoi/${tournament.id}/parties`}
+      className={cx(['underline', subPage === 'parties'], linkClassName)}
+    >
+      Parties
     </Link>
   </>
 )

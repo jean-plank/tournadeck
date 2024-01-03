@@ -1,3 +1,5 @@
+import { eq, string } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import type { Newtype } from 'newtype-ts'
 import { iso } from 'newtype-ts'
 
@@ -20,6 +22,8 @@ type TeamId = Newtype<{ readonly TeamId: unique symbol }, string>
 
 const { wrap, unwrap } = iso<TeamId>()
 
-const TeamId = immutableAssign(wrap, { unwrap })
+const Eq: eq.Eq<TeamId> = pipe(string.Eq, eq.contramap(unwrap))
+
+const TeamId = immutableAssign(wrap, { unwrap, Eq })
 
 export { TeamId }

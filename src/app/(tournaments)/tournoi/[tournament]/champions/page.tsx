@@ -8,8 +8,8 @@ import { viewTournament } from '../../../../../actions/viewTournament'
 import { CroppedChampionSquare } from '../../../../../components/CroppedChampionSquare'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
 import { ChampionId } from '../../../../../models/riot/ChampionId'
-import type { MatchDecoded } from '../../../../../models/riot/MatchDecoded'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
 import { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { objectValues } from '../../../../../utils/fpTsUtils'
@@ -76,6 +76,8 @@ export default Champions
 type GetTournament = Merge<ViewTournament, PartionedChampions>
 
 async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTournament>> {
+  'use server'
+
   const data = await viewTournament(tournamentId)
 
   if (data === undefined) return undefined
@@ -94,11 +96,13 @@ type PartionedChampions = {
 
 function partionChampions(
   champions: ReadonlyArray<StaticDataChampion>,
-  matches: ReadonlyArray<MatchDecoded>,
+  matches: ReadonlyArray<MatchApiDataDecoded>,
 ): PartionedChampions {
   const playedChampions = pipe(
     matches,
-    readonlyArray.flatMap(m => (m.apiData !== null ? matchChampions(m.apiData) : [])),
+    readonlyArray.flatMap(match =>
+      match.apiData.flatMap(d => (d !== undefined ? matchChampions(d) : [])),
+    ),
   )
 
   const { right: alreadyPlayed, left: stillAvailable } = pipe(

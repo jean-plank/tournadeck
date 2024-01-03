@@ -15,7 +15,7 @@ import { immutableAssign } from '../../utils/fpTsUtils'
 import type { Branded } from '../Branded'
 import { brand } from '../Branded'
 import type { TableName, Tables } from './Tables'
-import type { PbBaseModel, PbInput, PbOutput, PbUnknownId, PbUnknownModel } from './pbModels'
+import type { PbAnyId, PbAnyModel, PbBaseModel, PbInput, PbOutput } from './pbModels'
 
 type MyPocketBase_ = OverrideProperties<
   PocketBase,
@@ -24,7 +24,7 @@ type MyPocketBase_ = OverrideProperties<
   }
 >
 
-type MyRecordService<A extends PbBaseModel<PbUnknownId, PbUnknownModel>> = OverrideProperties<
+type MyRecordService<A extends PbBaseModel<PbAnyId, PbAnyModel>> = OverrideProperties<
   RecordService<PbOutput<A>>,
   {
     getFullList: {
@@ -77,7 +77,7 @@ type Tag = { readonly MyPocketBase: unique symbol }
 type MyPocketBase = Branded<Tag, MyPocketBase_>
 
 const MyPocketBase = immutableAssign(
-  (baseUrl: string | undefined, authStore?: BaseAuthStore | null, lang?: string): MyPocketBase =>
+  (baseUrl: Optional<string>, authStore?: BaseAuthStore | null, lang?: string): MyPocketBase =>
     brand<Tag>()(new PocketBase(baseUrl, authStore, lang) as MyPocketBase_),
   {
     statusesToUndefined:

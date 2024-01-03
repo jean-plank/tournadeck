@@ -1,19 +1,22 @@
-import { random } from 'fp-ts'
+import { random, readonlyArray, task } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 
 import type { Logger } from '../../Logger'
+import { genTournamentMatches } from '../../helpers/genTournamentMatches'
 import { ChampionPool } from '../../models/ChampionPool'
 import { Dayjs } from '../../models/Dayjs'
 import { LolElo } from '../../models/LolElo'
 import { TeamRole } from '../../models/TeamRole'
 import type { TournamentPhase } from '../../models/TournamentPhase'
-import { LoserOf, WinnerOf } from '../../models/WinnerOrLoserOf'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { TableName } from '../../models/pocketBase/Tables'
 import type { AttendeeInput } from '../../models/pocketBase/tables/Attendee'
+import { TeamId } from '../../models/pocketBase/tables/Team'
 import type { TournamentId, TournamentInput } from '../../models/pocketBase/tables/Tournament'
 import type { UserId, UserInput } from '../../models/pocketBase/tables/User'
 import { GameId } from '../../models/riot/GameId'
 import { Puuid } from '../../models/riot/Puuid'
+import { isDefined } from '../../utils/fpTsUtils'
 
 export async function applyFixturesIfDbIsEmpty(logger: Logger, pb: MyPocketBase): Promise<void> {
   const isEmpty = await isDbEmpty(pb)
@@ -65,6 +68,48 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
 
   await pb.collection('tournaments').create(genTournament('created', 'L’anniversaire de Chloé', 4))
 
+  // teams
+
+  const teams = [
+    await pb.collection('teams').create({
+      tournament: tournament1.id,
+      name: 'Les Shaclones',
+      tag: 'SHA',
+    }),
+
+    await pb.collection('teams').create({
+      tournament: tournament1.id,
+      name: 'Calmos',
+      tag: 'CAL',
+    }),
+
+    await pb.collection('teams').create({
+      tournament: tournament1.id,
+      name: 'La Sieste',
+      tag: 'LAS',
+    }),
+
+    await pb.collection('teams').create({
+      tournament: tournament1.id,
+      name: 'Adedigado',
+      tag: 'ADE',
+    }),
+
+    await pb.collection('teams').create({
+      tournament: tournament1.id,
+      name: 'SKT T1',
+      tag: 'T1',
+    }),
+
+    await pb.collection('teams').create({
+      tournament: tournament1.id,
+      name: 'C T SUR ENFAIT',
+      tag: 'CTS',
+    }),
+  ] as const
+
+  const [, team2] = teams
+
   // attendees
 
   await pb.collection('attendees').create(
@@ -72,7 +117,8 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
       jenaprank.id,
       tournament1.id,
       Puuid('8_scoVR3JLkqmPY__ov4uQ78ZEon7gi2B_XOtJW5gXX5BnSWM0EUv8scgsyPF5k116Mj9ZD084kceA'), // jeanprank
-      true,
+      team2.id,
+      'top',
     ),
   )
 
@@ -81,6 +127,9 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
       lambertj.id,
       tournament1.id,
       Puuid('e5ZZiNvlwntsAMB4cqgWcRiuOCxd1G5W3iG2mRkSdkRg24UeA8Zm-23psi7pdED8qxyXv_k1ak9IKA'), // grim
+      team2.id,
+      'jun',
+      true,
     ),
   )
 
@@ -89,6 +138,8 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
       adedigado.id,
       tournament1.id,
       Puuid('oZst1CMmHY3E_j3JluDlsSzCVgLNkOqjFd73nQN5GJfjLzHoU17aocL2JDE787QSWXhWfXNYiUn1Sw'), // styrale
+      team2.id,
+      'mid',
     ),
   )
 
@@ -99,6 +150,8 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
         tintin.id,
         tournament1.id,
         Puuid('YQLXLM9etyh_B74QjvlW6nWNsmvChJP2uig3llCtratiq2sruuX9pH8c0RVoO7j_xVaE_A0JRlKnRQ'),
+        team2.id,
+        'bot',
       ),
     )
 
@@ -109,6 +162,8 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
         captain.id,
         tournament1.id,
         Puuid('Va3-hdGynMB4FMVbmT8N01DBue2OehklvdUYK-jJfRAfpnuoE4zgZy-0B82HgRU-pyF6YOgg653oGQ'),
+        team2.id,
+        'sup',
       ),
     )
   await pb
@@ -130,77 +185,40 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
       ),
     )
 
-  // teams
-
-  const team1 = await pb.collection('teams').create({
-    tournament: tournament1.id,
-    name: 'Les Shaclones',
-    tag: 'SHA',
-  })
-
-  const team2 = await pb.collection('teams').create({
-    tournament: tournament1.id,
-    name: 'Calmos',
-    tag: 'CAL',
-  })
-
-  const team3 = await pb.collection('teams').create({
-    tournament: tournament1.id,
-    name: 'La Sieste',
-    tag: 'LAS',
-  })
-
   // matches
 
-  /* const match1 = */ await pb.collection('matches').create({
-    tournament: tournament1.id,
-    team1ResultsFrom: undefined,
-    team1: team1.id,
-    team2ResultsFrom: undefined,
-    team2: team2.id,
-    plannedOn: tournament1.start,
-    apiData: GameId(6724906455),
-  })
+  const matches = genTournamentMatches(tournament1.id, teams)
 
-  const match2 = await pb.collection('matches').create({
-    tournament: tournament1.id,
-    team1ResultsFrom: undefined,
-    team1: team1.id,
-    team2ResultsFrom: undefined,
-    team2: team3.id,
-    plannedOn: Dayjs(tournament1.start).add(2, 'hours').toDate(),
-    apiData: GameId(6725087844),
-  })
+  let incr = 0
 
-  const match3 = await pb.collection('matches').create({
-    tournament: tournament1.id,
-    team1ResultsFrom: undefined,
-    team1: team2.id,
-    team2ResultsFrom: undefined,
-    team2: team3.id,
-    plannedOn: Dayjs(tournament1.start).add(4, 'hours').toDate(),
-    apiData: undefined,
-  })
+  if (matches !== undefined) {
+    await pipe(
+      matches,
+      readonlyArray.traverse(task.ApplicativeSeq)(
+        match => () =>
+          pb.collection('matches').create({
+            ...match,
+            apiData: (() => {
+              if (match.round.type === 'GroupRound') {
+                const teamIds = [
+                  match.team1 !== '' ? match.team1 : undefined,
+                  match.team2 !== '' ? match.team2 : undefined,
+                ].filter(isDefined)
 
-  await pb.collection('matches').create({
-    tournament: tournament1.id,
-    team1ResultsFrom: WinnerOf(match2.id),
-    team1: match2.team2 === '' ? undefined : match2.team2,
-    team2ResultsFrom: WinnerOf(match3.id),
-    team2: undefined,
-    plannedOn: Dayjs(tournament1.start).add(6, 'hours').toDate(),
-    apiData: undefined,
-  })
+                if (readonlyArray.elem(TeamId.Eq)(team2.id, teamIds)) {
+                  incr++
 
-  await pb.collection('matches').create({
-    tournament: tournament1.id,
-    team1ResultsFrom: LoserOf(match2.id),
-    team1: match2.team1 === '' ? undefined : match2.team1,
-    team2ResultsFrom: LoserOf(match3.id),
-    team2: undefined,
-    plannedOn: Dayjs(tournament1.start).add(8, 'hours').toDate(),
-    apiData: undefined,
-  })
+                  if (incr === 1) return [GameId(6747028433)]
+                  if (incr === 2) return [GameId(6748352383)]
+                }
+              }
+
+              return match.apiData
+            })(),
+          }),
+      ),
+    )()
+  }
 }
 
 // User
@@ -226,7 +244,7 @@ function genTournament(
   phase: TournamentPhase,
   name: string,
   weeksFromNow: number,
-  isVisible?: boolean,
+  isVisible: boolean = false,
 ): TournamentInput {
   const saturdayZero = Dayjs.now().add(weeksFromNow, 'weeks').startOf('week').set('day', 6)
 
@@ -249,7 +267,9 @@ async function genAttendee(
   user: UserId,
   tournament: TournamentId,
   puuid: Puuid,
-  isCaptain?: boolean,
+  team: '' | TeamId = '',
+  role: Optional<TeamRole> = undefined,
+  isCaptain: boolean = false,
 ): Promise<AttendeeInput> {
   const avatar = await dlImage(`https://blbl.ch/img/${random.randomElem(images)()}`)
 
@@ -259,13 +279,14 @@ async function genAttendee(
     puuid,
     currentElo: random.randomElem(LolElo.values)(),
     comment: Math.random() < 0.5 ? '' : random.randomElem(comments)(),
-    role: random.randomElem(TeamRole.values)(),
+    team,
+    role: role ?? random.randomElem(TeamRole.values)(),
     championPool: random.randomElem(ChampionPool.values)(),
     birthplace: random.randomElem(places)(),
     avatar,
     isCaptain,
-    seed: Math.random() < 0.5 ? undefined : random.randomInt(1, 5)(),
-    price: Math.random() < 0.5 ? undefined : random.randomInt(1, 100)(),
+    seed: Math.random() < 0.5 ? 0 : random.randomInt(1, 5)(),
+    price: Math.random() < 0.5 ? 0 : random.randomInt(1, 100)(),
   }
 }
 

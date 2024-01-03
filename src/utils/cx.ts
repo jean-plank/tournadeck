@@ -4,7 +4,7 @@ import { pipe } from 'fp-ts/function'
 
 export function cx(
   ...c: ReadonlyArray<Optional<string> | readonly [Optional<string>, boolean]>
-): string | undefined {
+): Optional<string> {
   return pipe(
     c,
     readonlyArray.filterMap((arg): Option<string> => {

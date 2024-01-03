@@ -8,7 +8,6 @@ import type { TeamRole } from '../../TeamRole'
 import type { Puuid } from '../../riot/Puuid'
 import type {
   BoolField,
-  NullableField,
   NumberField,
   PbBaseModel,
   PbInput,
@@ -29,14 +28,15 @@ export type PbAttendee = PbBaseModel<
     tournament: SingleRelationField<'tournaments'>
     puuid: TextField<Puuid>
     currentElo: SingleSelectField<LolElo>
-    comment: NullableField<TextField>
+    comment: TextField<string, 'nullable'>
+    team: SingleRelationField<'teams', 'nullable'>
     role: SingleSelectField<TeamRole>
     championPool: SingleSelectField<ChampionPool>
     birthplace: TextField
     avatar: SingleFileField
-    isCaptain: NullableField<BoolField>
-    seed: NullableField<NumberField>
-    price: NullableField<NumberField>
+    isCaptain: BoolField<'nullable'>
+    seed: NumberField<'nullable'>
+    price: NumberField<'nullable'>
   }
 >
 

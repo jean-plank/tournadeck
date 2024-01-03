@@ -6,6 +6,8 @@ import durationPlugin from 'dayjs/plugin/duration'
 import relativeTimePlugin from 'dayjs/plugin/relativeTime'
 import timezonePlugin from 'dayjs/plugin/timezone'
 import utcPlugin from 'dayjs/plugin/utc'
+import { number, ord } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 
 import { immutableAssign } from '../utils/fpTsUtils'
 
@@ -51,7 +53,12 @@ export { Dayjs }
 
 type DayjsDuration = Duration
 
-const DayjsDuration = dayjs.duration
+const durationOrd = pipe(
+  number.Ord,
+  ord.contramap((b: DayjsDuration) => b.asMilliseconds()),
+)
+
+const DayjsDuration = immutableAssign(dayjs.duration, { Ord: durationOrd })
 
 export { DayjsDuration }
 

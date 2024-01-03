@@ -6,7 +6,6 @@ import type { TournamentPhase } from '../../TournamentPhase'
 import type {
   BoolField,
   DateField,
-  NullableField,
   NumberField,
   PbBaseModel,
   PbInput,
@@ -25,8 +24,8 @@ export type PbTournament = PbBaseModel<
     name: TextField
     start: DateField
     end: DateField
-    teamsCount: NullableField<NumberField>
-    isVisible: NullableField<BoolField>
+    teamsCount: NumberField<'nullable'>
+    isVisible: BoolField<'nullable'>
   }
 >
 
