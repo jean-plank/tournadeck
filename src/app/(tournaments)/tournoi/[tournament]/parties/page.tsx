@@ -26,6 +26,7 @@ import { cx } from '../../../../../utils/cx'
 import { array, objectEntries, partialRecord } from '../../../../../utils/fpTsUtils'
 import { SetTournament } from '../../../TournamentContext'
 import { GameDuration } from './GameDuration'
+import type { EnrichedTeam } from './GameTeam'
 import { GameTeam } from './GameTeam'
 import { GoldDiff } from './GoldDiff'
 import { PlannedOn } from './PlannedOn'
@@ -202,50 +203,46 @@ type GameProps = {
   match: MatchApiDataDecoded
 }
 
-type TeamWithMembers = {
-  team: Team
-  members: ReadonlyArray<AttendeeWithRiotId>
-}
-
-type MatchWithTeam1 = {
-  match: TheQuestMatch
-  team1: Optional<RiotTeamId>
-}
-
 export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
   const { winner, plannedOn } = match
 
-  const { team1, team2, withTeam1 } = useMemo(() => {
+  const { team1, team2, withTeam1 } = useMemo((): {
+    team1: Optional<EnrichedTeam>
+    team2: Optional<EnrichedTeam>
+    withTeam1: ReadonlyArray<Optional<MatchWithTeam1>>
+  } => {
     const { bestOf, team1: team1Id, team2: team2Id, apiData } = match
 
-    const team1_ = getTeamWithMembers(teams, attendees, team1Id)
+    const team1WithMembers = getTeamWithMembers(teams, attendees, team1Id)
+    const team2WithMembers = getTeamWithMembers(teams, attendees, team2Id)
+
+    const withTeam1_ = pipe(
+      Array.from({ length: Math.max(bestOf, apiData.length) }),
+      readonlyArray.mapWithIndex((i): Optional<MatchWithTeam1> => {
+        const match_ = apiData[i]
+
+        if (match_ === undefined) return undefined
+
+        return {
+          match: match_,
+          team1:
+            team1WithMembers !== undefined
+              ? findTeam1(
+                  match_,
+                  pipe(
+                    team1WithMembers.members,
+                    readonlyArray.map(a => a.puuid),
+                  ),
+                )
+              : undefined,
+        }
+      }),
+    )
 
     return {
-      team1: team1_,
-      team2: getTeamWithMembers(teams, attendees, team2Id),
-
-      withTeam1: pipe(
-        Array.from({ length: Math.max(bestOf, apiData.length) }),
-        readonlyArray.mapWithIndex((i): Optional<MatchWithTeam1> => {
-          const match_ = apiData[i]
-
-          if (match_ === undefined) return undefined
-
-          return {
-            match: match_,
-            team1:
-              team1_ !== undefined
-                ? findTeam1(
-                    match_,
-                    pipe(
-                      team1_.members,
-                      readonlyArray.map(a => a.puuid),
-                    ),
-                  )
-                : undefined,
-          }
-        }),
-      ),
+      team1: enrichTeam(team1WithMembers, withTeam1_, true),
+      team2: enrichTeam(team2WithMembers, withTeam1_, false),
+      withTeam1: withTeam1_,
     }
   }, [attendees, match, teams])
 
@@ -255,8 +252,9 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
 
       <div className="flex flex-col gap-0.5 overflow-hidden">
         <div className="grid grid-cols-2 gap-0.5">
-          {[team1, team2].map((t, i) => {
-            const isWinner = t !== undefined && winner !== '' && TeamId.Eq.equals(t.team.id, winner)
+          {[team1, team2].map((team, i) => {
+            const isWinner =
+              team !== undefined && winner !== '' && TeamId.Eq.equals(team.id, winner)
 
             return (
               <div
@@ -269,13 +267,8 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
                     : 'odd:border-l-zinc-700 even:border-r-zinc-700',
                 )}
               >
-                {t !== undefined ? (
-                  <GameTeam
-                    team={t.team}
-                    members={t.members}
-                    victoryCount={0} // TODO
-                    isWinner={isWinner}
-                  />
+                {team !== undefined ? (
+                  <GameTeam team={team} isWinner={isWinner} />
                 ) : (
                   <span className="text-white/50">-</span>
                 )}
@@ -295,12 +288,11 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
             )
           }
 
-          const blueIsLeft = d.team1 === 100
-          const leftWon = blueIsLeft ? d.match.win === 100 : d.match.win === 200
+          const { blueIsLeft, leftWon } = MatchWithTeam1.predicates(d)
           const blueWon = d.match.win === 100
 
-          const t1Stats = teamStats(d.match.teams[100]?.participants ?? [])
-          const t2Stats = teamStats(d.match.teams[200]?.participants ?? [])
+          const t100Stats = teamStats(d.match.teams[100]?.participants ?? [])
+          const t200Stats = teamStats(d.match.teams[200]?.participants ?? [])
 
           return (
             <a
@@ -317,13 +309,13 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
                   blueIsLeft ? 'bg-match-blue' : 'bg-match-red',
                 )}
               >
-                {formatKda(blueIsLeft ? t1Stats : t2Stats)}
+                {formatKda(blueIsLeft ? t100Stats : t200Stats)}
                 {leftWon && (
                   <GoldDiff
                     goldDiff={
                       blueWon
-                        ? t1Stats.goldEarned - t2Stats.goldEarned
-                        : t2Stats.goldEarned - t1Stats.goldEarned
+                        ? t100Stats.goldEarned - t200Stats.goldEarned
+                        : t200Stats.goldEarned - t100Stats.goldEarned
                     }
                   />
                 )}
@@ -364,14 +356,14 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
                   <GoldDiff
                     goldDiff={
                       blueIsLeft
-                        ? t2Stats.goldEarned - t1Stats.goldEarned
-                        : t1Stats.goldEarned - t2Stats.goldEarned
+                        ? t200Stats.goldEarned - t100Stats.goldEarned
+                        : t100Stats.goldEarned - t200Stats.goldEarned
                     }
                   />
                 ) : (
                   <span />
                 )}
-                {formatKda(blueIsLeft ? t2Stats : t1Stats)}
+                {formatKda(blueIsLeft ? t200Stats : t100Stats)}
               </span>
             </a>
           )
@@ -381,10 +373,33 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
   )
 }
 
+type MatchWithTeam1 = {
+  match: TheQuestMatch
+  team1: Optional<RiotTeamId>
+}
+
+type MatchWithTeam1Predicates = {
+  blueIsLeft: boolean
+  leftWon: boolean
+}
+
+const MatchWithTeam1 = {
+  predicates: ({ match, team1 }: MatchWithTeam1): MatchWithTeam1Predicates => {
+    const blueIsLeft = team1 === 100
+
+    return { blueIsLeft, leftWon: blueIsLeft ? match.win === 100 : match.win === 200 }
+  },
+}
+
 const byRole = pipe(
   TeamRole.Ord,
   ord.contramap((b: AttendeeWithRiotId) => b.role),
 )
+
+type TeamWithMembers = {
+  team: Team
+  members: ReadonlyArray<AttendeeWithRiotId>
+}
 
 function getTeamWithMembers(
   teams: ReadonlyArray<Team>,
@@ -403,6 +418,31 @@ function getTeamWithMembers(
       readonlyArray.sort(byRole),
     ),
   }
+}
+
+function enrichTeam(
+  t: Optional<TeamWithMembers>,
+  withTeam1: ReadonlyArray<Optional<MatchWithTeam1>>,
+  isTeam1: boolean,
+): Optional<EnrichedTeam> {
+  if (t === undefined) return undefined
+
+  const { team, members } = t
+
+  // TODO: Monoid
+  let victoryCount = 0
+
+  withTeam1.forEach(d => {
+    if (d !== undefined) {
+      const { leftWon } = MatchWithTeam1.predicates(d)
+
+      if ((leftWon && isTeam1) || (!leftWon && !isTeam1)) {
+        victoryCount += 1
+      }
+    }
+  })
+
+  return { ...team, members, victoryCount }
 }
 
 function findTeam1(match: TheQuestMatch, team1Members: ReadonlyArray<Puuid>): Optional<RiotTeamId> {

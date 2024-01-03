@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useRef } from 'react'
+import type { Merge } from 'type-fest'
 
 import { TeamRoleIcon } from '../../../../../components/TeamRoleIcon'
 import { Tooltip } from '../../../../../components/tooltip/Tooltip'
@@ -10,14 +11,19 @@ import { type Team } from '../../../../../models/pocketBase/tables/Team'
 import { cx } from '../../../../../utils/cx'
 
 type GameTeamProps = {
-  // attendees: ReadonlyArray<AttendeeWithRiotId>
-  team: Team
-  members: ReadonlyArray<AttendeeWithRiotId>
-  victoryCount: number
+  team: EnrichedTeam
   isWinner: boolean
 }
 
-export const GameTeam: React.FC<GameTeamProps> = ({ team, victoryCount, members, isWinner }) => {
+export type EnrichedTeam = Merge<
+  Team,
+  {
+    members: ReadonlyArray<AttendeeWithRiotId>
+    victoryCount: number
+  }
+>
+
+export const GameTeam: React.FC<GameTeamProps> = ({ team, isWinner }) => {
   const hoverRef = useRef<HTMLDivElement>(null)
   const placementRef = useRef<HTMLSpanElement>(null)
 
@@ -35,7 +41,7 @@ export const GameTeam: React.FC<GameTeamProps> = ({ team, victoryCount, members,
 
       <Tooltip hoverRef={hoverRef} placementRef={placementRef}>
         <ul className="flex flex-col gap-1">
-          {members.map(a => (
+          {team.members.map(a => (
             <li key={a.id} className="flex items-center gap-2">
               <TeamRoleIcon role={a.role} className="h-6" />
               <div>
@@ -57,7 +63,7 @@ export const GameTeam: React.FC<GameTeamProps> = ({ team, victoryCount, members,
       </Tooltip>
 
       <span className={cx('font-medium', isWinner ? 'text-yellow-500' : 'text-sky-300')}>
-        {victoryCount}
+        {team.victoryCount}
       </span>
     </>
   )
