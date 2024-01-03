@@ -62,7 +62,6 @@ export async function viewTournamentMatches(
 
     adminPb.collection('matches').getFullList({
       filter: `tournament="${tournamentId}"`,
-      // expand: expandMatchTeams,
       next: { revalidate: getFromPbCacheDuration, tags: [tags.matches.list] },
     }),
   ])

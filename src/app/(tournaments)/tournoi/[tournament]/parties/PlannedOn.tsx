@@ -19,7 +19,7 @@ export const PlannedOn: React.FC<PlannedOnProps> = ({ plannedOn }) => {
       <span ref={ref} className="text-sm">
         {Dayjs(plannedOn).format(dateTimeFormat)}
       </span>
-      <Tooltip hoverRef={ref}>Heure prévue du premier match (approximativement)</Tooltip>
+      <Tooltip hoverRef={ref}>Heure prévue du match (approximativement)</Tooltip>
     </>
   )
 }

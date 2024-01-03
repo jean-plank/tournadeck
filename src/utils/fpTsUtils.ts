@@ -33,7 +33,7 @@ export function immutableAssign<
   return Object.assign(f.bind({}) as A, b)
 }
 
-export function isDefined<A>(a: A | undefined): a is A {
+export function isDefined<A>(a: Optional<A>): a is A {
   return a !== undefined
 }
 
@@ -118,11 +118,11 @@ export const array = {
 
 export const partialRecord = {
   map: readonlyRecord.map as <A, B>(
-    f: (a: A | undefined) => B,
+    f: (a: Optional<A>) => B,
   ) => <K extends string>(fa: Partial<ReadonlyRecord<K, A>>) => Partial<ReadonlyRecord<K, B>>,
 
   mapWithIndex: readonlyRecord.mapWithIndex as <K extends string, A, B>(
-    f: (k: K, a: A | undefined) => B,
+    f: (k: K, a: Optional<A>) => B,
   ) => (fa: Partial<ReadonlyRecord<K, A>>) => Partial<ReadonlyRecord<K, B>>,
 }
 

@@ -28,7 +28,7 @@ function renderIcon(
   ref: React.Ref<HTMLImageElement>,
   type: LolEloIconType,
   elo: LolElo,
-  className: string | undefined,
+  className: Optional<string>,
 ): React.ReactElement {
   switch (type) {
     case 'normal':

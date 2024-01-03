@@ -77,7 +77,7 @@ type Tag = { readonly MyPocketBase: unique symbol }
 type MyPocketBase = Branded<Tag, MyPocketBase_>
 
 const MyPocketBase = immutableAssign(
-  (baseUrl: string | undefined, authStore?: BaseAuthStore | null, lang?: string): MyPocketBase =>
+  (baseUrl: Optional<string>, authStore?: BaseAuthStore | null, lang?: string): MyPocketBase =>
     brand<Tag>()(new PocketBase(baseUrl, authStore, lang) as MyPocketBase_),
   {
     statusesToUndefined:
