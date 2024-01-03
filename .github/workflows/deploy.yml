@@ -43,7 +43,7 @@ jobs:
 
       - name: Download PocketBase
         env:
-          POCKET_BASE_VERSION: 0.20.3
+          POCKET_BASE_VERSION: 0.20.4
         run: |
           wget -nv https://github.com/pocketbase/pocketbase/releases/download/v${{ env.POCKET_BASE_VERSION }}/pocketbase_${{ env.POCKET_BASE_VERSION }}_linux_amd64.zip
           unzip pocketbase_${{ env.POCKET_BASE_VERSION }}_linux_amd64.zip
