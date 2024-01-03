@@ -33,6 +33,10 @@ export function immutableAssign<
   return Object.assign(f.bind({}) as A, b)
 }
 
+export function isDefined<A>(a: A | undefined): a is A {
+  return a !== undefined
+}
+
 /**
  * Like ord.trivial, but with actual equals.
  */

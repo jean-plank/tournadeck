@@ -1,35 +1,34 @@
 'use server'
 
-import { either } from 'fp-ts'
+import { either, readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 
 import { Config } from '../config/Config'
-import { theQuestService } from '../context/context'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
 import type { AttendeeWithRiotId } from '../models/attendee/AttendeeWithRiotId'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
+import type { Team } from '../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../models/pocketBase/tables/Tournament'
 import type { MatchApiDataDecoded } from '../models/pocketBase/tables/match/Match'
 import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/MatchApiDatas'
 import type { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
-import type { StaticData } from '../models/theQuest/staticData/StaticData'
 import { listAttendeesForTournament } from './helpers/listAttendeesForTournament'
 
 const { getFromPbCacheDuration, tags } = Config.constants
 
-export type ViewTournament = {
+export type ViewTournamentMatches = {
   tournament: Tournament
+  teams: ReadonlyArray<Team>
   attendees: ReadonlyArray<AttendeeWithRiotId>
   matches: ReadonlyArray<MatchApiDataDecoded>
-  staticData: StaticData
 }
 
-export async function viewTournament(
+export async function viewTournamentMatches(
   tournamentId: TournamentId,
-): Promise<Optional<ViewTournament>> {
+): Promise<Optional<ViewTournamentMatches>> {
   const maybeAuth = await auth()
 
   if (maybeAuth === undefined) {
@@ -53,39 +52,44 @@ export async function viewTournament(
     throw new AuthError('Forbidden')
   }
 
-  const [attendees, matches, staticData] = await Promise.all([
+  const [teams, attendees, matches] = await Promise.all([
+    adminPb.collection('teams').getFullList({
+      filter: `tournament="${tournamentId}"`,
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.teams.list] },
+    }),
+
     listAttendeesForTournament(adminPb, tournamentId),
-    listMatchesForTournament(adminPb, tournamentId),
-    theQuestService.getStaticData(true),
+
+    adminPb.collection('matches').getFullList({
+      filter: `tournament="${tournamentId}"`,
+      // expand: expandMatchTeams,
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.matches.list] },
+    }),
   ])
 
-  return { tournament, attendees, matches, staticData }
-}
-
-async function listMatchesForTournament(
-  adminPb: MyPocketBase,
-  tournamentId: TournamentId,
-): Promise<ReadonlyArray<MatchApiDataDecoded>> {
-  const matches = await adminPb.collection('matches').getFullList({
-    filter: `tournament="${tournamentId}"`,
-    next: { revalidate: getFromPbCacheDuration, tags: [tags.matches.list] },
-  })
-
-  return matches.map(
-    (m): MatchApiDataDecoded => ({
-      ...m,
-      apiData: pipe(
-        MatchApiDatas.codec.decode(m.apiData),
-        either.fold(
-          () => [],
-          apiData =>
-            apiData !== null
-              ? apiData.map(
-                  (d): Optional<TheQuestMatch> => (MatchApiData.isGameId(d) ? undefined : d),
-                )
-              : [],
-        ),
+  return {
+    tournament,
+    teams,
+    attendees,
+    matches: pipe(
+      matches,
+      readonlyArray.map(
+        (m): MatchApiDataDecoded => ({
+          ...m,
+          apiData: pipe(
+            MatchApiDatas.codec.decode(m.apiData),
+            either.fold(
+              () => [],
+              apiData =>
+                apiData !== null
+                  ? apiData.map(
+                      (d): Optional<TheQuestMatch> => (MatchApiData.isGameId(d) ? undefined : d),
+                    )
+                  : [],
+            ),
+          ),
+        }),
       ),
-    }),
-  )
+    ),
+  }
 }

@@ -1,3 +1,5 @@
+'use server'
+
 import { Config } from '../config/Config'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'

@@ -45,6 +45,9 @@ const config = {
       wheat: 'wheat',
       'wheat-bis': '#c8ab6d',
 
+      'match-blue': '#04285c',
+      'match-red': '#411a21',
+
       ocre: '#b07636',
       burgundy: '#5f405d',
       'dark-blue': '#0c1a31',

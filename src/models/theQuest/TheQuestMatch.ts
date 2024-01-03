@@ -8,18 +8,21 @@ import { RiotId } from '../riot/RiotId'
 import { RiotTeamId } from '../riot/RiotTeamId'
 import { Platform } from './Platform'
 
+export type TheQuestMatchParticipant = C.TypeOf<typeof participantCodec>
+
+const participantCodec = C.struct({
+  assists: C.number,
+  championName: ChampionId.codec,
+  deaths: C.number,
+  goldEarned: C.number,
+  kills: C.number,
+  profileIcon: C.number,
+  puuid: Puuid.codec,
+  riotId: C.nullable(RiotId.fromStringCodec('#')),
+})
+
 const teamDecoder = C.struct({
-  participants: C.array(
-    C.struct({
-      assists: C.number,
-      championName: ChampionId.codec,
-      deaths: C.number,
-      kills: C.number,
-      profileIcon: C.number,
-      puuid: Puuid.codec,
-      riotId: C.nullable(RiotId.fromStringCodec('#')),
-    }),
-  ),
+  participants: C.array(participantCodec),
 })
 
 const teamProperties: ReadonlyRecord<`${RiotTeamId}`, typeof teamDecoder> = {

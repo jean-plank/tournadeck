@@ -59,6 +59,7 @@ const Config = {
     tags: {
       attendees: { list: 'attendees/list' },
       matches: { list: 'matches/list' },
+      teams: { list: 'teams/list' },
       tournaments: {
         list: 'tournaments/list',
         view: 'tournaments/view',
