@@ -1,19 +1,19 @@
 import { notFound } from 'next/navigation'
 
-import type { ViewTournament } from '../../../../../actions/viewTournament'
-import { viewTournament } from '../../../../../actions/viewTournament'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { redirectAppRoute } from '../../../../../utils/redirectAppRoute'
 import { SetTournament } from '../../../TournamentContext'
-import { Attendees } from '../participants/Attendees'
+import { Teams } from './Teams'
+import type { TeamsData } from './getTeamsData'
+import { getTeamsData } from './getTeamsData'
 
 type Props = {
   params: { tournament: TournamentId }
 }
 
-const Teams: React.FC<Props> = ({ params }) =>
-  withRedirectOnAuthError(viewTournament(params.tournament))(data => (
+const TeamsPage: React.FC<Props> = ({ params }) =>
+  withRedirectOnAuthError(getTeamsData(params.tournament))(data => (
     <>
       <SetTournament tournament={data?.tournament} />
       <TeamsLoaded data={data} />
@@ -21,19 +21,19 @@ const Teams: React.FC<Props> = ({ params }) =>
   ))
 
 type TeamsLoadedProps = {
-  data: Optional<ViewTournament>
+  data: Optional<TeamsData>
 }
 
 const TeamsLoaded: React.FC<TeamsLoadedProps> = ({ data }) => {
   if (data === undefined) return notFound()
 
-  const { tournament, attendees } = data
+  const { tournament, teams, teamlessAttendees } = data
 
   if (tournament.phase === 'created') {
     return redirectAppRoute(`/tournoi/${tournament.id}/participants`)
   }
 
-  return <Attendees tournament={tournament} attendees={attendees} />
+  return <Teams teams={teams} teamlessAttendees={teamlessAttendees} />
 }
 
-export default Teams
+export default TeamsPage

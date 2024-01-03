@@ -1,0 +1,82 @@
+'use client'
+
+import { Fragment } from 'react'
+import type { Merge } from 'type-fest'
+
+import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
+import { constants } from '../../../../../config/constants'
+import { TeamRole } from '../../../../../models/TeamRole'
+import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import type { Team } from '../../../../../models/pocketBase/tables/Team'
+import { cx } from '../../../../../utils/cx'
+import { AttendeeTile, EmptyAttendeeTile } from '../participants/AttendeeTile'
+
+type Props = {
+  teams: ReadonlyArray<TeamWithRoleMembers>
+  teamlessAttendees: Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
+}
+
+export type TeamWithRoleMembers = readonly [
+  TeamWithBalance,
+  ReadonlyRecord<TeamRole, Optional<AttendeeWithRiotId>>,
+]
+
+type TeamWithBalance = Merge<Team, { balance: number }>
+
+export const Teams: React.FC<Props> = ({ teams, teamlessAttendees }) => (
+  <div className="flex flex-col">
+    <h2 className="self-center px-2 py-4 text-lg font-bold">Équipes</h2>
+
+    <div className="grid grid-cols-[auto_1fr]">
+      {teams.map(([team, members], i) => (
+        <Fragment key={team.id}>
+          <div
+            className={cx('flex flex-col items-center justify-center gap-2 px-2', [
+              'bg-black/30',
+              i % 2 === 0,
+            ])}
+          >
+            <span className="font-lib-mono font-bold">{team.tag}</span>
+            <span className="text-white">{team.name}</span>
+            <span className="rounded-br-md rounded-tl-md bg-green1/90 px-1.5 text-white">
+              ${team.balance.toLocaleString(constants.locale)}
+            </span>
+          </div>
+          <div className={cx('flex flex-wrap gap-4 py-4 pl-2', ['bg-black/30', i % 2 === 0])}>
+            {TeamRole.values.map(role => {
+              const member = members[role]
+
+              return member !== undefined ? (
+                <AttendeeTile attendee={member} />
+              ) : (
+                <EmptyAttendeeTile role={role} />
+              )
+            })}
+          </div>
+        </Fragment>
+      ))}
+    </div>
+
+    <h2 className="self-center px-2 py-4 text-lg font-bold">Participant·es encore libres</h2>
+
+    <div className="flex flex-col">
+      {TeamRole.values.map(role => {
+        const attendees = teamlessAttendees[role]
+
+        if (attendees === undefined) return null
+
+        return (
+          <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
+            <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
+              <TeamRoleIconGold role={role} className="h-12 w-12" />
+              <span>{attendees.length}</span>
+            </div>
+            {attendees.map(p => (
+              <AttendeeTile key={p.id} attendee={p} />
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  </div>
+)

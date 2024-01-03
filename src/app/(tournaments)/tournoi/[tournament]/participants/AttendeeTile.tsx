@@ -1,21 +1,24 @@
+'use client'
+
 import Image from 'next/image'
 import { useRef } from 'react'
 
 import { LolEloIcon } from '../../../../../components/LolEloIcon'
-import { TeamRoleIcon } from '../../../../../components/TeamRoleIcon'
+import { TeamRoleIcon, TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { MapMarkerStar } from '../../../../../components/svgs/icons'
 import { Tooltip } from '../../../../../components/tooltip/Tooltip'
+import { constants } from '../../../../../config/constants'
 import { ChampionPool } from '../../../../../models/ChampionPool'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { TheQuestUtils } from '../../../../../utils/TheQuestUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
-type Props = {
+type AttendeeTileProps = {
   attendee: AttendeeWithRiotId
 }
 
-export const AttendeeTile: React.FC<Props> = ({ attendee }) => {
+export const AttendeeTile: React.FC<AttendeeTileProps> = ({ attendee }) => {
   const commentRef = useRef<HTMLParagraphElement>(null)
 
   const poolHoverRef = useRef<HTMLDivElement>(null)
@@ -105,7 +108,7 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => {
         ref={roleRef}
         className="grid grid-cols-[auto_auto] self-start justify-self-start bg-dark-red area-1"
       >
-        <TeamRoleIcon
+        <TeamRoleIconGold
           role={attendee.role}
           className={attendee.role === 'sup' ? 'm-0.5 h-7 w-7' : 'h-8 w-8'}
         />
@@ -116,9 +119,11 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => {
         {TeamRole.label[attendee.role]}
       </Tooltip>
 
-      {attendee.price !== 0 && (
-        <div className="-mb-1 -mr-1 self-end justify-self-end bg-green1 area-1">
-          ${attendee.price}
+      {!attendee.isCaptain && attendee.price !== 0 && (
+        <div className="mb-1 mr-1 grid grid-cols-[auto_auto] self-end justify-self-end rounded-tl-md bg-dark-red pl-1 pt-1 area-1">
+          <span className="rounded-br-md rounded-tl-md bg-green1/90 px-0.5 leading-5 text-white">
+            ${attendee.price.toLocaleString(constants.locale)}
+          </span>
         </div>
       )}
 
@@ -155,3 +160,19 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => {
     </div>
   )
 }
+
+type EmptyAttendeeTileProps = {
+  role: TeamRole
+}
+
+export const EmptyAttendeeTile: React.FC<EmptyAttendeeTileProps> = ({ role }) => (
+  <div className="min-h-[344px]">
+    <div className="m-1 flex h-full w-60 items-center justify-center rounded-lg border-2 border-burgundy/30">
+      <TeamRoleIcon
+        role={role}
+        className="h-14 w-14 text-burgundy/80"
+        secondaryClassName="text-burgundy/30"
+      />
+    </div>
+  </div>
+)

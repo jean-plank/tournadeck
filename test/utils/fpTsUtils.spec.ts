@@ -1,4 +1,4 @@
-import { eq, number } from 'fp-ts'
+import { eq, number, option } from 'fp-ts'
 import { identity, pipe } from 'fp-ts/function'
 
 import { array } from '../../src/utils/fpTsUtils'
@@ -6,6 +6,48 @@ import { expectT } from '../expectT'
 
 describe('fpTsUtils', () => {
   describe('array', () => {
+    describe('popWhere', () => {
+      it('should return empty for empty array', () => {
+        expectT(pipe([], array.popWhere(identity))).toStrictEqual([option.none, []])
+      })
+
+      it('should return same array if not match', () => {
+        expectT(
+          pipe(
+            [1, 2, 3],
+            array.popWhere(n => n === 4),
+          ),
+        ).toStrictEqual([option.none, [1, 2, 3]])
+      })
+
+      it('should pop first', () => {
+        expectT(
+          pipe(
+            [1, 2, 3, 4, 5],
+            array.popWhere(n => n === 1),
+          ),
+        ).toStrictEqual([option.some(1), [2, 3, 4, 5]])
+      })
+
+      it('should pop middle', () => {
+        expectT(
+          pipe(
+            [1, 2, 3, 4, 5],
+            array.popWhere(n => n === 4),
+          ),
+        ).toStrictEqual([option.some(4), [1, 2, 3, 5]])
+      })
+
+      it('should pop last', () => {
+        expectT(
+          pipe(
+            [1, 2, 3, 4, 5],
+            array.popWhere(n => n === 5),
+          ),
+        ).toStrictEqual([option.some(5), [1, 2, 3, 4]])
+      })
+    })
+
     describe('groupByMap', () => {
       it('should group empty array', () => {
         expectT(pipe([], array.groupByMap(eq.eqStrict)(identity))).toStrictEqual(

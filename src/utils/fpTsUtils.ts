@@ -11,7 +11,9 @@ import {
 import type { Either } from 'fp-ts/Either'
 import type { Eq } from 'fp-ts/Eq'
 import type { IO } from 'fp-ts/IO'
+import type { Option } from 'fp-ts/Option'
 import type { Ord } from 'fp-ts/Ord'
+import type { Predicate } from 'fp-ts/Predicate'
 import { pipe } from 'fp-ts/function'
 
 export function todo(...[]: ReadonlyArray<unknown>): never {
@@ -52,6 +54,20 @@ export const eitherGetOrThrow: <A>(fa: Either<Error, A>) => A = either.getOrElse
   throw e
 })
 
+function arrayPopWhereRec<A>(
+  as: ReadonlyArray<A>,
+  predicate: Predicate<A>,
+  acc: ReadonlyArray<A>,
+): readonly [Option<A>, ReadonlyArray<A>] {
+  if (!readonlyArray.isNonEmpty(as)) return [option.none, acc]
+
+  const [head, tail] = readonlyNonEmptyArray.unprepend(as)
+
+  if (predicate(head)) return [option.some(head), pipe(acc, readonlyArray.concat(tail))]
+
+  return arrayPopWhereRec(tail, predicate, pipe(acc, readonlyArray.append(head)))
+}
+
 const arrayShuffle =
   <A>(as: ReadonlyArray<A>): IO<ReadonlyArray<A>> =>
   () => {
@@ -76,6 +92,11 @@ export const array = {
   groupBy: readonlyNonEmptyArray.groupBy as <A, K extends string | number>(
     f: (a: A) => K,
   ) => (as: ReadonlyArray<A>) => Partial<ReadonlyRecord<`${K}`, NonEmptyArray<A>>>,
+
+  popWhere:
+    <A>(predicate: Predicate<A>) =>
+    (as: ReadonlyArray<A>) =>
+      arrayPopWhereRec(as, predicate, []),
 
   groupByMap:
     <L>(E: Eq<L>) =>

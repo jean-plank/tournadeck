@@ -16,6 +16,7 @@ import type { MatchApiDataDecoded } from '../models/pocketBase/tables/match/Matc
 import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/MatchApiDatas'
 import type { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
 import { listAttendeesForTournament } from './helpers/listAttendeesForTournament'
+import { listTeamsForTournament } from './helpers/listTeamsForTournament'
 
 const { getFromPbCacheDuration, tags } = Config.constants
 
@@ -53,11 +54,7 @@ export async function viewTournamentMatches(
   }
 
   const [teams, attendees, matches] = await Promise.all([
-    adminPb.collection('teams').getFullList({
-      filter: `tournament="${tournamentId}"`,
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.teams.list] },
-    }),
-
+    listTeamsForTournament(adminPb, tournamentId),
     listAttendeesForTournament(adminPb, tournamentId),
 
     adminPb.collection('matches').getFullList({

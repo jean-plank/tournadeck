@@ -7,4 +7,4 @@ const platform: Platform = 'EUW'
  *
  * Server constants should be in ./Config
  */
-export const constants = { platform }
+export const constants = { platform, locale: 'fr-FR' }

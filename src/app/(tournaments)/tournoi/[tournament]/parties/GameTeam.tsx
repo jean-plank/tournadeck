@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useRef } from 'react'
 import type { Merge } from 'type-fest'
 
-import { TeamRoleIcon } from '../../../../../components/TeamRoleIcon'
+import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { Tooltip } from '../../../../../components/tooltip/Tooltip'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { type Team } from '../../../../../models/pocketBase/tables/Team'
@@ -43,7 +43,7 @@ export const GameTeam: React.FC<GameTeamProps> = ({ team, isWinner }) => {
         <ul className="flex flex-col gap-1">
           {team.members.map(a => (
             <li key={a.id} className="flex items-center gap-2">
-              <TeamRoleIcon role={a.role} className="h-6" />
+              <TeamRoleIconGold role={a.role} className="h-6" />
               <div>
                 <span className="font-medium text-goldenrod">{a.riotId.gameName}</span>
                 <span className="text-grey-500">#{a.riotId.tagLine}</span>

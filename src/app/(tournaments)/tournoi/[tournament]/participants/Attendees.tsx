@@ -1,22 +1,16 @@
 'use client'
 
-import { number, ord, readonlyArray } from 'fp-ts'
-import { pipe } from 'fp-ts/function'
-import { useCallback, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
-import { TeamRoleIcon } from '../../../../../components/TeamRoleIcon'
+import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../../../contexts/PocketBaseContext'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
-import { array, partialRecord } from '../../../../../utils/fpTsUtils'
+import { array } from '../../../../../utils/fpTsUtils'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
-
-const bySeed = pipe(
-  number.Ord,
-  ord.contramap((a: { seed: number }) => (a.seed === 0 ? Infinity : a.seed)),
-)
+import { groupAndSortAttendees } from './groupAndSortAttendees'
 
 type Props = {
   tournament: Tournament
@@ -46,14 +40,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
     user !== undefined &&
     attendees.find(a => a.user === user.id) !== undefined
 
-  const grouped: Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>> = pipe(
-    attendees,
-    array.groupBy(a => a.role),
-  )
-  const groupedAndSorted = pipe(
-    grouped,
-    partialRecord.map(as => (as !== undefined ? pipe(as, readonlyArray.sort(bySeed)) : undefined)),
-  )
+  const groupedAndSorted = useMemo(() => groupAndSortAttendees(attendees), [attendees])
 
   return (
     <div className="flex flex-col items-start gap-5">
@@ -102,7 +89,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
           {TeamRole.values.map(role => (
             <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
               <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
-                <TeamRoleIcon role={role} className="h-12 w-12" />
+                <TeamRoleIconGold role={role} className="h-12 w-12" />
                 <span>
                   {groupedAndSorted[role]?.length ?? 0}/{tournament.teamsCount}
                 </span>
