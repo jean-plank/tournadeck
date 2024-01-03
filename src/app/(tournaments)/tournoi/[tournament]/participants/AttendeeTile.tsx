@@ -32,7 +32,7 @@ export const AttendeeTile: React.FC<Props> = ({ attendee }) => {
   return (
     <div className="grid bg-dark-red shadow-even shadow-burgundy/50">
       <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-2 area-1">
-        <div className="h-48 bg-black">
+        <div className="h-48">
           <Image
             src={pbFileUrl('attendees', attendee.id, attendee.avatar)}
             className="h-full w-full object-cover"
