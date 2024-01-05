@@ -45,7 +45,7 @@ const TournamentPageLoaded: React.FC<TournamentPageLoadedProps> = ({ data }) => 
       <div className="text-lg font-bold text-green1">{TournamentPhase.label[tournament.phase]}</div>
 
       <span className="font-bold text-goldenrod">
-        Participants ({attendees.length} / {tournament.teamsCount * 5})
+        Participant·es ({attendees.length} / {tournament.teamsCount * 5})
       </span>
 
       <nav className="flex items-center gap-4 text-lg">

@@ -26,7 +26,7 @@ export const TournamentSubPagesNav: React.FC<Props> = ({ tournament, subPage, li
         href={`/tournoi/${tournament.id}/participants`}
         className={cx(['underline', subPage === 'participants'], linkClassName)}
       >
-        Participants
+        Participant·es
       </Link>
     ) : (
       <Link

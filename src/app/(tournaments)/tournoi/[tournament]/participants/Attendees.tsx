@@ -81,7 +81,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
             </button>
           )}
           <span className="font-bold">
-            Participants ({attendees.length} / {tournament.teamsCount * 5})
+            Participant·es ({attendees.length} / {tournament.teamsCount * 5})
           </span>
         </div>
 
