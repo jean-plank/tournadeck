@@ -16,7 +16,7 @@ export const PlannedOn: React.FC<PlannedOnProps> = ({ plannedOn }) => {
 
   return (
     <>
-      <span ref={ref} className="text-sm">
+      <span ref={ref} className="self-start text-sm">
         {Dayjs(plannedOn).format(dateTimeFormat)}
       </span>
       <Tooltip hoverRef={ref}>Heure prévue du match (approximativement)</Tooltip>
