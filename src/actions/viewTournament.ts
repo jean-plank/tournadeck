@@ -12,6 +12,7 @@ import { AuthError } from '../models/AuthError'
 import type { AttendeeWithRiotId } from '../models/attendee/AttendeeWithRiotId'
 import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { Tournament, TournamentId } from '../models/pocketBase/tables/Tournament'
+import type { User } from '../models/pocketBase/tables/User'
 import type { MatchApiDataDecoded } from '../models/pocketBase/tables/match/Match'
 import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/MatchApiDatas'
 import type { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
@@ -21,6 +22,7 @@ import { listAttendeesForTournament } from './helpers/listAttendeesForTournament
 const { getFromPbCacheDuration, tags } = Config.constants
 
 export type ViewTournament = {
+  user: User
   tournament: Tournament
   attendees: ReadonlyArray<AttendeeWithRiotId>
   matches: ReadonlyArray<MatchApiDataDecoded>
@@ -59,7 +61,7 @@ export async function viewTournament(
     theQuestService.getStaticData(true),
   ])
 
-  return { tournament, attendees, matches, staticData }
+  return { user, tournament, attendees, matches, staticData }
 }
 
 async function listMatchesForTournament(
