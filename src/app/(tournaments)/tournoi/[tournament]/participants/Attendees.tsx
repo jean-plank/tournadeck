@@ -43,7 +43,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
   const groupedAndSorted = useMemo(() => groupAndSortAttendees(attendees), [attendees])
 
   return (
-    <div className="flex flex-col items-start gap-5">
+    <div className="flex flex-col items-start gap-5 pb-8">
       {!alreadySubscribed && (
         <dialog ref={dialog} className="bg-transparent">
           <div className="flex flex-col items-end">
@@ -87,14 +87,16 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
 
         <div className="grid w-full grid-rows-5">
           {TeamRole.values.map(role => (
-            <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
+            <div key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
               <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
                 <TeamRoleIconGold role={role} className="h-12 w-12" />
                 <span>
                   {groupedAndSorted[role]?.length ?? 0}/{tournament.teamsCount}
                 </span>
               </div>
-              {groupedAndSorted[role]?.map(p => <AttendeeTile key={p.id} attendee={p} />)}
+              {groupedAndSorted[role]?.map(p => (
+                <AttendeeTile key={p.id} attendee={p} captainShouldDisplayPrice={true} />
+              ))}
             </div>
           ))}
         </div>

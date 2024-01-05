@@ -41,12 +41,12 @@ export const Teams: React.FC<Props> = ({ teams, teamlessAttendees }) => (
               ${team.balance.toLocaleString(constants.locale)}
             </span>
           </div>
-          <div className={cx('flex flex-wrap gap-4 py-4 pl-2', ['bg-black/30', i % 2 === 0])}>
+          <div className={cx('flex flex-wrap gap-4 py-4 pl-2 pr-8', ['bg-black/30', i % 2 === 0])}>
             {TeamRole.values.map(role => {
               const member = members[role]
 
               return member !== undefined ? (
-                <AttendeeTile attendee={member} />
+                <AttendeeTile attendee={member} captainShouldDisplayPrice={false} />
               ) : (
                 <EmptyAttendeeTile role={role} />
               )
@@ -68,7 +68,7 @@ export const Teams: React.FC<Props> = ({ teams, teamlessAttendees }) => (
                 <span>{attendees.length}</span>
               </div>
               {attendees.map(p => (
-                <AttendeeTile key={p.id} attendee={p} />
+                <AttendeeTile key={p.id} attendee={p} captainShouldDisplayPrice={false} />
               ))}
             </div>
           ))}

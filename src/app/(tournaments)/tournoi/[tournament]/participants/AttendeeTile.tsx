@@ -16,9 +16,13 @@ import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
 type AttendeeTileProps = {
   attendee: AttendeeWithRiotId
+  captainShouldDisplayPrice: boolean
 }
 
-export const AttendeeTile: React.FC<AttendeeTileProps> = ({ attendee }) => {
+export const AttendeeTile: React.FC<AttendeeTileProps> = ({
+  attendee,
+  captainShouldDisplayPrice,
+}) => {
   const commentRef = useRef<HTMLParagraphElement>(null)
 
   const poolHoverRef = useRef<HTMLDivElement>(null)
@@ -119,7 +123,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({ attendee }) => {
         {TeamRole.label[attendee.role]}
       </Tooltip>
 
-      {!attendee.isCaptain && attendee.price !== 0 && (
+      {(captainShouldDisplayPrice || !attendee.isCaptain) && attendee.price !== 0 && (
         <div className="mb-1 mr-1 grid grid-cols-[auto_auto] self-end justify-self-end rounded-tl-md bg-dark-red pl-1 pt-1 area-1">
           <span className="rounded-br-md rounded-tl-md bg-green1/90 px-0.5 leading-5 text-white">
             ${attendee.price.toLocaleString(constants.locale)}
