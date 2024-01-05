@@ -123,7 +123,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
                   return (
                     <li key={roundIndex} className={cx(['contents', isKnockoutRound])}>
                       <span
-                        className="row-start-1 flex min-w-[330px] pb-2 font-semibold"
+                        className="row-start-1 flex pb-2 font-semibold"
                         style={{ gridColumnStart }}
                       >
                         {isGroupRound
@@ -134,7 +134,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
                       {readonlyArray.isNonEmpty(nonBronze) && (
                         <ul
                           className={cx(
-                            'row-start-2 flex flex-col justify-around',
+                            ' w-96 row-start-2 flex flex-col justify-around',
                             ['gap-8', isGroupRound],
                             ['gap-16', isKnockoutRound],
                           )}
@@ -152,7 +152,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
                       )}
 
                       {readonlyArray.isNonEmpty(bronze) && (
-                        <div className="row-start-3 pt-24">
+                        <div className="row-start-3 w-96 pt-24">
                           <span className="font-semibold">Finale des nullos</span>
 
                           <ul
@@ -253,6 +253,7 @@ const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
       <div className="flex flex-col gap-0.5 overflow-hidden">
         <div className="grid grid-cols-2 gap-0.5">
           {[team1, team2].map((team, i) => {
+            const isEven = i % 2 === 0
             const isWinner =
               team !== undefined && winner !== '' && TeamId.Eq.equals(team.id, winner)
 
@@ -261,16 +262,24 @@ const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
                 // eslint-disable-next-line react/no-array-index-key
                 key={i}
                 className={cx(
-                  'group flex items-center flex-wrap gap-4 text-white bg-zinc-700 px-2 py-1.5 odd:border-l-4 even:flex-row-reverse even:border-r-4',
+                  'group w-full grid items-center gap-4 text-white bg-zinc-700 px-2 py-1.5 odd:border-l-4 even:border-r-4',
+                  isEven ? 'grid-cols-[1fr_auto]' : 'grid-cols-[auto_1fr]',
                   isWinner
                     ? 'odd:border-l-goldenrod even:border-r-goldenrod'
                     : 'odd:border-l-zinc-700 even:border-r-zinc-700',
                 )}
               >
                 {team !== undefined ? (
-                  <GameTeam team={team} isWinner={isWinner} />
+                  <GameTeam team={team} isEven={isEven} isWinner={isWinner} />
                 ) : (
-                  <span className="text-white/50">-</span>
+                  <span
+                    className={cx('text-white/50 group-even:justify-self-end', [
+                      'col-start-2',
+                      !isEven,
+                    ])}
+                  >
+                    -
+                  </span>
                 )}
               </div>
             )
