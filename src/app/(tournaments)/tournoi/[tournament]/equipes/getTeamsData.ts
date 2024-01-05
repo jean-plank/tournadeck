@@ -1,7 +1,7 @@
 'use server'
 
 import { option, ord, readonlyArray, string } from 'fp-ts'
-import { pipe } from 'fp-ts/function'
+import { pipe, tuple } from 'fp-ts/function'
 
 import { listAttendeesForTournament } from '../../../../../actions/helpers/listAttendeesForTournament'
 import { listTeamsForTournament } from '../../../../../actions/helpers/listTeamsForTournament'
@@ -24,7 +24,7 @@ const { getFromPbCacheDuration, tags } = Config.constants
 export type TeamsData = {
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
-  teamlessAttendees: Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
+  teamlessAttendees: ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
 }
 
 type TeamsAcc = {
@@ -123,9 +123,18 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
     }),
   )
 
+  const groupedAttendees = groupAndSortAttendees(attendees)
+
   return {
     tournament,
     teams: groupedTeams,
-    teamlessAttendees: groupAndSortAttendees(attendees),
+    teamlessAttendees: pipe(
+      TeamRole.values,
+      readonlyArray.filterMap(role => {
+        const as = groupedAttendees[role]
+
+        return as !== undefined ? option.some(tuple(role, as)) : option.none
+      }),
+    ),
   }
 }

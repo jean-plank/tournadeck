@@ -3,6 +3,8 @@ import type { Newtype } from 'newtype-ts'
 declare global {
   declare type Optional<A> = A | undefined
 
+  declare type Tuple<A, B> = readonly [A, B]
+
   declare type NonEmptyArray<A> = ReadonlyArray<A> & {
     readonly 0: A
   }

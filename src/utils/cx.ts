@@ -3,7 +3,7 @@ import type { Option } from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 
 export function cx(
-  ...c: ReadonlyArray<Optional<string> | readonly [Optional<string>, boolean]>
+  ...c: ReadonlyArray<Optional<string> | Tuple<Optional<string>, boolean>>
 ): Optional<string> {
   return pipe(
     c,

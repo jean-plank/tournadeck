@@ -1,5 +1,6 @@
 'use client'
 
+import { readonlyArray } from 'fp-ts'
 import { Fragment } from 'react'
 import type { Merge } from 'type-fest'
 
@@ -13,20 +14,18 @@ import { AttendeeTile, EmptyAttendeeTile } from '../participants/AttendeeTile'
 
 type Props = {
   teams: ReadonlyArray<TeamWithRoleMembers>
-  teamlessAttendees: Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
+  teamlessAttendees: ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
 }
 
-export type TeamWithRoleMembers = readonly [
+export type TeamWithRoleMembers = Tuple<
   TeamWithBalance,
-  ReadonlyRecord<TeamRole, Optional<AttendeeWithRiotId>>,
-]
+  ReadonlyRecord<TeamRole, Optional<AttendeeWithRiotId>>
+>
 
 type TeamWithBalance = Merge<Team, { balance: number }>
 
 export const Teams: React.FC<Props> = ({ teams, teamlessAttendees }) => (
-  <div className="flex flex-col">
-    <h2 className="self-center px-2 py-4 text-lg font-bold">Équipes</h2>
-
+  <div className="flex flex-col pb-8">
     <div className="grid grid-cols-[auto_1fr]">
       {teams.map(([team, members], i) => (
         <Fragment key={team.id}>
@@ -57,26 +56,24 @@ export const Teams: React.FC<Props> = ({ teams, teamlessAttendees }) => (
       ))}
     </div>
 
-    <h2 className="self-center px-2 py-4 text-lg font-bold">Participant·es encore libres</h2>
+    {readonlyArray.isNonEmpty(teamlessAttendees) && (
+      <>
+        <h2 className="self-center px-2 py-6 text-lg font-bold">Participant·es encore libres</h2>
 
-    <div className="flex flex-col">
-      {TeamRole.values.map(role => {
-        const attendees = teamlessAttendees[role]
-
-        if (attendees === undefined) return null
-
-        return (
-          <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
-            <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
-              <TeamRoleIconGold role={role} className="h-12 w-12" />
-              <span>{attendees.length}</span>
+        <div className="flex flex-col">
+          {teamlessAttendees.map(([role, attendees]) => (
+            <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
+              <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
+                <TeamRoleIconGold role={role} className="h-12 w-12" />
+                <span>{attendees.length}</span>
+              </div>
+              {attendees.map(p => (
+                <AttendeeTile key={p.id} attendee={p} />
+              ))}
             </div>
-            {attendees.map(p => (
-              <AttendeeTile key={p.id} attendee={p} />
-            ))}
-          </div>
-        )
-      })}
-    </div>
+          ))}
+        </div>
+      </>
+    )}
   </div>
 )

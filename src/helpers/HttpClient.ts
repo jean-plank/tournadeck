@@ -17,7 +17,7 @@ export type HttpOptions<O, B> = Merge<
   OverrideProperties<
     Except<KyOptions, 'method'>,
     {
-      json?: readonly [Encoder<O, B>, B]
+      json?: Tuple<Encoder<O, B>, B>
     }
   >,
   {
@@ -57,12 +57,12 @@ const HttpClient = immutableAssign(
       function http<A, O, B>(
         url: string | URL | Request,
         options: HttpOptions<O, B>,
-        decoderWithName: readonly [Decoder<unknown, A>, string],
+        decoderWithName: Tuple<Decoder<unknown, A>, string>,
       ): Promise<A>
       async function http<A, O, B>(
         url: string | URL | Request,
         options?: HttpOptions<O, B>,
-        decoderWithName?: readonly [Decoder<unknown, A>, string],
+        decoderWithName?: Tuple<Decoder<unknown, A>, string>,
       ): Promise<A> {
         const body = await text(url, options)
 
