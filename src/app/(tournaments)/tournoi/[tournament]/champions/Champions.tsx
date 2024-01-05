@@ -6,11 +6,17 @@ import type { Merge } from 'type-fest'
 
 import type { ViewTournament } from '../../../../../actions/viewTournament'
 import { CroppedChampionSquare } from '../../../../../components/CroppedChampionSquare'
+import { OpenInNew } from '../../../../../components/svgs/icons'
 import type { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { cleanUTF8ToASCII } from '../../../../../utils/stringUtils'
 import { SearchChampion } from './SearchChampion'
 
-export type GetTournament = Merge<ViewTournament, PartionedChampions>
+export type GetTournament = Merge<
+  Merge<ViewTournament, PartionedChampions>,
+  {
+    draftlolLink: Optional<string>
+  }
+>
 
 export type PartionedChampions = {
   stillAvailable: ReadonlyArray<StaticDataChampion>
@@ -21,6 +27,7 @@ export const Champions: React.FC<GetTournament> = ({
   staticData,
   stillAvailable,
   alreadyPlayed,
+  draftlolLink,
 }) => {
   const [search, setSearch] = useState<Optional<string>>(undefined)
 
@@ -79,6 +86,22 @@ export const Champions: React.FC<GetTournament> = ({
           ))}
         </ul>
       </div>
+
+      {draftlolLink !== undefined && (
+        <div className="flex items-center gap-4">
+          <span className="font-bold">Organisateurs seulement :</span>
+
+          <a
+            href={draftlolLink}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 underline"
+          >
+            <span>Créer un salon sur Draftlol</span>
+            <OpenInNew className="h-4" />
+          </a>
+        </div>
+      )}
     </div>
   )
 }

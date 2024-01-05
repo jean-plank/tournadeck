@@ -48,7 +48,7 @@ async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTo
 
   const partitioned = partionChampions(staticData.champions, matches)
 
-  return { ...data, ...partitioned }
+  return { ...data, ...partitioned, draftlolLink: 'https://blbl.ch' }
 }
 
 function partionChampions(
