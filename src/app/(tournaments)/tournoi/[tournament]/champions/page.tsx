@@ -1,17 +1,21 @@
 import { readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { notFound } from 'next/navigation'
+import type { Merge } from 'type-fest'
 
 import { viewTournament } from '../../../../../actions/viewTournament'
+import { Permissions } from '../../../../../helpers/Permissions'
+import { getDraftlolLink } from '../../../../../helpers/getDraftlolLink'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
-import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
 import { ChampionId } from '../../../../../models/riot/ChampionId'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
+import type { StaticData } from '../../../../../models/theQuest/staticData/StaticData'
 import { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { objectValues } from '../../../../../utils/fpTsUtils'
 import { SetTournament } from '../../../TournamentContext'
-import { Champions, type GetTournament, type PartionedChampions } from './Champions'
+import { Champions, type PartionedChampions } from './Champions'
 
 type Props = {
   params: { tournament: TournamentId }
@@ -32,10 +36,28 @@ type ChampionsLoadedProps = {
 const ChampionsLoaded: React.FC<ChampionsLoadedProps> = ({ data }) => {
   if (data === undefined) return notFound()
 
-  return <Champions {...data} />
+  const { staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
+
+  return (
+    <Champions
+      staticData={staticData}
+      stillAvailable={stillAvailable}
+      alreadyPlayed={alreadyPlayed}
+      draftlolLink={draftlolLink}
+    />
+  )
 }
 
 export default ChampionsPage
+
+type GetTournament = Merge<
+  {
+    tournament: Tournament
+    staticData: StaticData
+    draftlolLink: Optional<string>
+  },
+  PartionedChampions
+>
 
 async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTournament>> {
   'use server'
@@ -44,11 +66,18 @@ async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTo
 
   if (data === undefined) return undefined
 
-  const { matches, staticData } = data
+  const { user, tournament, matches, staticData } = data
 
-  const partitioned = partionChampions(staticData.champions, matches)
+  const { stillAvailable, alreadyPlayed } = partionChampions(staticData.champions, matches)
 
-  return { ...data, ...partitioned, draftlolLink: 'https://blbl.ch' }
+  const draftlolLink: Optional<string> = Permissions.championSelect.create(user.role)
+    ? await getDraftlolLink(
+        tournament.id,
+        alreadyPlayed.map(c => c.id),
+      )
+    : undefined
+
+  return { tournament, staticData, stillAvailable, alreadyPlayed, draftlolLink }
 }
 
 function partionChampions(

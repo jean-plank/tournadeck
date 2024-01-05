@@ -4,18 +4,19 @@ import { random, readonlyArray } from 'fp-ts'
 import { useMemo, useState } from 'react'
 import type { Merge } from 'type-fest'
 
-import type { ViewTournament } from '../../../../../actions/viewTournament'
 import { CroppedChampionSquare } from '../../../../../components/CroppedChampionSquare'
 import { OpenInNew } from '../../../../../components/svgs/icons'
+import type { StaticData } from '../../../../../models/theQuest/staticData/StaticData'
 import type { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { cleanUTF8ToASCII } from '../../../../../utils/stringUtils'
 import { SearchChampion } from './SearchChampion'
 
-export type GetTournament = Merge<
-  Merge<ViewTournament, PartionedChampions>,
+export type Props = Merge<
   {
+    staticData: StaticData
     draftlolLink: Optional<string>
-  }
+  },
+  PartionedChampions
 >
 
 export type PartionedChampions = {
@@ -23,7 +24,7 @@ export type PartionedChampions = {
   alreadyPlayed: ReadonlyArray<StaticDataChampion>
 }
 
-export const Champions: React.FC<GetTournament> = ({
+export const Champions: React.FC<Props> = ({
   staticData,
   stillAvailable,
   alreadyPlayed,

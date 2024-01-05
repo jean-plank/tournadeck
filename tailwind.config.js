@@ -55,6 +55,23 @@ const config = {
       beige: '#f4cbab',
     },
     extend: {
+      animation: {
+        dice: 'dice 2s ease-in-out infinite',
+      },
+      keyframes: {
+        dice: {
+          '0%': {
+            transform: 'rotate(0deg)',
+          },
+          '33%': {
+            transform: 'rotate(0deg)',
+          },
+          '100%': {
+            transform: 'rotate(720deg)',
+          },
+        },
+      },
+
       borderRadius: {
         '1/2': '50%',
       },
