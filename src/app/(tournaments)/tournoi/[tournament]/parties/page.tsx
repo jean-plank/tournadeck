@@ -133,11 +133,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
 
                       {readonlyArray.isNonEmpty(nonBronze) && (
                         <ul
-                          className={cx(
-                            ' w-96 row-start-2 flex flex-col justify-around',
-                            ['gap-8', isGroupRound],
-                            ['gap-16', isKnockoutRound],
-                          )}
+                          className="row-start-2 flex w-96 flex-col justify-around gap-8"
                           style={{ gridColumnStart }}
                         >
                           {nonBronze.map(match => (
@@ -156,11 +152,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
                           <span className="flex pb-2 font-semibold">Finale des nullos</span>
 
                           <ul
-                            className={cx(
-                              'flex flex-col justify-around',
-                              ['gap-8', isGroupRound],
-                              ['gap-16', isKnockoutRound],
-                            )}
+                            className="flex flex-col justify-around gap-8"
                             style={{ gridColumnStart }}
                           >
                             {bronze.map(match => (
