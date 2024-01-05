@@ -87,15 +87,6 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
   const { teams: groupedTeams, attendees } = pipe(
     teams,
     readonlyArray.reduce(initTeamsAcc, (teamsAcc, team): TeamsAcc => {
-      const balance = pipe(
-        teamsAcc.attendees,
-        readonlyArray.findFirst(a => a.isCaptain),
-        option.fold(
-          () => 0,
-          a => a.price,
-        ),
-      )
-
       const initAttendeesAcc: AttendeesAcc = {
         roles: record.empty<TeamRole, Optional<AttendeeWithRiotId>>(),
         attendees: teamsAcc.attendees,
@@ -113,11 +104,21 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
                 TeamRole.Eq.equals(a.role, role),
             ),
           )
+
           return {
             roles: { ...attendeesAcc.roles, [role]: option.toUndefined(forRole) },
             attendees: newAttendees_,
           }
         }),
+      )
+
+      const balance = pipe(
+        roles,
+        readonlyRecord.toReadonlyArray,
+        readonlyArray.findFirstMap(([, a]) =>
+          a !== undefined && a.isCaptain ? option.some(a.price) : option.none,
+        ),
+        option.getOrElse(() => 0),
       )
 
       return {
