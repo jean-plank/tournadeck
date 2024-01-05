@@ -153,7 +153,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
 
                       {readonlyArray.isNonEmpty(bronze) && (
                         <div className="row-start-3 w-96 pt-24">
-                          <span className="font-semibold">Finale des nullos</span>
+                          <span className="flex pb-2 font-semibold">Finale des nullos</span>
 
                           <ul
                             className={cx(
@@ -190,7 +190,7 @@ function knockoutRoundLabel(index: `${number}`, total: number): string {
   const diff = total - Number(index)
 
   if (diff === 0) return 'Finale'
-  if (diff === 1) return 'Demi-finales'
+  if (diff === 1) return 'Poule de demi-finales'
   if (diff === 2) return 'Quarts de finale'
   if (diff === 3) return 'Huitièmes de finale'
 
