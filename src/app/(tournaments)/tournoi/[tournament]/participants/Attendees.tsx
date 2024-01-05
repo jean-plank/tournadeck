@@ -34,17 +34,14 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
     if (dialog.current !== null) dialog.current.close()
   }, [])
 
-  // TODO: check role is still open
   const alreadySubscribed =
-    attendees.length < tournament.teamsCount * 5 &&
-    user !== undefined &&
-    attendees.find(a => a.user === user.id) !== undefined
+    user !== undefined && attendees.find(a => a.user === user.id) !== undefined
 
   const groupedAndSorted = useMemo(() => groupAndSortAttendees(attendees), [attendees])
 
   return (
     <div className="flex flex-col items-start gap-5 pb-8">
-      {!alreadySubscribed && (
+      {attendees.length < tournament.teamsCount * 5 && !alreadySubscribed && (
         <dialog ref={dialog} className="bg-transparent">
           <div className="flex flex-col items-end">
             <AttendeeForm
