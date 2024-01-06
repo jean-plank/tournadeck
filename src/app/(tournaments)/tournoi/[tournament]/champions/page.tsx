@@ -69,7 +69,11 @@ async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTo
 
   const { user, tournament, matches, staticData } = data
 
-  const { stillAvailable, alreadyPlayed } = partionChampions(staticData.champions, matches)
+  const { stillAvailable, alreadyPlayed } = partionChampions(
+    staticData.champions,
+    matches,
+    tournament.bannedChampions !== null ? tournament.bannedChampions : [],
+  )
 
   const draftlolLink: Optional<string> = Permissions.championSelect.create(user.role)
     ? await getDraftlolLink(
@@ -84,12 +88,14 @@ async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTo
 function partionChampions(
   champions: ReadonlyArray<StaticDataChampion>,
   matches: ReadonlyArray<MatchApiDataDecoded>,
+  bannedChampions: ReadonlyArray<ChampionId>,
 ): PartionedChampions {
   const playedChampions = pipe(
     matches,
     readonlyArray.flatMap(match =>
       match.apiData.flatMap(d => (d !== undefined ? matchChampions(d) : [])),
     ),
+    readonlyArray.concat(bannedChampions),
   )
 
   const { right: alreadyPlayed, left: stillAvailable } = pipe(

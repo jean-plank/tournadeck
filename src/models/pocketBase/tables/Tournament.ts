@@ -5,9 +5,11 @@ import { iso } from 'newtype-ts'
 import { immutableAssign } from '../../../utils/fpTsUtils'
 import { fromNewtype } from '../../../utils/ioTsUtils'
 import type { TournamentPhase } from '../../TournamentPhase'
+import type { ChampionId } from '../../riot/ChampionId'
 import type {
   BoolField,
   DateField,
+  JsonField,
   NumberField,
   PbBaseModel,
   PbInput,
@@ -28,6 +30,7 @@ export type PbTournament = PbBaseModel<
     end: DateField
     teamsCount: NumberField<'nullable'>
     isVisible: BoolField<'nullable'>
+    bannedChampions: JsonField<ReadonlyArray<ChampionId>, 'nullable'>
   }
 >
 

@@ -258,6 +258,7 @@ function genTournament(
     end: end.toDate(),
     teamsCount: 6,
     isVisible,
+    bannedChampions: [],
   }
 }
 
