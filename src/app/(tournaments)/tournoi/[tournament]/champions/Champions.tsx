@@ -1,11 +1,12 @@
 'use client'
 
 import { random, readonlyArray } from 'fp-ts'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { Merge } from 'type-fest'
 
 import { CroppedChampionSquare } from '../../../../../components/CroppedChampionSquare'
 import { OpenInNew } from '../../../../../components/svgs/icons'
+import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { StaticData } from '../../../../../models/theQuest/staticData/StaticData'
 import type { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { cleanUTF8ToASCII } from '../../../../../utils/stringUtils'
@@ -13,6 +14,7 @@ import { SearchChampion } from './SearchChampion'
 
 export type Props = Merge<
   {
+    tournamentId: TournamentId
     staticData: StaticData
     draftlolLink: Optional<string>
   },
@@ -25,6 +27,7 @@ export type PartionedChampions = {
 }
 
 export const Champions: React.FC<Props> = ({
+  tournamentId,
   staticData,
   stillAvailable,
   alreadyPlayed,
@@ -41,6 +44,12 @@ export const Champions: React.FC<Props> = ({
 
     return () => random.randomElem(stillAvailable)().name
   }, [stillAvailable])
+
+  const copyAlreadyPlayed = useCallback(() => {
+    navigator.clipboard.writeText(
+      `yarn draftlolLink ${tournamentId} '${JSON.stringify(alreadyPlayed.map(c => c.id))}'`,
+    )
+  }, [alreadyPlayed, tournamentId])
 
   return (
     <div className="flex flex-col gap-8 px-4 py-8">
@@ -101,6 +110,10 @@ export const Champions: React.FC<Props> = ({
             <span>Créer un salon sur Draftlol</span>
             <OpenInNew className="h-4" />
           </a>
+
+          <button type="button" className="border border-white" onClick={copyAlreadyPlayed}>
+            Copier la liste des champions déjà joués
+          </button>
         </div>
       )}
     </div>

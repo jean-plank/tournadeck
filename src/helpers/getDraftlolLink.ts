@@ -2,12 +2,15 @@
 
 import { readonlyArray } from 'fp-ts'
 import { tuple } from 'fp-ts/function'
+import type { Browser } from 'puppeteer'
 import puppeteer from 'puppeteer'
 
 import { DayjsDuration } from '../models/Dayjs'
 import type { TournamentId } from '../models/pocketBase/tables/Tournament'
 import { ChampionId } from '../models/riot/ChampionId'
 import { sleep } from '../utils/promiseUtils'
+
+const baseUrl = 'https://draftlol.dawe.gg?opts=InQiOlswLDIsNCwxMywxNSwxLDMsNSwxMiwxNF0sInAiOjYw'
 
 const argsEq = readonlyArray.getEq(ChampionId.Eq)
 
@@ -29,17 +32,31 @@ export async function getDraftlolLink(
 }
 
 async function uncachedGetDraftlolLink(championsToBan: ReadonlyArray<ChampionId>): Promise<string> {
+  if (!readonlyArray.isNonEmpty(championsToBan)) return baseUrl
+
   const browser = await puppeteer.launch({
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
     headless: 'new',
-    args: ['--disable-setuid-sandbox'],
+    args: process.env.NODE_ENV === 'production' ? ['--no-sandbox'] : undefined,
     ignoreHTTPSErrors: true,
   })
 
+  return draftlolLinkFromBrowser(browser, championsToBan).finally(async () => {
+    const process = browser.process()
+
+    if (process !== null) {
+      process.kill('SIGINT')
+    }
+  })
+}
+
+async function draftlolLinkFromBrowser(
+  browser: Browser,
+  championsToBan: ReadonlyArray<ChampionId>,
+): Promise<string> {
   const page = await browser.newPage()
 
-  const url = 'https://draftlol.dawe.gg?opts=InQiOlswLDIsNCwxMywxNSwxLDMsNSwxMiwxNF0sInAiOjYw'
-
-  await page.goto(url)
+  await page.goto(baseUrl)
 
   const advancedOptionsButtonSelector = '.advancedOptionsButton'
 
@@ -105,9 +122,5 @@ async function uncachedGetDraftlolLink(championsToBan: ReadonlyArray<ChampionId>
     throw Error('permanentLinkInput was null')
   }
 
-  const permanentLink = await page.evaluate(e => e.value, permanentLinkInput)
-
-  await browser.close()
-
-  return permanentLink
+  return await page.evaluate(e => e.value, permanentLinkInput)
 }

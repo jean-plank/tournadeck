@@ -1,7 +1,9 @@
+import * as C from 'io-ts/Codec'
 import type { Newtype } from 'newtype-ts'
 import { iso } from 'newtype-ts'
 
 import { immutableAssign } from '../../../utils/fpTsUtils'
+import { fromNewtype } from '../../../utils/ioTsUtils'
 import type { TournamentPhase } from '../../TournamentPhase'
 import type {
   BoolField,
@@ -31,8 +33,10 @@ export type PbTournament = PbBaseModel<
 
 type TournamentId = Newtype<{ readonly TournamentId: unique symbol }, string>
 
+const codec = fromNewtype<TournamentId>(C.string)
+
 const { wrap, unwrap } = iso<TournamentId>()
 
-const TournamentId = immutableAssign(wrap, { unwrap })
+const TournamentId = immutableAssign(wrap, { unwrap, codec })
 
 export { TournamentId }

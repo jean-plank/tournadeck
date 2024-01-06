@@ -36,10 +36,11 @@ type ChampionsLoadedProps = {
 const ChampionsLoaded: React.FC<ChampionsLoadedProps> = ({ data }) => {
   if (data === undefined) return notFound()
 
-  const { staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
+  const { tournament, staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
 
   return (
     <Champions
+      tournamentId={tournament.id}
       staticData={staticData}
       stillAvailable={stillAvailable}
       alreadyPlayed={alreadyPlayed}
