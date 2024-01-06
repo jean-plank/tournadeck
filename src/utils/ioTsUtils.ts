@@ -41,6 +41,16 @@ export const fromReadonlyArrayDecoder = D.fromArray as unknown as <I, A>(
 ) => Decoder<ReadonlyArray<I>, ReadonlyArray<A>>
 
 /**
+ * maybeDecoder
+ */
+
+export function maybeDecoder<A>(decoder: Decoder<unknown, A>): Decoder<unknown, A | null> {
+  return {
+    decode: i => (i === undefined || i === null ? D.success(null) : decoder.decode(i)),
+  }
+}
+
+/**
  * DateFromISOString
  */
 
@@ -65,6 +75,27 @@ export const DateFromISOString = {
   decoder: dateFromISOStringDecoder,
   encoder: dateFromISOStringEncoder,
   codec: dateFromISOStringCodec,
+}
+
+/**
+ * DateFromNumber
+ */
+
+const dateFromNumberNumberDecoder: Decoder<number, Date> = {
+  decode: n => {
+    const d = new Date(n)
+    return !isNaN(d.getTime()) ? D.success(d) : D.failure(n, 'DateFromNumber')
+  },
+}
+
+const dateFromNumberDecoder: Decoder<unknown, Date> = pipe(
+  D.number,
+  D.compose(dateFromNumberNumberDecoder),
+)
+
+export const DateFromNumber = {
+  decoder: dateFromNumberDecoder,
+  numberDecoder: dateFromNumberNumberDecoder,
 }
 
 /**

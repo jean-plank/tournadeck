@@ -21,13 +21,15 @@ const participantCodec = C.struct({
   riotId: C.nullable(RiotId.fromStringCodec('#')),
 })
 
-const teamDecoder = C.struct({
-  participants: C.array(participantCodec),
+export type TheQuestMatchTeam = C.TypeOf<typeof teamCodec>
+
+const teamCodec = C.struct({
+  participants: C.readonly(C.array(participantCodec)),
 })
 
-const teamProperties: ReadonlyRecord<`${RiotTeamId}`, typeof teamDecoder> = {
-  100: teamDecoder,
-  200: teamDecoder,
+const teamProperties: ReadonlyRecord<`${RiotTeamId}`, typeof teamCodec> = {
+  100: teamCodec,
+  200: teamCodec,
 }
 
 type TheQuestMatch = C.TypeOf<typeof codec>
