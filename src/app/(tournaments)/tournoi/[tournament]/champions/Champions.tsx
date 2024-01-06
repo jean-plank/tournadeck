@@ -51,6 +51,8 @@ export const Champions: React.FC<Props> = ({
     )
   }, [alreadyPlayed, tournamentId])
 
+  const totalChampionsCount = stillAvailable.length + alreadyPlayed.length
+
   return (
     <div className="flex flex-col gap-8 px-4 py-8">
       <SearchChampion
@@ -62,7 +64,12 @@ export const Champions: React.FC<Props> = ({
       />
 
       <div className="flex flex-col gap-4">
-        <h2 className="font-bold">Champions disponibles :</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="font-bold">Champions disponibles :</h2>
+          <span>
+            {filteredStillAvailable.length} / {totalChampionsCount}
+          </span>
+        </div>
 
         <ul className="flex flex-wrap gap-1">
           {filteredStillAvailable.map(c => (
@@ -79,7 +86,12 @@ export const Champions: React.FC<Props> = ({
       </div>
 
       <div className="flex flex-col gap-4">
-        <h2 className="font-bold">Champions déjà joués :</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="font-bold">Champions déjà joués :</h2>
+          <span>
+            {filteredAlreadyPlayed.length} / {totalChampionsCount}
+          </span>
+        </div>
 
         <ul className="flex flex-wrap gap-1">
           {filteredAlreadyPlayed.map(c => (
