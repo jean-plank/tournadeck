@@ -74,8 +74,9 @@ const arrayShuffle =
     if (!readonlyArray.isNonEmpty(as)) return []
 
     const i = random.randomInt(0, as.length - 1)()
+    const a = as[i]
 
-    return [as[i], ...arrayShuffle(readonlyArray.unsafeDeleteAt(i, as))()]
+    return [...(a !== undefined ? [a] : []), ...arrayShuffle(readonlyArray.unsafeDeleteAt(i, as))()]
   }
 
 function arrayCombine<A>(as: ReadonlyArray<A>): ReadonlyArray<readonly [A, A]> {

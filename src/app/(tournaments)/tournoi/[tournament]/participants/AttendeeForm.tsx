@@ -68,7 +68,8 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
   const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files !== null && files.length > 0) {
-      const selected = files[0]
+      const selected = files[0]!
+
       setInputs(i => ({ ...i, avatar: selected }))
       // Image preview
       const reader = new FileReader()

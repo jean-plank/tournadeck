@@ -23,7 +23,7 @@ export const PocketBaseContextProvider: ChildrenFC = ({ children }) => {
   const [user, setUser] = useState<PocketBaseContext['user']>(undefined)
 
   const pb = useMemo((): MyPocketBase => {
-    const pb_ = MyPocketBase(process.env.NEXT_PUBLIC_POCKET_BASE_URL)
+    const pb_ = MyPocketBase(process.env['NEXT_PUBLIC_POCKET_BASE_URL'])
 
     pb_.authStore.onChange((token, model) => {
       setUser((model as User | null) ?? undefined)

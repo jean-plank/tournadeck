@@ -1,5 +1,5 @@
 import { either, json, predicate, readonlyArray, readonlyRecord, string } from 'fp-ts'
-import { flow, pipe } from 'fp-ts/function'
+import { flow, pipe, tuple } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 import type { RecordSubscription, UnsubscribeFunc } from 'pocketbase'
 
@@ -147,14 +147,16 @@ const pbEventDecoder = pipe(
     fromReadonlyArrayDecoder(
       pipe(
         D.id<string>(),
-        D.parse(line => {
+        D.parse<string, Tuple<string, string>>(line => {
           const match = line.match(lineRegex)
 
           if (match === null) return D.failure(line, 'TupleFromLine')
 
           const [, key, val] = match
 
-          return D.success([key, val] as const)
+          if (key === undefined || val === undefined) return D.failure(line, 'TupleFromLine')
+
+          return D.success(tuple(key, val))
         }),
       ),
     ),
