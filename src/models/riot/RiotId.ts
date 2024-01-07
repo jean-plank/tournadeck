@@ -39,6 +39,8 @@ function fromStringDecoder(sep: Sep): Decoder<unknown, RiotId> {
 
       const [, gameName, tagLine] = match
 
+      if (gameName === undefined || tagLine === undefined) return D.failure(str, `RiotId[${sep}]`)
+
       return D.success(construct(GameName(gameName), TagLine(tagLine)))
     }),
   )

@@ -14,7 +14,7 @@ export async function initPocketBaseIfPbEmpty(
     if (
       e instanceof ClientResponseError &&
       e.status === 400 &&
-      e.response.message === 'Failed to authenticate.'
+      e.response['message'] === 'Failed to authenticate.'
     ) {
       return undefined
     }
