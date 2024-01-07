@@ -8,6 +8,9 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* ./
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
 RUN yarn --frozen-lockfile
 
 # Rebuild the source code only when needed
@@ -36,8 +39,13 @@ RUN apk add --no-cache \
       ca-certificates \
       ttf-freefont
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+RUN npm i -g sharp
+RUN which node
+RUN ls -la /usr/local/lib/node_modules/sharp
+
+ENV NEXT_SHARP_PATH /usr/local/lib/node_modules/sharp
+
+ENV PUPPETEER_EXECUTABLE_PATH /usr/bin/chromium-browser
 
 ENV NODE_ENV production
 # Uncomment the following line in case you want to disable telemetry during runtime.
