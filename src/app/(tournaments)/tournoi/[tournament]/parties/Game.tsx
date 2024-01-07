@@ -1,5 +1,5 @@
-import { ord, readonlyArray } from 'fp-ts'
-import { pipe } from 'fp-ts/function'
+import { option, ord, readonlyArray } from 'fp-ts'
+import { flow, pipe } from 'fp-ts/function'
 import { useMemo } from 'react'
 
 import { TeamRole } from '../../../../../models/TeamRole'
@@ -11,9 +11,12 @@ import { Puuid } from '../../../../../models/riot/Puuid'
 import { RiotTeamId } from '../../../../../models/riot/RiotTeamId'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
 import { cx } from '../../../../../utils/cx'
+import { partialRecord } from '../../../../../utils/fpTsUtils'
+import { DayjsDurationFromNumber } from '../../../../../utils/ioTsUtils'
 import type { EnrichedTeam } from './GameTeam'
 import { GameTeam } from './GameTeam'
-import { Match, MatchWithTeam1 } from './Match'
+import type { EnrichedParticipant } from './Match'
+import { Match } from './Match'
 import { PlannedOn } from './PlannedOn'
 
 type GameProps = {
@@ -23,45 +26,42 @@ type GameProps = {
 }
 
 export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
-  const { winner, plannedOn } = match
+  const { winner, bestOf, plannedOn, apiData } = match
 
-  const { team1, team2, withTeam1 } = useMemo((): {
+  const { team1, team2, matchesWithTeam1 } = useMemo((): {
     team1: Optional<EnrichedTeam>
     team2: Optional<EnrichedTeam>
-    withTeam1: ReadonlyArray<Optional<MatchWithTeam1>>
+    matchesWithTeam1: ReadonlyArray<MatchWithTeam1>
   } => {
-    const { bestOf, team1: team1Id, team2: team2Id, apiData } = match
-
-    const team1WithMembers = getTeamWithMembers(teams, attendees, team1Id)
-    const team2WithMembers = getTeamWithMembers(teams, attendees, team2Id)
+    const team1WithMembers = getTeamWithMembers(teams, attendees, match.team1)
+    const team2WithMembers = getTeamWithMembers(teams, attendees, match.team2)
 
     const withTeam1_ = pipe(
-      Array.from({ length: Math.max(bestOf, apiData.length) }),
-      readonlyArray.mapWithIndex((i): Optional<MatchWithTeam1> => {
-        const match_ = apiData[i]
-
-        if (match_ === undefined) return undefined
-
-        return {
-          match: match_,
-          team1:
-            team1WithMembers !== undefined
-              ? findTeam1(
-                  match_,
-                  pipe(
-                    team1WithMembers.members,
-                    readonlyArray.map(a => a.puuid),
-                  ),
-                )
-              : undefined,
-        }
-      }),
+      match.apiData,
+      readonlyArray.filterMap(
+        flow(
+          option.fromNullable,
+          option.map(m => ({
+            match: m,
+            team1:
+              team1WithMembers !== undefined
+                ? findTeam1(
+                    m,
+                    pipe(
+                      team1WithMembers.members,
+                      readonlyArray.map(a => a.puuid),
+                    ),
+                  )
+                : undefined,
+          })),
+        ),
+      ),
     )
 
     return {
       team1: enrichTeam(team1WithMembers, withTeam1_, true),
       team2: enrichTeam(team2WithMembers, withTeam1_, false),
-      withTeam1: withTeam1_,
+      matchesWithTeam1: withTeam1_,
     }
   }, [attendees, match, teams])
 
@@ -105,25 +105,74 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
           })}
         </div>
 
-        {withTeam1.map((d, i) => {
-          if (d === undefined) {
-            return (
-              // eslint-disable-next-line react/no-array-index-key
-              <div key={i} className="grid grid-cols-2 gap-0.5">
-                <span className="bg-grey1 px-2 py-1 text-white/50">-</span>
-                <span className="bg-grey1 px-2 py-1 text-end text-white/50">-</span>
-              </div>
-            )
-          }
+        {pipe(
+          Array.from({ length: Math.max(bestOf, apiData.length) }),
+          readonlyArray.mapWithIndex(i => {
+            const matchWithTeam1 = matchesWithTeam1[i]
 
-          return (
-            // eslint-disable-next-line react/no-array-index-key
-            <Match key={i} {...d} />
-          )
-        })}
+            if (matchWithTeam1 === undefined) {
+              return (
+                // eslint-disable-next-line react/no-array-index-key
+                <div key={i} className="grid grid-cols-2 gap-0.5">
+                  <span className="bg-grey1 px-2 py-1 text-white/50">-</span>
+                  <span className="bg-grey1 px-2 py-1 text-end text-white/50">-</span>
+                </div>
+              )
+            }
+
+            const { blueIsLeft, leftWon } = MatchWithTeam1.predicates(matchWithTeam1)
+
+            const enrichedParticipants = pipe(
+              matchWithTeam1.match.teams,
+              partialRecord.map((team): ReadonlyArray<EnrichedParticipant> => {
+                if (team === undefined) return []
+
+                return team.participants.map(
+                  (p): EnrichedParticipant => ({
+                    ...p,
+                    member: attendees.find(a => Puuid.Eq.equals(a.puuid, p.puuid)),
+                  }),
+                )
+              }),
+            )
+
+            return (
+              <Match
+                key={matchWithTeam1.match.id}
+                id={matchWithTeam1.match.id}
+                gameDuration={DayjsDurationFromNumber.encoder.encode(
+                  matchWithTeam1.match.gameDuration,
+                )}
+                left={(blueIsLeft ? enrichedParticipants[100] : enrichedParticipants[200]) ?? []}
+                right={(blueIsLeft ? enrichedParticipants[200] : enrichedParticipants[100]) ?? []}
+                blueIsLeft={blueIsLeft}
+                leftWon={leftWon}
+                blueWon={RiotTeamId.Eq.equals(matchWithTeam1.match.win, 100)}
+              />
+            )
+          }),
+        )}
       </div>
     </li>
   )
+}
+
+type MatchWithTeam1 = {
+  match: TheQuestMatch
+  team1: Optional<RiotTeamId>
+}
+
+type MatchWithTeam1Predicates = {
+  blueIsLeft: boolean
+  leftWon: boolean
+}
+
+const MatchWithTeam1 = {
+  predicates: ({ match, team1 }: MatchWithTeam1): MatchWithTeam1Predicates => {
+    const blueIsLeft = team1 === 100
+
+    return { blueIsLeft, leftWon: blueIsLeft ? match.win === 100 : match.win === 200 }
+  },
 }
 
 const byRole = pipe(
@@ -131,7 +180,7 @@ const byRole = pipe(
   ord.contramap((b: AttendeeWithRiotId) => b.role),
 )
 
-type TeamWithMembers = {
+type TeamWithMember = {
   team: Team
   members: ReadonlyArray<AttendeeWithRiotId>
 }
@@ -140,7 +189,7 @@ function getTeamWithMembers(
   teams: ReadonlyArray<Team>,
   attendees: ReadonlyArray<AttendeeWithRiotId>,
   teamId: '' | TeamId,
-): Optional<TeamWithMembers> {
+): Optional<TeamWithMember> {
   const team = teamId !== '' ? teams.find(t => TeamId.Eq.equals(t.id, teamId)) : undefined
 
   if (team === undefined) return undefined
@@ -156,7 +205,7 @@ function getTeamWithMembers(
 }
 
 function enrichTeam(
-  t: Optional<TeamWithMembers>,
+  t: Optional<TeamWithMember>,
   withTeam1: ReadonlyArray<Optional<MatchWithTeam1>>,
   isTeam1: boolean,
 ): Optional<EnrichedTeam> {
