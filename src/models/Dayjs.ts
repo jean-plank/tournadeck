@@ -6,7 +6,7 @@ import durationPlugin from 'dayjs/plugin/duration'
 import relativeTimePlugin from 'dayjs/plugin/relativeTime'
 import timezonePlugin from 'dayjs/plugin/timezone'
 import utcPlugin from 'dayjs/plugin/utc'
-import { number, ord, readonlyNonEmptyArray, string } from 'fp-ts'
+import { number, ord } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 
 import { immutableAssign } from '../utils/fpTsUtils'
@@ -61,30 +61,3 @@ const durationOrd = pipe(
 const DayjsDuration = immutableAssign(dayjs.duration, { Ord: durationOrd })
 
 export { DayjsDuration }
-
-export function extractDateAndTime(dateString: string): { date: string; time: string } | null {
-  try {
-    const dateObject = new Date(dateString)
-
-    if (isNaN(dateObject.getTime())) {
-      throw new Error('Invalid date string')
-    }
-
-    const extractedDate = pipe(
-      dateObject.toISOString(),
-      string.split('T'),
-      readonlyNonEmptyArray.head,
-    )
-    const extractedTime = `${('0' + dateObject.getUTCHours()).slice(-2)}:${(
-      '0' + dateObject.getUTCMinutes()
-    ).slice(-2)}`
-
-    return {
-      date: extractedDate,
-      time: extractedTime,
-    }
-  } catch (error) {
-    console.error('Error extracting date and time:', error)
-    return null
-  }
-}

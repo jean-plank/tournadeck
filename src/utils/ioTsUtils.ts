@@ -102,9 +102,13 @@ export const DateFromNumber = {
  * DayjsDurationFromNumber
  */
 
+const dayjsDurationFromNumberNumberDecoder: Decoder<number, DayjsDuration> = {
+  decode: n => D.success(DayjsDuration(n)),
+}
+
 const dayjsDurationFromNumberDecoder: Decoder<unknown, DayjsDuration> = pipe(
   D.number,
-  D.map(n => DayjsDuration(n)),
+  D.compose(dayjsDurationFromNumberNumberDecoder),
 )
 
 const dayjsDurationFromNumberEncoder: Encoder<number, DayjsDuration> = {
@@ -118,6 +122,7 @@ const dayjsDurationFromNumberCodec: Codec<unknown, number, DayjsDuration> = C.ma
 
 export const DayjsDurationFromNumber = {
   decoder: dayjsDurationFromNumberDecoder,
+  numberDecoder: dayjsDurationFromNumberNumberDecoder,
   encoder: dayjsDurationFromNumberEncoder,
   codec: dayjsDurationFromNumberCodec,
 }

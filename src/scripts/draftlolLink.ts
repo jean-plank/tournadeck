@@ -5,6 +5,7 @@ import * as D from 'io-ts/Decoder'
 import { getDraftlolLink } from '../helpers/getDraftlolLink'
 import { TournamentId } from '../models/pocketBase/tables/Tournament'
 import { ChampionId } from '../models/riot/ChampionId'
+import { eitherGetOrThrow } from '../utils/fpTsUtils'
 import { decodeError } from '../utils/ioTsUtils'
 import { loadDotenv } from './helpers/loadDotenv'
 
@@ -29,9 +30,8 @@ const argvDecoder = D.tuple(
 async function draftlolLink(): Promise<void> {
   const [, , cacheForTournament, championsToBan] = pipe(
     argvDecoder.decode(process.argv),
-    either.getOrElseW(e => {
-      throw decodeError('Argv')(process.argv)(e)
-    }),
+    either.mapLeft(decodeError('Argv')(process.argv)),
+    eitherGetOrThrow,
   )
 
   const link = await getDraftlolLink(cacheForTournament, championsToBan)

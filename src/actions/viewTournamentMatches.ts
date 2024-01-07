@@ -4,6 +4,7 @@ import { either, readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 
 import { Config } from '../config/Config'
+import { theQuestService } from '../context/context'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
@@ -14,6 +15,7 @@ import type { Team } from '../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../models/pocketBase/tables/Tournament'
 import type { MatchApiDataDecoded } from '../models/pocketBase/tables/match/Match'
 import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/MatchApiDatas'
+import type { DDragonVersion } from '../models/riot/DDragonVersion'
 import type { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
 import { listAttendeesForTournament } from './helpers/listAttendeesForTournament'
 import { listTeamsForTournament } from './helpers/listTeamsForTournament'
@@ -21,6 +23,7 @@ import { listTeamsForTournament } from './helpers/listTeamsForTournament'
 const { getFromPbCacheDuration, tags } = Config.constants
 
 export type ViewTournamentMatches = {
+  version: DDragonVersion
   tournament: Tournament
   teams: ReadonlyArray<Team>
   attendees: ReadonlyArray<AttendeeWithRiotId>
@@ -53,7 +56,8 @@ export async function viewTournamentMatches(
     throw new AuthError('Forbidden')
   }
 
-  const [teams, attendees, matches] = await Promise.all([
+  const [staticData, teams, attendees, matches] = await Promise.all([
+    theQuestService.getStaticData(true),
     listTeamsForTournament(adminPb, tournamentId),
     listAttendeesForTournament(adminPb, tournamentId),
 
@@ -64,6 +68,7 @@ export async function viewTournamentMatches(
   ])
 
   return {
+    version: staticData.version,
     tournament,
     teams,
     attendees,

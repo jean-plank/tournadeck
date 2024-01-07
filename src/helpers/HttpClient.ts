@@ -8,8 +8,9 @@ import ky, { HTTPError as KyHTTPError } from 'ky'
 import type { Except, Merge, OverrideProperties } from 'type-fest'
 
 import type { GetLogger } from '../Logger'
-import { immutableAssign } from '../utils/fpTsUtils'
+import { eitherGetOrThrow, immutableAssign } from '../utils/fpTsUtils'
 import { decodeError } from '../utils/ioTsUtils'
+import { unknownToError } from '../utils/unknownToError'
 
 type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete'
 
@@ -75,9 +76,8 @@ const HttpClient = immutableAssign(
 
             return pipe(decoder.decode(u), either.mapLeft(decodeError(decoderName)(u)))
           }),
-          either.getOrElseW(e => {
-            throw e
-          }),
+          either.mapLeft(unknownToError),
+          eitherGetOrThrow,
         )
       }
 
