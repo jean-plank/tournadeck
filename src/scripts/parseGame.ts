@@ -14,6 +14,7 @@ import type { Puuid } from '../models/riot/Puuid'
 import type { RiotId } from '../models/riot/RiotId'
 import { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
 import { TheQuestService } from '../services/TheQuestService'
+import { eitherGetOrThrow } from '../utils/fpTsUtils'
 import { decodeError } from '../utils/ioTsUtils'
 import { loadDotenv } from './helpers/loadDotenv'
 
@@ -32,9 +33,8 @@ async function parseGame(): Promise<void> {
 
   const [, , jsonFile] = pipe(
     argvDecoder.decode(process.argv),
-    either.getOrElseW(e => {
-      throw decodeError('Argv')(process.argv)(e)
-    }),
+    either.mapLeft(decodeError('Argv')(process.argv)),
+    eitherGetOrThrow,
   )
 
   const rawJson = await fs.readFile(jsonFile, 'utf-8')
@@ -43,9 +43,8 @@ async function parseGame(): Promise<void> {
 
   const lcuMatch = pipe(
     LCUMatch.decoder.decode(json),
-    either.getOrElseW(e => {
-      throw decodeError('LCUMatch')(json)(e)
-    }),
+    either.mapLeft(decodeError('LCUMatch')(json)),
+    eitherGetOrThrow,
   )
 
   const staticData = await theQuestService.getStaticData()

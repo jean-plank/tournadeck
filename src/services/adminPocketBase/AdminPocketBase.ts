@@ -1,3 +1,5 @@
+import 'server-cli-only'
+
 import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { revalidateTag } from 'next/cache'
