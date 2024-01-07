@@ -7,6 +7,7 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import type { Team } from '../../../../../models/pocketBase/tables/Team'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
+import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'
 import { Puuid } from '../../../../../models/riot/Puuid'
 import { RiotTeamId } from '../../../../../models/riot/RiotTeamId'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
@@ -15,17 +16,18 @@ import { partialRecord } from '../../../../../utils/fpTsUtils'
 import { DayjsDurationFromNumber } from '../../../../../utils/ioTsUtils'
 import type { EnrichedTeam } from './GameTeam'
 import { GameTeam } from './GameTeam'
-import type { EnrichedParticipant } from './Match'
 import { Match } from './Match'
+import type { EnrichedParticipant } from './MatchTooltip'
 import { PlannedOn } from './PlannedOn'
 
 type GameProps = {
+  version: DDragonVersion
   teams: ReadonlyArray<Team>
   attendees: ReadonlyArray<AttendeeWithRiotId>
   match: MatchApiDataDecoded
 }
 
-export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
+export const Game: React.FC<GameProps> = ({ version, teams, attendees, match }) => {
   const { winner, bestOf, plannedOn, apiData } = match
 
   const { team1, team2, matchesWithTeam1 } = useMemo((): {
@@ -127,11 +129,15 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
               partialRecord.map((team): ReadonlyArray<EnrichedParticipant> => {
                 if (team === undefined) return []
 
-                return team.participants.map(
-                  (p): EnrichedParticipant => ({
-                    ...p,
-                    member: attendees.find(a => Puuid.Eq.equals(a.puuid, p.puuid)),
-                  }),
+                return pipe(
+                  team.participants,
+                  readonlyArray.map(
+                    (p): EnrichedParticipant => ({
+                      ...p,
+                      member: attendees.find(a => Puuid.Eq.equals(a.puuid, p.puuid)),
+                    }),
+                  ),
+                  readonlyArray.sort(byOptionalRole),
                 )
               }),
             )
@@ -139,6 +145,7 @@ export const Game: React.FC<GameProps> = ({ teams, attendees, match }) => {
             return (
               <Match
                 key={matchWithTeam1.match.id}
+                version={version}
                 id={matchWithTeam1.match.id}
                 gameDuration={DayjsDurationFromNumber.encoder.encode(
                   matchWithTeam1.match.gameDuration,
@@ -174,6 +181,20 @@ const MatchWithTeam1 = {
     return { blueIsLeft, leftWon: blueIsLeft ? match.win === 100 : match.win === 200 }
   },
 }
+
+const byOptionalRole = pipe(
+  ord.fromCompare<Optional<TeamRole>>((first, second) => {
+    if (first === undefined) {
+      if (second === undefined) return 0
+      return 1
+    }
+
+    if (second === undefined) return -1
+
+    return TeamRole.Ord.compare(first, second)
+  }),
+  ord.contramap((b: EnrichedParticipant) => b.member?.role),
+)
 
 const byRole = pipe(
   TeamRole.Ord,

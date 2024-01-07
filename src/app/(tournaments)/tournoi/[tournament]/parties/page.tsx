@@ -41,7 +41,7 @@ type GamesLoadedDefinedProps = {
 }
 
 const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
-  const { attendees, teams, matches } = data
+  const { version, attendees, teams, matches } = data
 
   const { groupedRounds, knockoutRoundsMax } = useMemo(() => {
     const groupedRounds_ = pipe(
@@ -120,6 +120,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
                           {nonBronze.map(match => (
                             <Game
                               key={match.id}
+                              version={version}
                               teams={teams}
                               attendees={attendees}
                               match={match}
@@ -139,6 +140,7 @@ const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
                             {bronze.map(match => (
                               <Game
                                 key={match.id}
+                                version={version}
                                 teams={teams}
                                 attendees={attendees}
                                 match={match}

@@ -2,21 +2,22 @@
 
 import { ord } from 'fp-ts'
 import { useRef } from 'react'
-import type { Merge } from 'type-fest'
 
 import { TriangleRight } from '../../../../../components/svgs/icons'
 import { Tooltip } from '../../../../../components/tooltip/Tooltip'
 import { constants } from '../../../../../config/constants'
 import { DayjsDuration } from '../../../../../models/Dayjs'
-import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'
 import type { GameId } from '../../../../../models/riot/GameId'
 import { type TheQuestMatchParticipant } from '../../../../../models/theQuest/TheQuestMatch'
 import { cx } from '../../../../../utils/cx'
 import { GameDuration } from './GameDuration'
 import { GoldDiff } from './GoldDiff'
+import type { EnrichedParticipant } from './MatchTooltip'
 import { MatchTooltip } from './MatchTooltip'
 
 type Props = {
+  version: DDragonVersion
   id: GameId
   gameDuration: number
   left: ReadonlyArray<EnrichedParticipant>
@@ -26,12 +27,8 @@ type Props = {
   blueWon: boolean
 }
 
-export type EnrichedParticipant = Merge<
-  TheQuestMatchParticipant,
-  { member: Optional<AttendeeWithRiotId> }
->
-
 export const Match: React.FC<Props> = ({
+  version,
   id,
   gameDuration: gameDuration_,
   left,
@@ -106,7 +103,7 @@ export const Match: React.FC<Props> = ({
         </span>
       </a>
       <Tooltip hoverRef={ref} placement="right-start">
-        <MatchTooltip left={left} right={right} />
+        <MatchTooltip version={version} left={left} right={right} />
       </Tooltip>
     </>
   )
