@@ -43,8 +43,8 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
           <Image
             src={pbFileUrl('attendees', attendee.id, attendee.avatar)}
             className="h-full w-full object-cover"
-            width={256}
-            height={256}
+            width={512}
+            height={512}
             alt={`Avatar de ${attendee.riotId.gameName}#${attendee.riotId.tagLine}`}
           />
         </div>
