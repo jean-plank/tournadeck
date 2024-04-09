@@ -40,8 +40,6 @@ RUN apk add --no-cache \
       ttf-freefont
 
 RUN npm i -g sharp
-RUN which node
-RUN ls -la /usr/local/lib/node_modules/sharp
 
 ENV NEXT_SHARP_PATH /usr/local/lib/node_modules/sharp
 
