@@ -37,7 +37,7 @@ See below for `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET` values.
 
 ### PocketBase
 
-Download latest PocketBase version from https://pocketbase.io/docs (to the root of this project)
+Download latest PocketBase version from https://pocketbase.io/docs (to the root of this project) or you already have, update it with `./pocketbase update`.
 
 Start PocketBase:
 
@@ -82,10 +82,10 @@ yarn tailwindConfigViewer
 
 ## Clean db
 
-Stop PocketBase and Next.js
+Stop PocketBase and Next.js.
 
 ```bash
 rm -fr pb_data
 ```
 
-And restart PocketBase and Next.js
+And restart PocketBase and Next.js.
