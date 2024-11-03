@@ -11,6 +11,8 @@ import { constants } from '../../../../../config/constants'
 import { ChampionPool } from '../../../../../models/ChampionPool'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import { GameName } from '../../../../../models/riot/GameName'
+import { TagLine } from '../../../../../models/riot/TagLine'
 import { TheQuestUtils } from '../../../../../utils/TheQuestUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
@@ -57,9 +59,11 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
             className="group flex flex-wrap items-center"
           >
             <span className="font-bold text-goldenrod group-hover:underline">
-              {attendee.riotId.gameName}
+              {GameName.unwrap(attendee.riotId.gameName)}
             </span>
-            <span className="text-grey-500 group-hover:underline">#{attendee.riotId.tagLine}</span>
+            <span className="text-grey-500 group-hover:underline">
+              #{TagLine.unwrap(attendee.riotId.tagLine)}
+            </span>
           </a>
         </div>
 

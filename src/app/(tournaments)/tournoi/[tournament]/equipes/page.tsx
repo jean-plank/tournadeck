@@ -9,7 +9,7 @@ import type { TeamsData } from './getTeamsData'
 import { getTeamsData } from './getTeamsData'
 
 type Props = {
-  params: { tournament: TournamentId }
+  params: Promise<{ tournament: TournamentId }>
 }
 
 const TeamsPage: React.FC<Props> = async props => {

@@ -12,7 +12,7 @@ import { TournamentSubPagesNav } from '../../TournamentSubPagesNav'
 const dateTimeFormat = 'dddd D MMMM YYYY, HH:mm'
 
 type Props = {
-  params: { tournament: TournamentId }
+  params: Promise<{ tournament: TournamentId }>
 }
 
 const TournamentPage: React.FC<Props> = async props => {

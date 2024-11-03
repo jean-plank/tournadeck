@@ -19,7 +19,7 @@ type Props = {
    * Place the tooltip from this element.
    * @default hoverRef or NonEmptyArray.head(hoverRef)
    */
-  placementRef?: React.RefObject<Element>
+  placementRef?: React.RefObject<Element | null>
   /**
    * Time spent open by the tooltip after the user navigates away from it / the hover (tablet).
    */

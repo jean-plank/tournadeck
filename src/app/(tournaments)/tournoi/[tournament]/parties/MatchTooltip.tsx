@@ -82,8 +82,8 @@ const Participant: React.FC<ParticipantProps> = ({
         />
 
         <div>
-          <span className="font-medium text-goldenrod">{riotId.gameName}</span>
-          <span className="text-grey-500">#{riotId.tagLine}</span>
+          <span className="font-medium text-goldenrod">{GameName.unwrap(riotId.gameName)}</span>
+          <span className="text-grey-500">#{TagLine.unwrap(riotId.tagLine)}</span>
         </div>
 
         {member?.isCaptain === true && (

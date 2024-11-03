@@ -13,7 +13,7 @@ import { SetTournament } from '../../../TournamentContext'
 import { Game } from './Game'
 
 type Props = {
-  params: { tournament: TournamentId }
+  params: Promise<{ tournament: TournamentId }>
 }
 
 const Games: React.FC<Props> = async props => {

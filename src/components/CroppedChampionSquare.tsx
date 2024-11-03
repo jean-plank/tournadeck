@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from 'react'
+import type { JSX } from 'react'
 import { createElement, forwardRef } from 'react'
 
 import type { ChampionId } from '../models/riot/ChampionId'
@@ -13,7 +13,7 @@ type Props<A extends HTMLTag> = {
   as?: A
   isDraggable?: boolean
   children?: React.ReactNode
-} & HTMLAttributes<ExtractElement<A>>
+} & React.ComponentPropsWithoutRef<A>
 
 export const CroppedChampionSquare = forwardRef(function <A extends HTMLTag>(
   {
@@ -41,14 +41,12 @@ export const CroppedChampionSquare = forwardRef(function <A extends HTMLTag>(
     children,
   )
 }) as <A extends HTMLTag = 'div'>(
-  props: React.PropsWithoutRef<Props<A>> & React.RefAttributes<ExtractElement<A>>,
+  props: Props<A> & React.RefAttributes<ExtractElement<A>>,
 ) => React.ReactElement | null
 
-type HTMLTag = keyof React.ReactHTML
+type HTMLTag = keyof JSX.IntrinsicElements
 
-type ExtractElement<A extends HTMLTag> = React.ReactHTML[A] extends React.DetailedHTMLFactory<
-  React.HTMLAttributes<unknown>,
-  infer E
->
-  ? E
-  : never
+type ExtractElement<A extends HTMLTag> =
+  JSX.IntrinsicElements[A] extends React.DetailedHTMLProps<React.HTMLAttributes<unknown>, infer E>
+    ? E
+    : never
