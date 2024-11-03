@@ -14,7 +14,7 @@ type Props = {
 type LolEloIconType = 'normal' | 'flat'
 
 export const LolEloIcon: React.FC<Props> = ({ type = 'normal', elo, className }) => {
-  const ref = useRef(null)
+  const ref = useRef<HTMLImageElement>(null)
 
   return (
     <>
@@ -25,7 +25,7 @@ export const LolEloIcon: React.FC<Props> = ({ type = 'normal', elo, className })
 }
 
 function renderIcon(
-  ref: React.Ref<HTMLImageElement>,
+  ref: React.Ref<HTMLImageElement | null>,
   type: LolEloIconType,
   elo: LolElo,
   className: Optional<string>,

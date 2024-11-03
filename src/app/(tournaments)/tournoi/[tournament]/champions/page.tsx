@@ -21,13 +21,16 @@ type Props = {
   params: { tournament: TournamentId }
 }
 
-const ChampionsPage: React.FC<Props> = ({ params }) =>
-  withRedirectOnAuthError(getTournament(params.tournament))(data => (
+const ChampionsPage: React.FC<Props> = async props => {
+  const params = await props.params
+
+  return withRedirectOnAuthError(getTournament(params.tournament))(data => (
     <>
       <SetTournament tournament={data?.tournament} />
       <ChampionsLoaded data={data} />
     </>
   ))
+}
 
 type ChampionsLoadedProps = {
   data: Optional<GetTournament>

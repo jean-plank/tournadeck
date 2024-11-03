@@ -16,13 +16,16 @@ type Props = {
   params: { tournament: TournamentId }
 }
 
-const Games: React.FC<Props> = ({ params }) =>
-  withRedirectOnAuthError(viewTournamentMatches(params.tournament))(data => (
+const Games: React.FC<Props> = async props => {
+  const params = await props.params
+
+  return withRedirectOnAuthError(viewTournamentMatches(params.tournament))(data => (
     <>
       <SetTournament tournament={data?.tournament} />
       <GamesLoaded data={data} />
     </>
   ))
+}
 
 export default Games
 
