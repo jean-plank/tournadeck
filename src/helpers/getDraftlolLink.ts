@@ -36,9 +36,9 @@ async function uncachedGetDraftlolLink(championsToBan: ReadonlyArray<ChampionId>
 
   const browser = await puppeteer.launch({
     executablePath: process.env['PUPPETEER_EXECUTABLE_PATH'],
-    headless: 'new',
+    headless: true,
     args: process.env.NODE_ENV === 'production' ? ['--no-sandbox'] : undefined,
-    ignoreHTTPSErrors: true,
+    acceptInsecureCerts: true,
   })
 
   return draftlolLinkFromBrowser(browser, championsToBan).finally(async () => {
