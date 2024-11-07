@@ -5,7 +5,6 @@ import { startupLoad } from '../actions/startupLoad'
 import { TooltipLayer } from '../components/tooltip/Tooltip'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
 import type { ChildrenFC } from '../models/ChildrenFC'
-import { DayjsDuration } from '../models/Dayjs'
 import { cx } from '../utils/cx'
 import './globals.css'
 
@@ -14,7 +13,7 @@ import './globals.css'
  *
  * Other calls should use `next: { revalidate: duration, tags: [tag] }`
  */
-export const revalidate = DayjsDuration({ seconds: 30 }).asSeconds()
+export const revalidate = 30 // seconds
 
 const baloo2 = localFont({
   src: [
