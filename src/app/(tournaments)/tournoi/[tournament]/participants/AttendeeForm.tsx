@@ -184,7 +184,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
       {avatarPreviewUrl !== null && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          className="mr-1 h-36 w-36 rounded-r-lg border-2 border-goldenrod object-cover"
+          className="mr-1 size-36 rounded-r-lg border-2 border-goldenrod object-cover"
           alt="avatar-preview"
           src={avatarPreviewUrl}
         />

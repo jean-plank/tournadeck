@@ -1,13 +1,18 @@
+import type { NextConfig } from 'next/dist/types.d.ts'
+
 const url = (() => {
+  const pocketBaseUrl = process.env['NEXT_PUBLIC_POCKET_BASE_URL']
+
+  if (pocketBaseUrl === undefined) return undefined
+
   try {
-    return new URL(process.env.NEXT_PUBLIC_POCKET_BASE_URL ?? '')
+    return new URL(pocketBaseUrl)
   } catch (e) {
     return undefined
   }
 })()
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   output: 'standalone',
   compress: false,
   poweredByHeader: false,
@@ -16,16 +21,16 @@ const nextConfig = {
       fullUrl: process.env.NODE_ENV !== 'production',
     },
   },
+  serverExternalPackages: ['pino'],
   experimental: {
     typedRoutes: true,
-    serverComponentsExternalPackages: ['pino'],
   },
   images: {
     remotePatterns: [
       ...(url !== undefined
         ? [
             {
-              protocol: url.protocol.slice(0, -1),
+              protocol: url.protocol.slice(0, -1) as 'https' | 'http',
               hostname: url.hostname,
               port: url.port,
             },
@@ -38,5 +43,9 @@ const nextConfig = {
     ],
   },
 }
+
+export default nextConfig
+
+//
 
 module.exports = nextConfig

@@ -30,20 +30,11 @@ declare module 'react' {
   declare namespace React {
     type MyNewType<URI, A> = Newtype<URI, A>
 
-    type MyKey = string | number | bigint | MyNewType<unknown, string | number | bigint>
+    type Key = string | number | bigint | MyNewType<unknown, string | number | bigint>
 
-    type MyReactNode =
-      | MyNewType<unknown, string | number>
-      | ReactElement
-      | string
-      | number
-      | Iterable<ReactNode>
-      | ReactPortal
-      | boolean
-      | null
-      | undefined
-      | React.DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES[keyof React.DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES]
-
-    export { MyKey as Key, MyReactNode as ReactNode }
+    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+    interface Attributes {
+      key?: Key | null | undefined
+    }
   }
 }

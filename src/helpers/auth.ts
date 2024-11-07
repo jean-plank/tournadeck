@@ -17,7 +17,8 @@ export type Auth = {
 }
 
 export async function auth(): Promise<Optional<Auth>> {
-  const cookie = cookies().get(pbAuthCookie)
+  const cookies_ = await cookies()
+  const cookie = cookies_.get(pbAuthCookie)
 
   if (cookie === undefined) return undefined
 

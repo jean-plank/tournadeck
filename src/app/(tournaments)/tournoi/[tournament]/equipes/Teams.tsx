@@ -63,8 +63,8 @@ export const Teams: React.FC<Props> = ({ teams, teamlessAttendees }) => (
         <div className="flex flex-col">
           {teamlessAttendees.map(([role, attendees]) => (
             <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
-              <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
-                <TeamRoleIconGold role={role} className="h-12 w-12" />
+              <div className="flex min-h-40 flex-col items-center justify-center self-center">
+                <TeamRoleIconGold role={role} className="size-12" />
                 <span>{attendees.length}</span>
               </div>
               {attendees.map(p => (

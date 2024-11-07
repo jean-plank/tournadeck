@@ -9,16 +9,19 @@ import { SetTournament } from '../../../TournamentContext'
 import { Attendees } from './Attendees'
 
 type Props = {
-  params: { tournament: TournamentId }
+  params: Promise<{ tournament: TournamentId }>
 }
 
-const AttendeesPage: React.FC<Props> = ({ params }) =>
-  withRedirectOnAuthError(viewTournament(params.tournament))(data => (
+const AttendeesPage: React.FC<Props> = async props => {
+  const params = await props.params
+
+  return withRedirectOnAuthError(viewTournament(params.tournament))(data => (
     <>
       <SetTournament tournament={data?.tournament} />
       <AttendeesPageLoaded data={data} />
     </>
   ))
+}
 
 type AttendeesPageLoadedProps = {
   data: Optional<ViewTournament>

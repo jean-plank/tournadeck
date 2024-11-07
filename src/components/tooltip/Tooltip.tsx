@@ -14,12 +14,12 @@ import { useVisiblePopper } from './useVisiblePopper'
 let tooltipLayer: Optional<HTMLDivElement> = undefined
 
 type Props = {
-  hoverRef: React.RefObject<Element> | NonEmptyArray<React.RefObject<Element>>
+  hoverRef: React.RefObject<Element | null> | NonEmptyArray<React.RefObject<Element | null>>
   /**
    * Place the tooltip from this element.
    * @default hoverRef or NonEmptyArray.head(hoverRef)
    */
-  placementRef?: React.RefObject<Element>
+  placementRef?: React.RefObject<Element | null>
   /**
    * Time spent open by the tooltip after the user navigates away from it / the hover (tablet).
    */
@@ -79,7 +79,7 @@ export const Tooltip: React.FC<Props> = ({
     options,
   )
 
-  const timer = useRef<number>()
+  const timer = useRef<number>(undefined)
 
   const hideTooltip = useCallback(() => {
     window.clearTimeout(timer.current)

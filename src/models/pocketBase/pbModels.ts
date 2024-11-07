@@ -39,18 +39,16 @@ export type PbAuthModel<Id extends PbAnyId, A extends PbAnyModel> = PbBaseModel<
 // eslint-disable-next-line @typescript-eslint/ban-types
 type BaseModelKeys = keyof PbBaseModel<PbAnyId, {}>
 
-export type PbInput<A extends PbBaseModel<PbAnyId, PbAnyModel>> = A extends PbAuthModel<
-  PbAnyId,
-  PbAnyModel
->
-  ? Merge<
-      InputBis<A>,
-      {
-        password: string
-        passwordConfirm: string
-      }
-    >
-  : InputBis<A>
+export type PbInput<A extends PbBaseModel<PbAnyId, PbAnyModel>> =
+  A extends PbAuthModel<PbAnyId, PbAnyModel>
+    ? Merge<
+        InputBis<A>,
+        {
+          password: string
+          passwordConfirm: string
+        }
+      >
+    : InputBis<A>
 
 type InputBis<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Omit<
   { [K in keyof A]: A[K]['input'] },
@@ -80,11 +78,12 @@ export type PbExpand<
   }
 >
 
-type ExpandField<A, K extends keyof A> = A[K] extends SingleRelationField<TableName, NullReq>
-  ? PbOutput<Tables[A[K]['tableName']]>
-  : A[K] extends MultipleRelationField<TableName, NullReq>
-    ? ReadonlyArray<PbOutput<Tables[A[K]['tableName']]>>
-    : never
+type ExpandField<A, K extends keyof A> =
+  A[K] extends SingleRelationField<TableName, NullReq>
+    ? PbOutput<Tables[A[K]['tableName']]>
+    : A[K] extends MultipleRelationField<TableName, NullReq>
+      ? ReadonlyArray<PbOutput<Tables[A[K]['tableName']]>>
+      : never
 
 type ExpandableKeys<A extends PbBaseModel<PbAnyId, PbAnyModel>> = {
   [K in keyof A]: A[K] extends

@@ -12,16 +12,19 @@ import { TournamentSubPagesNav } from '../../TournamentSubPagesNav'
 const dateTimeFormat = 'dddd D MMMM YYYY, HH:mm'
 
 type Props = {
-  params: { tournament: TournamentId }
+  params: Promise<{ tournament: TournamentId }>
 }
 
-const TournamentPage: React.FC<Props> = ({ params }) =>
-  withRedirectOnAuthError(viewTournament(params.tournament))(data => (
+const TournamentPage: React.FC<Props> = async props => {
+  const params = await props.params
+
+  return withRedirectOnAuthError(viewTournament(params.tournament))(data => (
     <>
       <SetTournament tournament={data?.tournament} />
       <TournamentPageLoaded data={data} />
     </>
   ))
+}
 
 type TournamentPageLoadedProps = {
   data: Optional<ViewTournament>

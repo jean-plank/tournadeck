@@ -2,7 +2,7 @@ import type { ChildrenFC } from '../../models/ChildrenFC'
 import { TournamentContextProvider } from './TournamentContext'
 import { TournamentHeader } from './TournamentHeader'
 
-const TournamentLayout: ChildrenFC = async ({ children }) => (
+const TournamentLayout: ChildrenFC = ({ children }) => (
   <div className="grid h-full grid-rows-[auto_1fr]">
     <TournamentContextProvider>
       <TournamentHeader />

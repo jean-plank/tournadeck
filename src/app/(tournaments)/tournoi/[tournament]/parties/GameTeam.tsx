@@ -9,6 +9,8 @@ import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { Tooltip } from '../../../../../components/tooltip/Tooltip'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { type Team } from '../../../../../models/pocketBase/tables/Team'
+import { GameName } from '../../../../../models/riot/GameName'
+import { TagLine } from '../../../../../models/riot/TagLine'
 import { cx } from '../../../../../utils/cx'
 
 type GameTeamProps = {
@@ -61,8 +63,10 @@ export const GameTeam: React.FC<GameTeamProps> = ({ team, isEven, isWinner }) =>
               <li key={a.id} className="flex items-center gap-2">
                 <TeamRoleIconGold role={a.role} className="h-6" />
                 <div>
-                  <span className="font-medium text-goldenrod">{a.riotId.gameName}</span>
-                  <span className="text-grey-500">#{a.riotId.tagLine}</span>
+                  <span className="font-medium text-goldenrod">
+                    {GameName.unwrap(a.riotId.gameName)}
+                  </span>
+                  <span className="text-grey-500">#{TagLine.unwrap(a.riotId.tagLine)}</span>
                 </div>
                 {a.isCaptain && (
                   <Image

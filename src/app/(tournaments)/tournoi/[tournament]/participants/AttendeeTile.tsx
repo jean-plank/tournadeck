@@ -11,6 +11,8 @@ import { constants } from '../../../../../config/constants'
 import { ChampionPool } from '../../../../../models/ChampionPool'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import { GameName } from '../../../../../models/riot/GameName'
+import { TagLine } from '../../../../../models/riot/TagLine'
 import { TheQuestUtils } from '../../../../../utils/TheQuestUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
@@ -42,7 +44,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
         <div className="h-48">
           <Image
             src={pbFileUrl('attendees', attendee.id, attendee.avatar)}
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
             width={512}
             height={512}
             alt={`Avatar de ${attendee.riotId.gameName}#${attendee.riotId.tagLine}`}
@@ -57,14 +59,16 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
             className="group flex flex-wrap items-center"
           >
             <span className="font-bold text-goldenrod group-hover:underline">
-              {attendee.riotId.gameName}
+              {GameName.unwrap(attendee.riotId.gameName)}
             </span>
-            <span className="text-grey-500 group-hover:underline">#{attendee.riotId.tagLine}</span>
+            <span className="text-grey-500 group-hover:underline">
+              #{TagLine.unwrap(attendee.riotId.tagLine)}
+            </span>
           </a>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <LolEloIcon type="flat" elo={attendee.currentElo} className="h-10 w-10 shrink-0" />
+          <LolEloIcon type="flat" elo={attendee.currentElo} className="size-10 shrink-0" />
           {attendee.comment !== '' && (
             <div className="flex h-7 items-center border-l border-goldenrod pl-1">
               <p
@@ -114,7 +118,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
       >
         <TeamRoleIconGold
           role={attendee.role}
-          className={attendee.role === 'sup' ? 'm-0.5 h-7 w-7' : 'h-8 w-8'}
+          className={attendee.role === 'sup' ? 'm-0.5 size-7' : 'size-8'}
         />
         <div className="mt-1 border-l-2 border-burgundy" />
         <div className="col-span-2 ml-1 border-t-2 border-burgundy" />
@@ -174,7 +178,7 @@ export const EmptyAttendeeTile: React.FC<EmptyAttendeeTileProps> = ({ role }) =>
     <div className="m-1 flex h-full w-60 items-center justify-center rounded-lg border-2 border-burgundy/30">
       <TeamRoleIcon
         role={role}
-        className="h-14 w-14 text-burgundy/80"
+        className="size-14 text-burgundy/80"
         secondaryClassName="text-burgundy/30"
       />
     </div>
