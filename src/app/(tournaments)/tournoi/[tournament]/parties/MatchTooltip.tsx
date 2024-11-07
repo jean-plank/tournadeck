@@ -78,7 +78,7 @@ const Participant: React.FC<ParticipantProps> = ({
           version={version}
           championId={championName}
           championName={ChampionId.unwrap(championName)}
-          className="h-6 w-6"
+          className="size-6"
         />
 
         <div>

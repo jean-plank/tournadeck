@@ -79,7 +79,7 @@ export const Champions: React.FC<Props> = ({
               championId={c.id}
               championName={c.name}
               as="li"
-              className="h-12 w-12"
+              className="size-12"
             />
           ))}
         </ul>
@@ -101,7 +101,7 @@ export const Champions: React.FC<Props> = ({
               championId={c.id}
               championName={c.name}
               as="li"
-              className="relative h-12 w-12"
+              className="relative size-12"
             >
               <span className="absolute top-[calc(100%_-_2px)] w-20 origin-left -rotate-45 border-t-4 border-red-500 shadow-even shadow-black" />
             </CroppedChampionSquare>

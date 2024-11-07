@@ -85,8 +85,8 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
         <div className="grid w-full grid-rows-5">
           {TeamRole.values.map(role => (
             <div key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
-              <div className="flex min-h-[10rem] flex-col items-center justify-center self-center">
-                <TeamRoleIconGold role={role} className="h-12 w-12" />
+              <div className="flex min-h-40 flex-col items-center justify-center self-center">
+                <TeamRoleIconGold role={role} className="size-12" />
                 <span>
                   {groupedAndSorted[role]?.length ?? 0}/{tournament.teamsCount}
                 </span>
