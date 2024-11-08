@@ -5,7 +5,7 @@ import Image from 'next/image'
 import type { Merge } from 'type-fest'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/Tooltip'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { type Team } from '../../../../../models/pocketBase/tables/Team'
 import { GameName } from '../../../../../models/riot/GameName'

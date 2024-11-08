@@ -2,7 +2,7 @@
 
 import { ord } from 'fp-ts'
 
-import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/Tooltip'
 import { TriangleRight } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
 import { DayjsDuration } from '../../../../../models/Dayjs'
