@@ -13,7 +13,6 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react'
-import type { CSSProperties } from 'react'
 import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -49,13 +48,13 @@ type UseTooltipFloating = {
   placement: Placement
   isOpen: boolean
   setFloating: (node: ContainerElement | null) => void
-  styles: CSSProperties
+  styles: React.CSSProperties
   props: Record<string, unknown>
   arrow: {
     ref: React.RefObject<ArrowElement | null>
     styles: Optional<{
-      left: Optional<CSSProperties['left']>
-      top: Optional<CSSProperties['top']>
+      left: Optional<React.CSSProperties['left']>
+      top: Optional<React.CSSProperties['top']>
     }>
   }
 }
