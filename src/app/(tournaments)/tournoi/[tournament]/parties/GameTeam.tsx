@@ -6,7 +6,7 @@ import { useRef } from 'react'
 import type { Merge } from 'type-fest'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { Tooltip } from '../../../../../components/tooltip/Tooltip'
+import { Tooltip } from '../../../../../components/floating/Tooltip'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { type Team } from '../../../../../models/pocketBase/tables/Team'
 import { GameName } from '../../../../../models/riot/GameName'

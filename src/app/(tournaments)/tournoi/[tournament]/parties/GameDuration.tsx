@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 
-import { Tooltip } from '../../../../../components/tooltip/Tooltip'
+import { Tooltip } from '../../../../../components/floating/Tooltip'
 import type { ChildrenFC } from '../../../../../models/ChildrenFC'
 
 export const GameDuration: ChildrenFC = ({ children }) => {

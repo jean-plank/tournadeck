@@ -3,8 +3,8 @@
 import { ord } from 'fp-ts'
 import { useRef } from 'react'
 
+import { Tooltip } from '../../../../../components/floating/Tooltip'
 import { TriangleRight } from '../../../../../components/svgs/icons'
-import { Tooltip } from '../../../../../components/tooltip/Tooltip'
 import { constants } from '../../../../../config/constants'
 import { DayjsDuration } from '../../../../../models/Dayjs'
 import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'

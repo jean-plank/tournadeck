@@ -40,7 +40,7 @@ type Props = {
 export const Tooltip: React.FC<Props> = ({
   hoverRef: hoverRef_,
   placementRef: maybePlacementRef,
-  openedDuration = DayjsDuration({ seconds: 3 }),
+  openedDuration = DayjsDuration({ seconds: 1 }),
   placement = 'bottom',
   alwaysVisible = false,
   shouldHide,
@@ -101,7 +101,7 @@ export const Tooltip: React.FC<Props> = ({
 
     function showTooltip(): void {
       if (hovers.every(h => h === null)) return
-      window.clearTimeout(timer.current)
+      // window.clearTimeout(timer.current)
       setEventListenersEnabled(true)
       setShouldDisplay_(true)
     }

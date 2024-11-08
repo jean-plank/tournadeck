@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 
-import { Tooltip } from '../../../../../components/tooltip/Tooltip'
+import { Tooltip } from '../../../../../components/floating/Tooltip'
 import { Dayjs } from '../../../../../models/Dayjs'
 
 type PlannedOnProps = {

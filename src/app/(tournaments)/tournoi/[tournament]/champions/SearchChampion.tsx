@@ -3,8 +3,8 @@
 import { string } from 'fp-ts'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Tooltip } from '../../../../../components/floating/Tooltip'
 import { CloseFilled, DiceFilled } from '../../../../../components/svgs/icons'
-import { Tooltip } from '../../../../../components/tooltip/Tooltip'
 import { cx } from '../../../../../utils/cx'
 
 type Props = {

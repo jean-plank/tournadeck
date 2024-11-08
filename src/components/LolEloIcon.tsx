@@ -3,7 +3,7 @@ import { useRef } from 'react'
 
 import { LolElo } from '../models/LolElo'
 import { cx } from '../utils/cx'
-import { Tooltip } from './tooltip/Tooltip'
+import { Tooltip } from './floating/Tooltip'
 
 type Props = {
   type?: LolEloIconType
