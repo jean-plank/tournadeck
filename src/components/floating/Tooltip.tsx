@@ -1,7 +1,20 @@
 'use client'
 
-import type { Placement } from '@popperjs/core'
+import type { Placement } from '@floating-ui/react'
+import {
+  arrow as arrow_,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
+} from '@floating-ui/react'
+import type { Placement as PopperPlacement } from '@popperjs/core'
 import { readonlyNonEmptyArray } from 'fp-ts'
+import type { CSSProperties } from 'react'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -12,6 +25,156 @@ import type { ReactPopperParams } from './useVisiblePopper'
 import { useVisiblePopper } from './useVisiblePopper'
 
 let tooltipLayer: Optional<HTMLDivElement> = undefined
+
+// ---
+
+type UseTooltipOptions = {
+  placement?: Placement
+}
+
+// ---
+
+type UseTooltip<E extends Element> = {
+  reference: {
+    ref: (node: E | null) => void
+  } & Record<string, unknown>
+  positionReference: {
+    ref: (node: Element | null) => void
+  }
+  floating: FloatingProps
+}
+
+type FloatingProps = {
+  placement: Placement
+  isOpen: boolean
+  setFloating: (node: ContainerElement | null) => void
+  styles: CSSProperties
+  props: Record<string, unknown>
+  arrow: {
+    ref: React.RefObject<ArrowElement | null>
+    styles: Optional<{
+      left: Optional<CSSProperties['left']>
+      top: Optional<CSSProperties['top']>
+    }>
+  }
+}
+
+type ContainerElement = HTMLDivElement
+type ArrowElement = HTMLDivElement
+
+export function useTooltip<E extends Element /* reference type */>({
+  placement,
+}: UseTooltipOptions = {}): UseTooltip<E> {
+  const arrowRef = useRef<ArrowElement>(null)
+
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { refs, context, floatingStyles, middlewareData } = useFloating<E>({
+    placement,
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    whileElementsMounted: autoUpdate,
+    middleware: [arrow_({ element: arrowRef }), offset(7), shift({ padding: 8 }), flip()],
+  })
+
+  const hover = useHover(context)
+  const focus = useFocus(context)
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus])
+
+  useFloating({ onOpenChange: setIsOpen })
+
+  return {
+    reference: {
+      ref: refs.setReference,
+      ...getReferenceProps(),
+    },
+    positionReference: {
+      ref: refs.setPositionReference,
+    },
+    floating: {
+      placement: context.placement,
+      isOpen,
+      setFloating: refs.setFloating,
+      styles: floatingStyles,
+      props: getFloatingProps(),
+      arrow: {
+        ref: arrowRef,
+        styles:
+          middlewareData.arrow !== undefined
+            ? {
+                left: middlewareData.arrow.x,
+                top: middlewareData.arrow.y,
+              }
+            : undefined,
+      },
+    },
+  }
+}
+
+type Props2 = FloatingProps & {
+  alwaysVisible?: boolean
+  className?: string
+  children?: React.ReactNode
+}
+
+export const Tooltip2: React.FC<Props2> = ({
+  placement,
+  isOpen,
+  setFloating,
+  styles,
+  props,
+  arrow,
+  alwaysVisible = false,
+  className,
+  children,
+}) => {
+  if (tooltipLayer === undefined) return null
+
+  const isTop = placement.startsWith('top')
+  const isBottom = placement.startsWith('bottom')
+  const isLeft = placement.startsWith('left')
+  const isRight = placement.startsWith('right')
+
+  return createPortal(
+    <div
+      ref={setFloating}
+      className={cx(
+        'z-40 whitespace-nowrap border border-brown bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black transition-opacity duration-300',
+        alwaysVisible || isOpen ? 'visible opacity-100' : 'invisible opacity-0',
+        className,
+      )}
+      style={styles}
+      {...props}
+    >
+      {children}
+      <div
+        ref={arrow.ref}
+        className={cx(
+          'absolute h-1.5 w-2.5',
+          ['-bottom-1.5', isTop],
+          ['-top-1.5', isBottom],
+          ['-right-2', isLeft],
+          ['-left-2', isRight],
+        )}
+        style={arrow.styles}
+      >
+        <CaretUpSharpCropped
+          className={cx(
+            'text-brown',
+            ['rotate-180', isTop],
+            ['rotate-0', isBottom],
+            ['rotate-90', isLeft],
+            ['-rotate-90', isRight],
+          )}
+        />
+      </div>
+    </div>,
+    tooltipLayer,
+  )
+}
+
+// ---
 
 type Props = {
   hoverRef: React.RefObject<Element | null> | NonEmptyArray<React.RefObject<Element | null>>
@@ -27,7 +190,7 @@ type Props = {
   /**
    * @deault 'bottom"
    */
-  placement?: Placement
+  placement?: PopperPlacement
   alwaysVisible?: boolean
   /**
    * Calls `hideTooltip` when changed to `true`
