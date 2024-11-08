@@ -75,7 +75,7 @@ export const TournamentHeader: React.FC = () => {
           <>
             <span>{user.displayName}</span>
             <PersonFilled className="h-4" />
-            <button type="button" onClick={logout} className="border border-black">
+            <button type="button" onClick={logout} className="border border-wheat-bis">
               Déconnexion
             </button>
           </>
