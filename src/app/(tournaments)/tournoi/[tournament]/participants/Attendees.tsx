@@ -43,26 +43,18 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
     <div className="flex flex-col items-start gap-5 pb-8">
       {attendees.length < tournament.teamsCount * 5 && !alreadySubscribed && (
         <dialog ref={dialog} className="bg-transparent">
-          <div className="flex flex-col items-end">
-            <AttendeeForm
-              tournament={tournament.id}
-              onSubscribeOk={onSuscribeOk}
-              avalaibleTeamRole={TeamRole.values.reduce(
-                (acc, v) =>
-                  attendees.filter(p => p.role === v).length < tournament.teamsCount
-                    ? [...acc, v]
-                    : acc,
-                array.empty<TeamRole>(),
-              )}
-            />
-            <button
-              type="button"
-              className="m-1 rounded bg-white1 px-1 text-xs text-black"
-              onClick={handleCancelClick}
-            >
-              Annuler
-            </button>
-          </div>
+          <AttendeeForm
+            tournament={tournament.id}
+            handleCancelClick={handleCancelClick}
+            onSubscribeOk={onSuscribeOk}
+            avalaibleTeamRole={TeamRole.values.reduce(
+              (acc, v) =>
+                attendees.filter(p => p.role === v).length < tournament.teamsCount
+                  ? [...acc, v]
+                  : acc,
+              array.empty<TeamRole>(),
+            )}
+          />
         </dialog>
       )}
 

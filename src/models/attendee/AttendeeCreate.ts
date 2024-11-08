@@ -9,6 +9,12 @@ import { RiotId } from '../riot/RiotId'
 
 type AttendeeCreate = D.TypeOf<typeof decoder>
 
+const stringMaxLength50Decoder = pipe(
+  D.string,
+  D.map(s => s.trim()),
+  D.refine((s): s is string => s.length <= 50, 'StringMaxLength50'),
+)
+
 const decoder = pipe(
   D.id<FormData>(),
   D.map(formData => {
@@ -22,15 +28,14 @@ const decoder = pipe(
     D.struct({
       riotId: RiotId.fromStringDecoder('#'),
       currentElo: LolElo.decoder,
-      comment: pipe(
-        D.string,
-        D.refine((s): s is string => s.trim().length <= 50, 'StringMaxLength50'),
-      ),
+      comment: stringMaxLength50Decoder,
       role: TeamRole.decoder,
       championPool: ChampionPool.decoder,
       birthplace: pipe(
         D.string,
-        D.refine((s): s is string => 0 < s.trim().length, 'NonEmptyString'),
+        D.map(s => s.trim()),
+        D.refine((s): s is string => 0 < s.length, 'NonEmptyString'),
+        D.parse(stringMaxLength50Decoder.decode),
       ),
       avatar: pipe(
         D.id<unknown>(),

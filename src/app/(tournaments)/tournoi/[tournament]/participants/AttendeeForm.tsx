@@ -11,14 +11,16 @@ import { TeamRole } from '../../../../../models/TeamRole'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { objectEntries, objectKeys } from '../../../../../utils/fpTsUtils'
 
+const maxLength = 50
+
 type Inputs = {
   riotId: string
-  currentElo: LolElo
+  currentElo: LolElo | undefined
   comment: string
-  role: TeamRole
-  championPool: ChampionPool
+  role: TeamRole | undefined
+  championPool: ChampionPool | undefined
   birthplace: string
-  avatar: File | null
+  avatar: File | undefined
 }
 
 type Errors = Partial<Record<keyof Inputs, string>>
@@ -27,23 +29,29 @@ type Touched = Partial<ReadonlyRecord<keyof Inputs, boolean>>
 
 const inputsEmpty: Inputs = {
   riotId: '',
-  currentElo: LolElo.values[0],
+  currentElo: undefined,
   comment: '',
-  role: TeamRole.values[0],
-  championPool: 'oneTrick',
+  role: undefined,
+  championPool: undefined,
   birthplace: '',
-  avatar: null,
+  avatar: undefined,
 }
 
 const keys = objectKeys(inputsEmpty)
 
 type Props = {
   tournament: TournamentId
+  handleCancelClick: () => void
   onSubscribeOk: () => void
   avalaibleTeamRole: ReadonlyArray<TeamRole>
 }
 
-export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, onSubscribeOk }) => {
+export const AttendeeForm: React.FC<Props> = ({
+  tournament,
+  avalaibleTeamRole,
+  handleCancelClick,
+  onSubscribeOk,
+}) => {
   const [inputs, setInputs] = useState(inputsEmpty)
 
   const errors = validate(inputs)
@@ -94,9 +102,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
       const formData = new FormData()
 
       objectEntries(inputs).forEach(([key, val]) => {
-        if (val !== null) {
-          formData.set(key, val)
-        }
+        formData.set(key, val)
       })
 
       createAttendee(tournament, formData)
@@ -122,16 +128,18 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
         onBlur={handleBlur('riotId')}
         errorMsg={errors.riotId ?? ''}
         showErrorMsg={showErrorMsg('riotId')}
+        required={true}
       />
 
       <SelectInput
         label="Niveau actuel"
-        value={inputs['currentElo']}
+        value={inputs.currentElo}
         values={LolElo.values}
         valuesLabels={LolElo.values.map(v => LolElo.label[v])}
         onChange={handleSelectChange('currentElo')}
         errorMsg={errors.currentElo ?? ''}
         showErrorMsg={showErrorMsg('currentElo')}
+        required={true}
       />
 
       <Input
@@ -142,26 +150,29 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
         onBlur={handleBlur('comment')}
         errorMsg={errors.comment ?? ''}
         showErrorMsg={showErrorMsg('comment')}
+        maxLength={maxLength}
       />
 
       <SelectInput
         label="Rôle"
-        value={inputs['role']}
+        value={inputs.role}
         values={avalaibleTeamRole}
         valuesLabels={avalaibleTeamRole.map(v => TeamRole.label[v])}
         onChange={handleSelectChange('role')}
         errorMsg={errors.role ?? ''}
         showErrorMsg={showErrorMsg('role')}
+        required={true}
       />
 
       <SelectInput
         label="Piscine de champions"
-        value={inputs['championPool']}
+        value={inputs.championPool}
         values={ChampionPool.values}
         valuesLabels={ChampionPool.values.map(v => ChampionPool.label[v])}
         onChange={handleSelectChange('championPool')}
         errorMsg={errors.championPool ?? ''}
         showErrorMsg={showErrorMsg('championPool')}
+        required={true}
       />
 
       <Input
@@ -172,6 +183,8 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
         onBlur={handleBlur('birthplace')}
         errorMsg={errors.birthplace ?? ''}
         showErrorMsg={showErrorMsg('birthplace')}
+        required={true}
+        maxLength={maxLength}
       />
 
       <FileInput
@@ -180,6 +193,7 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
         onChange={handleFileChange}
         errorMsg={errors.avatar ?? ''}
         showErrorMsg={showErrorMsg('birthplace')}
+        required={true}
       />
       {avatarPreviewUrl !== null && (
         // eslint-disable-next-line @next/next/no-img-element
@@ -190,12 +204,22 @@ export const AttendeeForm: React.FC<Props> = ({ tournament, avalaibleTeamRole, o
         />
       )}
 
-      <button
-        type="submit"
-        className="rounded-full bg-goldenrod px-4 py-2 font-bold text-white hover:text-black"
-      >
-        Valider
-      </button>
+      <div className="flex items-center justify-between gap-3">
+        <button
+          type="button"
+          className="rounded-full border-2 border-goldenrod-bis px-3.5 py-1.5"
+          onClick={handleCancelClick}
+        >
+          Annuler
+        </button>
+
+        <button
+          type="submit"
+          className="rounded-full bg-goldenrod px-4 py-2 font-bold text-white hover:text-black"
+        >
+          Valider
+        </button>
+      </div>
 
       {submitError !== undefined && <p className="text-red-500">{submitError}</p>}
     </form>
@@ -207,23 +231,41 @@ const riotIdRegex = /^.{4,16}#[a-zA-Z0-9]{3,5}$/
 function validate(inputs: Inputs): Errors {
   const newErrors: Errors = {}
 
-  // RiotId
+  // Riot id
   if (!riotIdRegex.test(inputs.riotId)) {
     newErrors.riotId = 'Merci de saisir un Riot ID correct'
   }
 
-  // Comment
-  if (inputs.comment.trim().length > 50) {
-    newErrors.comment = 'Merci de saisir un commentaire de moins de 50 caractères'
+  // Current elo
+  if (inputs.currentElo === undefined) {
+    newErrors.currentElo = 'Merci de saisir votre niveau actuel'
   }
 
-  // BirthPlace
+  // Comment
+  if (inputs.comment.trim().length > maxLength) {
+    newErrors.comment = `Merci de saisir un commentaire de moins de ${maxLength} caractères`
+  }
+
+  // Role
+  if (inputs.role === undefined) {
+    newErrors.role = 'Merci de saisir votre rôle pour le tournoi'
+  }
+
+  // Champion pool
+  if (inputs.championPool === undefined) {
+    newErrors.championPool = 'Merci de préciser la taille de votre piscine'
+  }
+
+  // Birth place
   if (inputs.birthplace.trim() === '') {
     newErrors.birthplace = 'Merci de saisir votre lieu de naissance'
   }
+  if (inputs.birthplace.trim().length > maxLength) {
+    newErrors.birthplace = `Merci de saisir un lieu de naissance de moins de ${maxLength} caractères`
+  }
 
   // Avatar
-  if (inputs.avatar === null) {
+  if (inputs.avatar === undefined) {
     newErrors.avatar = 'Merci de choisir un avatar'
   }
 
