@@ -21,6 +21,12 @@ import { CaretUpSharpCropped } from './svgs/icons'
 
 let tooltipLayer: Optional<HTMLDivElement> = undefined
 
+export const TooltipLayer: React.FC = () => <div ref={onMount} />
+
+function onMount(e: HTMLDivElement | null): void {
+  tooltipLayer = e ?? undefined
+}
+
 // ---
 
 type UseTooltipOptions = {
@@ -175,12 +181,4 @@ export const Tooltip: React.FC<Props> = ({
     </div>,
     tooltipLayer,
   )
-}
-
-// ---
-
-export const TooltipLayer: React.FC = () => <div ref={onMount} />
-
-function onMount(e: HTMLDivElement | null): void {
-  tooltipLayer = e ?? undefined
 }
