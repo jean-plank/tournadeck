@@ -1,3 +1,6 @@
+import { ord, string } from 'fp-ts'
+import type { Ord } from 'fp-ts/Ord'
+import { pipe } from 'fp-ts/function'
 import * as C from 'io-ts/Codec'
 import type { Newtype } from 'newtype-ts'
 import { iso } from 'newtype-ts'
@@ -33,6 +36,13 @@ export type PbTournament = PbBaseModel<
     bannedChampions: JsonField<ReadonlyArray<ChampionId>, 'nullable'>
   }
 >
+
+const byStart: Ord<Tournament> = pipe(
+  string.Ord,
+  ord.contramap((t: Tournament) => t.start),
+)
+
+export const Tournament = { byStart }
 
 type TournamentId = Newtype<{ readonly TournamentId: unique symbol }, string>
 
