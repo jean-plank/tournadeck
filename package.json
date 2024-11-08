@@ -21,7 +21,6 @@
     "tailwindConfigViewer": "tailwind-config-viewer serve -p 3001"
   },
   "dependencies": {
-    "@popperjs/core": "2.11.8",
     "dayjs": "1.11.13",
     "dotenv": "16.4.5",
     "fp-ts": "2.16.9",
@@ -36,7 +35,6 @@
     "puppeteer": "23.7.1",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
-    "react-popper": "2.3.0",
     "server-cli-only": "0.3.2",
     "swr": "2.2.5",
     "type-fest": "4.26.1"
