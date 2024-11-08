@@ -45,7 +45,9 @@ const TournamentPageLoaded: React.FC<TournamentPageLoadedProps> = ({ data }) => 
         <span className="font-bold">{Dayjs(tournament.end).format(dateTimeFormat)}</span>
       </div>
 
-      <div className="text-lg font-bold text-green1">{TournamentPhase.label[tournament.phase]}</div>
+      <div className="text-lg font-bold text-sky-300">
+        {TournamentPhase.label[tournament.phase]}
+      </div>
 
       <span className="font-bold text-goldenrod">
         Participant·es ({attendees.length} / {tournament.teamsCount * 5})
