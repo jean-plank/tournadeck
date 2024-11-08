@@ -65,7 +65,7 @@ type SelectProps = {
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
   errorMsg: string
   showErrorMsg: boolean
-  value: string | undefined
+  value: Optional<string>
   values: ReadonlyArray<string>
   valuesLabels: ReadonlyArray<string>
   required: boolean

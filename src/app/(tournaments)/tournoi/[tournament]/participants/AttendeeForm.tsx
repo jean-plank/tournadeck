@@ -15,12 +15,12 @@ const maxLength = 50
 
 type Inputs = {
   riotId: string
-  currentElo: LolElo | undefined
+  currentElo: Optional<LolElo>
   comment: string
-  role: TeamRole | undefined
-  championPool: ChampionPool | undefined
+  role: Optional<TeamRole>
+  championPool: Optional<ChampionPool>
   birthplace: string
-  avatar: File | undefined
+  avatar: Optional<File>
 }
 
 type Errors = Partial<Record<keyof Inputs, string>>
