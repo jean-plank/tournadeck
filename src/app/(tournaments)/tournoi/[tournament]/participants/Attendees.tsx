@@ -57,7 +57,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
             />
             <button
               type="button"
-              className="m-1 rounded bg-white1 px-1 text-xs text-goldenrod"
+              className="m-1 rounded bg-white1 px-1 text-xs text-black"
               onClick={handleCancelClick}
             >
               Annuler
