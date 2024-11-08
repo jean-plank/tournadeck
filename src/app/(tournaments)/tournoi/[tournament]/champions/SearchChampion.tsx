@@ -3,7 +3,7 @@
 import { string } from 'fp-ts'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Tooltip } from '../../../../../components/floating/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { CloseFilled, DiceFilled } from '../../../../../components/svgs/icons'
 import { cx } from '../../../../../utils/cx'
 
@@ -81,7 +81,7 @@ export const SearchChampion: React.FC<Props> = ({
     return () => setSearch(randomChampion())
   }, [randomChampion])
 
-  const randomButtonRef = useRef<HTMLButtonElement>(null)
+  const randomButtonTooltip = useTooltip<HTMLButtonElement>({ placement: 'top' })
 
   return (
     <div className={cx('flex flex-wrap items-center gap-3', className)}>
@@ -117,17 +117,15 @@ export const SearchChampion: React.FC<Props> = ({
       </div>
 
       <button
-        ref={randomButtonRef}
         type="button"
         onClick={handleRandomClick}
         disabled={randomChampion === undefined}
         className="group -mx-0.5 overflow-hidden p-0.5 disabled:opacity-30"
+        {...randomButtonTooltip.reference}
       >
         <DiceFilled className="h-7 transition-transform duration-300 group-enabled:group-hover:animate-dice" />
       </button>
-      <Tooltip hoverRef={randomButtonRef} placement="top">
-        Champion aléatoire
-      </Tooltip>
+      <Tooltip {...randomButtonTooltip.floating}>Champion aléatoire</Tooltip>
     </div>
   )
 }

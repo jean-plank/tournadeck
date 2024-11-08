@@ -2,11 +2,10 @@
 
 import { readonlyArray } from 'fp-ts'
 import Image from 'next/image'
-import { useRef } from 'react'
 import type { Merge } from 'type-fest'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { Tooltip } from '../../../../../components/floating/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { type Team } from '../../../../../models/pocketBase/tables/Team'
 import { GameName } from '../../../../../models/riot/GameName'
@@ -28,21 +27,20 @@ export type EnrichedTeam = Merge<
 >
 
 export const GameTeam: React.FC<GameTeamProps> = ({ team, isEven, isWinner }) => {
-  const hoverRef = useRef<HTMLDivElement>(null)
-  const placementRef = useRef<HTMLSpanElement>(null)
+  const tooltip = useTooltip<HTMLDivElement, HTMLSpanElement>()
 
   return (
     <>
       <div
-        ref={hoverRef}
         className={cx(
           'row-start-1 grid items-center gap-1.5',
           isEven ? 'grid-cols-[auto_1fr]' : 'grid-cols-[1fr_auto]',
         )}
+        {...tooltip.reference}
       >
         <span
-          ref={placementRef}
           className="row-start-1 font-lib-mono text-sm font-semibold text-wheat"
+          {...tooltip.positionReference}
         >
           {team.tag}
         </span>
@@ -51,7 +49,7 @@ export const GameTeam: React.FC<GameTeamProps> = ({ team, isEven, isWinner }) =>
         </span>
       </div>
 
-      <Tooltip hoverRef={hoverRef} placementRef={placementRef} className="flex flex-col gap-2">
+      <Tooltip className="flex flex-col gap-2" {...tooltip.floating}>
         <div className="flex gap-2">
           <span className="font-lib-mono text-sm font-semibold text-wheat">{team.tag}</span>
           <span className="text-white">{team.name}</span>

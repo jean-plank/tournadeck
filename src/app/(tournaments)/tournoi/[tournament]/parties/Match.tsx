@@ -1,9 +1,8 @@
 'use client'
 
 import { ord } from 'fp-ts'
-import { useRef } from 'react'
 
-import { Tooltip } from '../../../../../components/floating/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { TriangleRight } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
 import { DayjsDuration } from '../../../../../models/Dayjs'
@@ -39,7 +38,7 @@ export const Match: React.FC<Props> = ({
 }) => {
   const gameDuration = DayjsDuration(gameDuration_)
 
-  const ref = useRef<HTMLAnchorElement>(null)
+  const tooltip = useTooltip<HTMLAnchorElement>({ placement: 'right-start' })
 
   const leftStats = teamStats(left)
   const rightStats = teamStats(right)
@@ -47,11 +46,11 @@ export const Match: React.FC<Props> = ({
   return (
     <>
       <a
-        ref={ref}
         href={leagueofgraphsUrl(id)}
         target="_blank"
         rel="noreferrer"
         className="grid grid-cols-[1fr_auto_1fr] text-sm text-white"
+        {...tooltip.reference}
       >
         <span
           className={cx(
@@ -102,7 +101,7 @@ export const Match: React.FC<Props> = ({
           {formatKda(rightStats)}
         </span>
       </a>
-      <Tooltip hoverRef={ref} placement="right-start">
+      <Tooltip {...tooltip.floating}>
         <MatchTooltip version={version} left={left} right={right} />
       </Tooltip>
     </>

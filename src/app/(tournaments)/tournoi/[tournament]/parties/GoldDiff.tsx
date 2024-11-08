@@ -1,8 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
-
-import { Tooltip } from '../../../../../components/floating/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { constants } from '../../../../../config/constants'
 
 type Props = {
@@ -10,15 +8,15 @@ type Props = {
 }
 
 export const GoldDiff: React.FC<Props> = ({ goldDiff }) => {
-  const ref = useRef<HTMLSpanElement>(null)
+  const tooltip = useTooltip<HTMLSpanElement>()
 
   return (
     <>
-      <span ref={ref} className="font-semibold text-goldenrod">
+      <span className="font-semibold text-goldenrod" {...tooltip.reference}>
         {0 <= goldDiff && '+'}
         {(Math.round(goldDiff / 100) / 10).toLocaleString(constants.locale)} k
       </span>
-      <Tooltip hoverRef={ref}>Écart aux golds</Tooltip>
+      <Tooltip {...tooltip.floating}>Écart aux golds</Tooltip>
     </>
   )
 }

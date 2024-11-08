@@ -1,9 +1,9 @@
 import Image from 'next/image'
-import { useRef } from 'react'
 
 import { LolElo } from '../models/LolElo'
 import { cx } from '../utils/cx'
-import { Tooltip } from './floating/Tooltip'
+import type { UseTooltipReference } from './floating/Tooltip'
+import { Tooltip, useTooltip } from './floating/Tooltip'
 
 type Props = {
   type?: LolEloIconType
@@ -14,18 +14,18 @@ type Props = {
 type LolEloIconType = 'normal' | 'flat'
 
 export const LolEloIcon: React.FC<Props> = ({ type = 'normal', elo, className }) => {
-  const ref = useRef<HTMLImageElement>(null)
+  const tooltip = useTooltip<HTMLElement>()
 
   return (
     <>
-      {renderIcon(ref, type, elo, className)}
-      <Tooltip hoverRef={ref}>{LolElo.label[elo]}</Tooltip>
+      {renderIcon(tooltip.reference, type, elo, className)}
+      <Tooltip {...tooltip.floating}>{LolElo.label[elo]}</Tooltip>
     </>
   )
 }
 
 function renderIcon(
-  ref: React.Ref<HTMLImageElement | null>,
+  ref: UseTooltipReference<HTMLElement>,
   type: LolEloIconType,
   elo: LolElo,
   className: Optional<string>,
@@ -34,18 +34,18 @@ function renderIcon(
     case 'normal':
       return (
         <Image
-          ref={ref}
           src={leagueIconUrl(elo)}
           alt={`Icône ${LolElo.label[elo]}`}
           width={200}
           height={200}
           className={className}
+          {...ref}
         />
       )
 
     case 'flat':
       return (
-        <span ref={ref} className={cx('flex items-center overflow-hidden', className)}>
+        <span className={cx('flex items-center overflow-hidden', className)} {...ref}>
           <Image
             src={miniCrestIconUrl(elo)}
             alt={`Icône ${LolElo.label[elo]}`}
