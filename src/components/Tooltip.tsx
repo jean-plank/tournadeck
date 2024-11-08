@@ -11,6 +11,7 @@ import {
   useFocus,
   useHover,
   useInteractions,
+  useRole,
 } from '@floating-ui/react'
 import type { CSSProperties } from 'react'
 import React, { useRef, useState } from 'react'
@@ -79,8 +80,9 @@ export function useTooltip<ET extends Element, PT extends Element | false = fals
 
   const hover = useHover(context)
   const focus = useFocus(context)
+  const role = useRole(context, { role: 'tooltip' })
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus])
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, role])
 
   useFloating({ onOpenChange: setIsOpen })
 
