@@ -28,21 +28,21 @@ type UseTooltipOptions = {
   placement?: Placement
 }
 
-type UseTooltip<ET extends Element, PT extends Element | false = false> = PT extends false
-  ? UseTooltipBase<ET>
-  : UseTooltipBase<ET> & {
+type UseTooltip<RE extends Element, PE extends Element | false = false> = PE extends false
+  ? UseTooltipBase<RE>
+  : UseTooltipBase<RE> & {
       positionReference: {
-        ref: (node: PT | null) => void
+        ref: (node: PE | null) => void
       }
     }
 
-type UseTooltipBase<ET extends Element> = {
-  reference: UseTooltipReference<ET>
+type UseTooltipBase<RE extends Element> = {
+  reference: UseTooltipReference<RE>
   floating: UseTooltipFloating
 }
 
-export type UseTooltipReference<E extends Element> = {
-  ref: (node: E | null) => void
+export type UseTooltipReference<RE extends Element> = {
+  ref: (node: RE | null) => void
 } & Record<string, unknown>
 
 type UseTooltipFloating = {
@@ -63,14 +63,14 @@ type UseTooltipFloating = {
 type ContainerElement = HTMLDivElement
 type ArrowElement = HTMLDivElement
 
-export function useTooltip<ET extends Element, PT extends Element | false = false>({
+export function useTooltip<RE extends Element, PE extends Element | false = false>({
   placement,
-}: UseTooltipOptions = {}): UseTooltip<ET, PT> {
+}: UseTooltipOptions = {}): UseTooltip<RE, PE> {
   const arrowRef = useRef<ArrowElement>(null)
 
   const [isOpen, setIsOpen] = useState(false)
 
-  const { refs, context, floatingStyles, middlewareData } = useFloating<ET>({
+  const { refs, context, floatingStyles, middlewareData } = useFloating<RE>({
     placement,
     open: isOpen,
     onOpenChange: setIsOpen,
@@ -111,7 +111,7 @@ export function useTooltip<ET extends Element, PT extends Element | false = fals
             : undefined,
       },
     },
-  } as UseTooltip<ET, PT>
+  } as UseTooltip<RE, PE>
 }
 
 // ---
