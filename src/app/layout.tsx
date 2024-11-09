@@ -6,6 +6,7 @@ import { TooltipLayer } from '../components/Tooltip'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
 import type { ChildrenFC } from '../models/ChildrenFC'
 import { cx } from '../utils/cx'
+import { ContextMenuLayer } from './(tournaments)/tournoi/[tournament]/participants/SummonerLinks'
 import './globals.css'
 
 /**
@@ -94,6 +95,8 @@ const RootLayout: ChildrenFC = async ({ children }) => {
             {children}
           </div>
         </PocketBaseContextProvider>
+
+        <ContextMenuLayer />
 
         <TooltipLayer />
       </body>

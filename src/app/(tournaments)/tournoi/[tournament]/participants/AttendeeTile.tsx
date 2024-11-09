@@ -12,8 +12,8 @@ import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { GameName } from '../../../../../models/riot/GameName'
 import { TagLine } from '../../../../../models/riot/TagLine'
-import { TheQuestUtils } from '../../../../../utils/TheQuestUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
+import { SummonerLinks, useSummonerLinks } from './SummonerLinks'
 
 type AttendeeTileProps = {
   attendee: AttendeeWithRiotId
@@ -25,6 +25,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   captainShouldDisplayPrice,
 }) => {
   const commentTooltip = useTooltip<HTMLParagraphElement>()
+  const summonerLinks = useSummonerLinks<HTMLDivElement>()
   const poolTooltip = useTooltip<HTMLDivElement, HTMLImageElement>()
   const birthplaceTooltip = useTooltip<HTMLDivElement>()
   const roleTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
@@ -44,21 +45,15 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
           />
         </div>
 
-        <div className="-mb-1 mt-0.5 flex justify-center">
-          <a
-            href={TheQuestUtils.summonerUrl(attendee.riotId)}
-            target="_blank"
-            rel="noreferrer"
-            className="group flex flex-wrap items-center"
-          >
-            <span className="font-bold text-goldenrod group-hover:underline">
-              {GameName.unwrap(attendee.riotId.gameName)}
-            </span>
-            <span className="text-grey-500 group-hover:underline">
-              #{TagLine.unwrap(attendee.riotId.tagLine)}
-            </span>
-          </a>
+        <div tabIndex={0} className="-mb-1 mt-0.5 flex self-center" {...summonerLinks.reference}>
+          <span className="font-bold text-goldenrod group-hover:underline">
+            {GameName.unwrap(attendee.riotId.gameName)}
+          </span>
+          <span className="text-grey-500 group-hover:underline">
+            #{TagLine.unwrap(attendee.riotId.tagLine)}
+          </span>
         </div>
+        <SummonerLinks {...summonerLinks.floating} riotId={attendee.riotId} />
 
         <div className="flex items-center gap-1.5">
           <LolEloIcon type="flat" elo={attendee.currentElo} className="size-10 shrink-0" />
