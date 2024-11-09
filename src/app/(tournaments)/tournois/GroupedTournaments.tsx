@@ -24,7 +24,6 @@ export const GroupedTournaments: React.FC<Props> = ({ tournaments }) => {
 
   return pipe(
     TournamentPhase.values,
-    readonlyArray.reverse,
     readonlyArray.map(phase => {
       const nea = grouped[phase]
 
