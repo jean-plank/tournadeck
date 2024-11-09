@@ -102,7 +102,9 @@ export const AttendeeForm: React.FC<Props> = ({
       const formData = new FormData()
 
       objectEntries(inputs).forEach(([key, val]) => {
-        formData.set(key, val)
+        if (val !== undefined) {
+          formData.set(key, val)
+        }
       })
 
       createAttendee(tournament, formData)
