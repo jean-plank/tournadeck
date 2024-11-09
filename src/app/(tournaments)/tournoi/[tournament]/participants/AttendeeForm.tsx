@@ -15,12 +15,12 @@ const maxLength = 50
 
 type Inputs = {
   riotId: string
-  currentElo: LolElo | undefined
+  currentElo: Optional<LolElo>
   comment: string
-  role: TeamRole | undefined
-  championPool: ChampionPool | undefined
+  role: Optional<TeamRole>
+  championPool: Optional<ChampionPool>
   birthplace: string
-  avatar: File | undefined
+  avatar: Optional<File>
 }
 
 type Errors = Partial<Record<keyof Inputs, string>>
@@ -102,7 +102,9 @@ export const AttendeeForm: React.FC<Props> = ({
       const formData = new FormData()
 
       objectEntries(inputs).forEach(([key, val]) => {
-        formData.set(key, val)
+        if (val !== undefined) {
+          formData.set(key, val)
+        }
       })
 
       createAttendee(tournament, formData)

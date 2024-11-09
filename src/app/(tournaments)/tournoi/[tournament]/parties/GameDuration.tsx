@@ -1,19 +1,17 @@
 'use client'
 
-import { useRef } from 'react'
-
-import { Tooltip } from '../../../../../components/tooltip/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import type { ChildrenFC } from '../../../../../models/ChildrenFC'
 
 export const GameDuration: ChildrenFC = ({ children }) => {
-  const ref = useRef<HTMLSpanElement>(null)
+  const tooltip = useTooltip<HTMLSpanElement>()
 
   return (
     <>
-      <span ref={ref} className="py-1 text-base">
+      <span className="py-1 text-base" {...tooltip.reference}>
         {children}
       </span>
-      <Tooltip hoverRef={ref}>Durée de la partie</Tooltip>
+      <Tooltip {...tooltip.floating}>Durée de la partie</Tooltip>
     </>
   )
 }

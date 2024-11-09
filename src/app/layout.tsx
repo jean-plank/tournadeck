@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
 import { startupLoad } from '../actions/startupLoad'
-import { TooltipLayer } from '../components/tooltip/Tooltip'
+import { ContextMenuLayer } from '../components/floating/ContextMenu'
+import { TooltipLayer } from '../components/floating/Tooltip'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
 import type { ChildrenFC } from '../models/ChildrenFC'
 import { cx } from '../utils/cx'
@@ -94,6 +95,8 @@ const RootLayout: ChildrenFC = async ({ children }) => {
             {children}
           </div>
         </PocketBaseContextProvider>
+
+        <ContextMenuLayer />
 
         <TooltipLayer />
       </body>
