@@ -21,6 +21,7 @@
     "tailwindConfigViewer": "tailwind-config-viewer serve -p 3001"
   },
   "dependencies": {
+    "@floating-ui/react": "0.26.27",
     "dayjs": "1.11.13",
     "dotenv": "16.4.5",
     "fp-ts": "2.16.9",
@@ -40,7 +41,6 @@
     "type-fest": "4.26.1"
   },
   "devDependencies": {
-    "@floating-ui/react": "0.26.27",
     "@trivago/prettier-plugin-sort-imports": "4.3.0",
     "@types/jest": "29.5.14",
     "@types/node": "22.9.0",
