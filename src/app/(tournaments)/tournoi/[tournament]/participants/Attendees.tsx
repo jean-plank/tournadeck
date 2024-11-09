@@ -10,7 +10,6 @@ import type { Tournament } from '../../../../../models/pocketBase/tables/Tournam
 import { array } from '../../../../../utils/fpTsUtils'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
-import { Menu, MenuItem } from './DropdownMenu'
 import { groupAndSortAttendees } from './groupAndSortAttendees'
 
 type Props = {
@@ -58,29 +57,6 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
           />
         </dialog>
       )}
-
-      <div className="flex self-center p-4">
-        <Menu label="Edit">
-          <MenuItem label="Undo" onClick={() => console.log('Undo')} />
-          <MenuItem label="Redo" disabled={true} />
-          <MenuItem label="Cut" />
-          <Menu label="Copy as">
-            <MenuItem label="Text" />
-            <MenuItem label="Video" />
-            <Menu label="Image">
-              <MenuItem label=".png" />
-              <MenuItem label=".jpg" />
-              <MenuItem label=".svg" />
-              <MenuItem label=".gif" />
-            </Menu>
-            <MenuItem label="Audio" />
-          </Menu>
-          <Menu label="Share">
-            <MenuItem label="Mail" />
-            <MenuItem label="Instagram" />
-          </Menu>
-        </Menu>
-      </div>
 
       <div className="flex w-full flex-col items-center gap-6 py-6">
         <div className="flex flex-col items-center gap-6">
