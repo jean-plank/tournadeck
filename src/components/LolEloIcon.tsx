@@ -2,8 +2,8 @@ import Image from 'next/image'
 
 import { LolElo } from '../models/LolElo'
 import { cx } from '../utils/cx'
-import type { UseTooltipReference } from './Tooltip'
-import { Tooltip, useTooltip } from './Tooltip'
+import type { UseTooltipReference } from './floating/Tooltip'
+import { Tooltip, useTooltip } from './floating/Tooltip'
 
 type Props = {
   type?: LolEloIconType

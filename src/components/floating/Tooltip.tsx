@@ -16,8 +16,8 @@ import {
 import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import { cx } from '../utils/cx'
-import { CaretUpSharpCropped } from './svgs/icons'
+import { cx } from '../../utils/cx'
+import { CaretUpSharpCropped } from '../svgs/icons'
 
 let tooltipLayer: Optional<HTMLDivElement> = undefined
 

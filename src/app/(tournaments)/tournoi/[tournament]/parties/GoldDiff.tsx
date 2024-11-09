@@ -1,6 +1,6 @@
 'use client'
 
-import { Tooltip, useTooltip } from '../../../../../components/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { constants } from '../../../../../config/constants'
 
 type Props = {

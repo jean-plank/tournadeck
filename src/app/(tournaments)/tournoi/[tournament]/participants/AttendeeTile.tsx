@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 import { LolEloIcon } from '../../../../../components/LolEloIcon'
 import { TeamRoleIcon, TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { Tooltip, useTooltip } from '../../../../../components/Tooltip'
+import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { MapMarkerStar } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
 import { ChampionPool } from '../../../../../models/ChampionPool'
