@@ -9,7 +9,7 @@ const Tournaments: React.FC = () =>
   withRedirectOnAuthError(listTournaments())(tournaments => (
     <>
       <SetTournament tournament={undefined} />
-      <div className="flex flex-col items-center gap-8 p-4">
+      <div className="flex flex-col items-center gap-10 p-4">
         {readonlyArray.isNonEmpty(tournaments) ? (
           <GroupedTournaments tournaments={tournaments} />
         ) : (
