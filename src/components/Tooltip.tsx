@@ -149,7 +149,7 @@ export const Tooltip: React.FC<Props> = ({
     <div
       ref={setFloating}
       className={cx(
-        'z-40 whitespace-nowrap border border-brown bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black transition-opacity duration-300',
+        'z-40 whitespace-nowrap border border-brown bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black transition-all duration-300',
         alwaysVisible || isOpen ? 'visible opacity-100' : 'invisible opacity-0',
         className,
       )}
