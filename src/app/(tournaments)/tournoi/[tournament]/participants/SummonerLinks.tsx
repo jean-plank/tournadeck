@@ -6,6 +6,7 @@ import {
   FloatingList,
   autoUpdate,
   flip,
+  safePolygon,
   shift,
   useFloating,
   useFocus,
@@ -16,7 +17,7 @@ import {
   useRole,
   useTypeahead,
 } from '@floating-ui/react'
-import { useCallback, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { OpenInNew } from '../../../../../components/svgs/icons'
@@ -56,16 +57,7 @@ type UseSummonerLinksFloating<RE extends Element> = {
 
 export function useSummonerLinks<RE extends Element>(): UseSummonerLinks<RE> {
   const [isOpen, setIsOpen] = useState(false)
-  const linksAreHovered = useRef(false)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
-
-  const hoverLinks = useCallback(() => {
-    linksAreHovered.current = true
-  }, [])
-
-  const unhoverLinks = useCallback(() => {
-    linksAreHovered.current = false
-  }, [])
 
   const { refs, floatingStyles, context } = useFloating<RE>({
     open: isOpen,
@@ -93,7 +85,10 @@ export function useSummonerLinks<RE extends Element>(): UseSummonerLinks<RE> {
     activeIndex,
     onMatch: handleTypeaheadMatch,
   })
-  const hover = useHover(context)
+  const hover = useHover(context, {
+    delay: { open: 75 },
+    handleClose: safePolygon({ blockPointerEvents: true }),
+  })
   const focus = useFocus(context)
   const role = useRole(context, { role: 'listbox' })
 
@@ -112,19 +107,11 @@ export function useSummonerLinks<RE extends Element>(): UseSummonerLinks<RE> {
     },
     floating: {
       context,
-      isOpen: isOpen || linksAreHovered.current,
+      isOpen,
       activeIndex,
       elementsRef,
       labelsRef,
-      setFloating: e => {
-        if (e !== null) {
-          e.addEventListener('mouseover', hoverLinks, true)
-          e.addEventListener('mouseleave', unhoverLinks, true)
-          e.addEventListener('focusout', unhoverLinks, true)
-        }
-
-        refs.setFloating(e)
-      },
+      setFloating: refs.setFloating,
       styles: floatingStyles,
       props: getFloatingProps(),
       getItemProps,
