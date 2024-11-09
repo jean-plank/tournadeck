@@ -4,28 +4,36 @@ import Image from 'next/image'
 
 import { LolEloIcon } from '../../../../../components/LolEloIcon'
 import { TeamRoleIcon, TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
+import { ContextMenu, useContextMenu } from '../../../../../components/floating/ContextMenu'
 import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
-import { MapMarkerStar } from '../../../../../components/svgs/icons'
+import { MapMarkerStar, OpenInNew } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
 import { ChampionPool } from '../../../../../models/ChampionPool'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { GameName } from '../../../../../models/riot/GameName'
+import { RiotId } from '../../../../../models/riot/RiotId'
 import { TagLine } from '../../../../../models/riot/TagLine'
+import { objectEntries } from '../../../../../utils/fpTsUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
-import { SummonerLinks, useSummonerLinks } from './SummonerLinks'
 
 type AttendeeTileProps = {
   attendee: AttendeeWithRiotId
   captainShouldDisplayPrice: boolean
 }
 
+const summonerUrls = objectEntries({
+  'La Quête.': theQuestUrl,
+  'League of Graphs': leagueOfGraphsUrl,
+  'OP.GG': opGGUrl,
+})
+
 export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   attendee,
   captainShouldDisplayPrice,
 }) => {
   const commentTooltip = useTooltip<HTMLParagraphElement>()
-  const summonerLinks = useSummonerLinks<HTMLDivElement>()
+  const summonerLinks = useContextMenu<HTMLDivElement>()
   const poolTooltip = useTooltip<HTMLDivElement, HTMLImageElement>()
   const birthplaceTooltip = useTooltip<HTMLDivElement>()
   const roleTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
@@ -45,7 +53,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
           />
         </div>
 
-        <div tabIndex={0} className="-mb-1 mt-0.5 flex self-center" {...summonerLinks.reference}>
+        <div className="-mb-1 mt-0.5 flex self-center" {...summonerLinks.reference}>
           <span className="font-bold text-goldenrod group-hover:underline">
             {GameName.unwrap(attendee.riotId.gameName)}
           </span>
@@ -53,7 +61,24 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
             #{TagLine.unwrap(attendee.riotId.tagLine)}
           </span>
         </div>
-        <SummonerLinks {...summonerLinks.floating} riotId={attendee.riotId} />
+        <ContextMenu {...summonerLinks.floating}>
+          <ul className="flex flex-col items-center gap-2 py-1">
+            {summonerUrls.map(([label, getUrl]) => (
+              <li key={label} className="flex items-center gap-2">
+                <OpenInNew className="invisible size-3.5" /> {/* for hitbox */}
+                <a
+                  href={getUrl(attendee.riotId)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="peer border-b border-b-transparent text-white transition-all duration-100 hover:border-b-goldenrod"
+                >
+                  {label}
+                </a>
+                <OpenInNew className="invisible size-3.5 opacity-0 transition-all duration-100 peer-hover:visible peer-hover:opacity-100" />
+              </li>
+            ))}
+          </ul>
+        </ContextMenu>
 
         <div className="flex items-center gap-1.5">
           <LolEloIcon type="flat" elo={attendee.currentElo} className="size-10 shrink-0" />
@@ -153,6 +178,22 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
     </div>
   )
 }
+
+const platform = constants.platform.toLowerCase()
+
+function theQuestUrl(riotId: RiotId): string {
+  return `https://laquete.blbl.ch/${platform}/${RiotId.stringify('-')(riotId)}`
+}
+
+function leagueOfGraphsUrl(riotId: RiotId): string {
+  return `https://www.leagueofgraphs.com/summoner/${platform}/${RiotId.stringify('-')(riotId)}`
+}
+
+function opGGUrl(riotId: RiotId): string {
+  return `https://www.op.gg/summoners/${platform}/${RiotId.stringify('-')(riotId)}`
+}
+
+// ---
 
 type EmptyAttendeeTileProps = {
   role: TeamRole
