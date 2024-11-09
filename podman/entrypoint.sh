@@ -2,6 +2,8 @@
 
 set -e
 
+./pocketbase update
+
 # Start PocketBase
 export PB_ENCRYPTION_KEY="$(cat .pbEncryptionKey)"
 ./pocketbase serve --http=0.0.0.0:8090 --encryptionEnv=PB_ENCRYPTION_KEY &
