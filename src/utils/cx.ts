@@ -1,21 +1,33 @@
-import { option, readonlyArray } from 'fp-ts'
-import type { Option } from 'fp-ts/Option'
-import { pipe } from 'fp-ts/function'
+import { readonlyArray } from 'fp-ts'
+
+import { objectEntries } from './fpTsUtils'
 
 export function cx(
-  ...c: ReadonlyArray<Optional<string> | Tuple<Optional<string>, boolean>>
+  ...c: ReadonlyArray<Optional<string> | Tuple<Optional<string>, boolean> | Record<string, boolean>>
 ): Optional<string> {
-  return pipe(
-    c,
-    readonlyArray.filterMap((arg): Option<string> => {
-      if (arg === undefined) return option.none
-      if (typeof arg === 'string') return option.some(arg)
+  const classes = c.flatMap((arg): ReadonlyArray<string> => {
+    if (arg === undefined) return []
 
+    if (typeof arg === 'string') return [arg]
+
+    if (isArray(arg)) {
       const [className, display] = arg
-      return display && className !== undefined ? option.some(className) : option.none
-    }),
-    option.fromPredicate(readonlyArray.isNonEmpty),
-    option.map(as => as.join(' ')),
-    option.toUndefined,
-  )
+
+      if (className === undefined || !display) return []
+
+      return [className]
+    }
+
+    return objectEntries(arg).flatMap(
+      ([className, display]): SingleItemArray<string> => (display ? [className] : []),
+    )
+  })
+
+  if (!readonlyArray.isNonEmpty(classes)) return undefined
+
+  return classes.join(' ')
 }
+
+const isArray = Array.isArray as unknown as (
+  c: Tuple<Optional<string>, boolean> | Record<string, boolean>,
+) => c is Tuple<Optional<string>, boolean>

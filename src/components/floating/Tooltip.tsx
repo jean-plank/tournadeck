@@ -159,23 +159,21 @@ export const Tooltip: React.FC<Props> = ({
       {children}
       <div
         ref={arrow.ref}
-        className={cx(
-          'absolute h-1.5 w-2.5',
-          ['-bottom-1.5', isTop],
-          ['-top-1.5', isBottom],
-          ['-right-2', isLeft],
-          ['-left-2', isRight],
-        )}
+        className={cx('absolute h-1.5 w-2.5', {
+          '-bottom-1.5': isTop,
+          '-top-1.5': isBottom,
+          '-right-2': isLeft,
+          '-left-2': isRight,
+        })}
         style={arrow.styles}
       >
         <CaretUpSharpCropped
-          className={cx(
-            'text-brown',
-            ['rotate-180', isTop],
-            ['rotate-0', isBottom],
-            ['rotate-90', isLeft],
-            ['-rotate-90', isRight],
-          )}
+          className={cx('text-brown', {
+            'rotate-180': isTop,
+            'rotate-0': isBottom,
+            'rotate-90': isLeft,
+            '-rotate-90': isRight,
+          })}
         />
       </div>
     </div>,
