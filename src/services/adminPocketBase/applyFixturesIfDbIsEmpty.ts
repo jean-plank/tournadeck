@@ -279,7 +279,7 @@ async function genAttendee(
     tournament,
     puuid,
     currentElo: random.randomElem(LolElo.values)(),
-    comment: Math.random() < 0.5 ? '' : random.randomElem(comments)(),
+    comment: Math.random() < 0.2 ? '' : random.randomElem(comments)(),
     team,
     role: role ?? random.randomElem(TeamRole.values)(),
     championPool: random.randomElem(ChampionPool.values)(),
