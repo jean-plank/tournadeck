@@ -15,7 +15,9 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { GameName } from '../../../../../models/riot/GameName'
 import { RiotId } from '../../../../../models/riot/RiotId'
 import { TagLine } from '../../../../../models/riot/TagLine'
+import { cx } from '../../../../../utils/cx'
 import { objectEntries } from '../../../../../utils/fpTsUtils'
+import { round } from '../../../../../utils/numberUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
 type AttendeeTileProps = {
@@ -29,6 +31,8 @@ const summonerUrls = objectEntries({
   'League of Graphs': leagueOfGraphsUrl,
   'OP.GG': opGGUrl,
 })
+
+const avatarRatingClassName = 'absolute block rounded-l-md bg-black/90 px-1 py-px'
 
 export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   attendee,
@@ -49,7 +53,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
   const highlight = user !== undefined && attendee.user === user.id
 
-  const avatarRating = `${(Math.round(attendee.avatarRating * 10) / 10).toLocaleString(constants.locale)}/5`
+  const avatarRatingLong = `${round(attendee.avatarRating, 2).toLocaleString(constants.locale)}/5`
   const price = attendee.price.toLocaleString(constants.locale)
 
   return (
@@ -70,19 +74,29 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
           {shouldDisplayAvatarRating && (
             <div
-              className="group -mb-2 grid h-8 w-10 self-end justify-self-end overflow-hidden rounded-l-full text-sm leading-4 area-1"
+              className="group relative flex h-8 w-12 translate-y-2 items-center justify-end self-end justify-self-end overflow-hidden rounded-l-full text-sm leading-4 text-white area-1"
               {...avatarRatingTooltip.reference}
             >
-              {/* hitbox */}
+              {/* hitbox (for position) */}
               <span
-                className="invisible self-center justify-self-end pl-1 pt-px area-1"
+                className={cx(avatarRatingClassName, 'invisible -right-px')}
                 {...avatarRatingTooltip.positionReference}
               >
-                {avatarRating}
+                {avatarRatingLong}
               </span>
 
-              <span className="-mr-3 self-center justify-self-end rounded-l-md bg-black/90 pl-1 pt-px text-white transition-all duration-300 area-1 group-hover:mr-0">
-                {avatarRating}
+              <span className={cx(avatarRatingClassName, '-right-px group-hover:invisible')}>
+                {round(attendee.avatarRating, 1).toLocaleString(constants.locale)}
+              </span>
+
+              {/* on hover */}
+              <span
+                className={cx(
+                  avatarRatingClassName,
+                  'absolute invisible -right-3 transition-[right] duration-300 group-hover:-right-px group-hover:visible cursor-none',
+                )}
+              >
+                {avatarRatingLong}
               </span>
               <Tooltip {...avatarRatingTooltip.floating}>Note photo de profil</Tooltip>
             </div>
