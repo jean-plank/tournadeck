@@ -1,4 +1,4 @@
-import { random, readonlyArray, task } from 'fp-ts'
+import { random, readonlyArray, readonlyNonEmptyArray, task } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 
 import type { Logger } from '../../Logger'
@@ -16,7 +16,8 @@ import type { TournamentId, TournamentInput } from '../../models/pocketBase/tabl
 import type { UserId, UserInput } from '../../models/pocketBase/tables/User'
 import { GameId } from '../../models/riot/GameId'
 import { Puuid } from '../../models/riot/Puuid'
-import { isDefined } from '../../utils/fpTsUtils'
+import { array, isDefined } from '../../utils/fpTsUtils'
+import { promiseSequenceSeq } from '../../utils/promiseUtils'
 
 export async function applyFixturesIfDbIsEmpty(logger: Logger, pb: MyPocketBase): Promise<void> {
   const isEmpty = await isDbEmpty(pb)
@@ -28,7 +29,7 @@ export async function applyFixturesIfDbIsEmpty(logger: Logger, pb: MyPocketBase)
 
   logger.debug('Applying fixtures...')
 
-  await addFixtures(pb)
+  await addFixtures(logger, pb)
 
   logger.info('Applied fixtures')
 }
@@ -43,23 +44,7 @@ async function isDbEmpty(pb: MyPocketBase): Promise<boolean> {
   return results.every(result => result.totalItems === 0)
 }
 
-export async function addFixtures(pb: MyPocketBase): Promise<void> {
-  // users
-
-  const jenaprank = await pb.collection('users').create(genUser('jenaprank', 'Jena Prank', true))
-
-  const lambertj = await pb.collection('users').create(genUser('lambertj', 'Jules Lambert'))
-
-  const adedigado = await pb.collection('users').create(genUser('adedigado', 'Jean Prendnote'))
-
-  const guy = await pb.collection('users').create(genUser('guy', 'Guy le mécano'))
-
-  const tintin = await pb.collection('users').create(genUser('tintin', 'TINTIN'))
-
-  const captain = await pb.collection('users').create(genUser('captain', 'Captain Craps'))
-
-  const marie = await pb.collection('users').create(genUser('marie', 'Marie'))
-
+export async function addFixtures(logger: Logger, pb: MyPocketBase): Promise<void> {
   // tournaments
 
   const tournament1 = await pb
@@ -110,80 +95,66 @@ export async function addFixtures(pb: MyPocketBase): Promise<void> {
 
   const [, team2] = teams
 
-  // attendees
+  // users and attendees
 
-  await pb.collection('attendees').create(
-    await genAttendee(
-      jenaprank.id,
-      tournament1.id,
-      Puuid('8_scoVR3JLkqmPY__ov4uQ78ZEon7gi2B_XOtJW5gXX5BnSWM0EUv8scgsyPF5k116Mj9ZD084kceA'), // jeanprank
-      team2.id,
-      'top',
-    ),
+  const teamsCount = 6
+
+  await promiseSequenceSeq(
+    TeamRole.values.map(async (role, i) => {
+      const users = await promiseSequenceSeq(
+        Array.from({ length: teamsCount }).map((_, j) => {
+          const index = i * teamsCount + j
+          const username = `user-${index}`
+
+          logger.debug(`Creating user ${username}`)
+
+          try {
+            return pb.collection('users').create(genUser(username, `User ${index + 1}`))
+          } catch {
+            throw Error(`Error while creating user ${username}`)
+          }
+        }),
+      )
+
+      const usersWithSeed = pipe(
+        users,
+        readonlyArray.zip(array.shuffle(readonlyNonEmptyArray.range(1, teamsCount))()),
+      )
+
+      const captain = readonlyArray.isNonEmpty(users) ? random.randomElem(users)() : undefined
+
+      await promiseSequenceSeq(
+        usersWithSeed.map(async ([user, seed], j) => {
+          const puuidIndex = i * teamsCount + j
+          const puuid = puuids[puuidIndex]
+
+          if (puuid === undefined) {
+            throw Error(`Puuid with index ${puuidIndex} doesn't exist`)
+          }
+
+          const team = teams[j]
+
+          if (team === undefined) {
+            throw Error(`team with index ${j} doesn't exist`)
+          }
+
+          return pb
+            .collection('attendees')
+            .create(
+              await genAttendee(
+                user.id,
+                tournament1.id,
+                puuid,
+                team.id,
+                role,
+                user.id === captain?.id,
+                seed,
+              ),
+            )
+        }),
+      )
+    }),
   )
-
-  await pb.collection('attendees').create(
-    await genAttendee(
-      lambertj.id,
-      tournament1.id,
-      Puuid('e5ZZiNvlwntsAMB4cqgWcRiuOCxd1G5W3iG2mRkSdkRg24UeA8Zm-23psi7pdED8qxyXv_k1ak9IKA'), // grim
-      team2.id,
-      'jun',
-      true,
-    ),
-  )
-
-  await pb.collection('attendees').create(
-    await genAttendee(
-      adedigado.id,
-      tournament1.id,
-      Puuid('oZst1CMmHY3E_j3JluDlsSzCVgLNkOqjFd73nQN5GJfjLzHoU17aocL2JDE787QSWXhWfXNYiUn1Sw'), // styrale
-      team2.id,
-      'mid',
-    ),
-  )
-
-  await pb
-    .collection('attendees')
-    .create(
-      await genAttendee(
-        tintin.id,
-        tournament1.id,
-        Puuid('YQLXLM9etyh_B74QjvlW6nWNsmvChJP2uig3llCtratiq2sruuX9pH8c0RVoO7j_xVaE_A0JRlKnRQ'),
-        team2.id,
-        'bot',
-      ),
-    )
-
-  await pb
-    .collection('attendees')
-    .create(
-      await genAttendee(
-        captain.id,
-        tournament1.id,
-        Puuid('Va3-hdGynMB4FMVbmT8N01DBue2OehklvdUYK-jJfRAfpnuoE4zgZy-0B82HgRU-pyF6YOgg653oGQ'),
-        team2.id,
-        'sup',
-      ),
-    )
-  await pb
-    .collection('attendees')
-    .create(
-      await genAttendee(
-        guy.id,
-        tournament1.id,
-        Puuid('b-z37sM-quwbTsD7M5Gk1AvhQpakpkZJfmedMT4ZxZ98B4VX1WD7F1szNU2687_Arr1jzTLdl2O-Ig'),
-      ),
-    )
-  await pb
-    .collection('attendees')
-    .create(
-      await genAttendee(
-        marie.id,
-        tournament1.id,
-        Puuid('8-prW2qeG9-NSY3tM473FCzBR3jcWgjOPROsJIpp9bWlIuPC_0htvIRaDg8ZcbA6MSLc9ppPpCTXHg'),
-      ),
-    )
 
   // matches
 
@@ -268,9 +239,10 @@ async function genAttendee(
   user: UserId,
   tournament: TournamentId,
   puuid: Puuid,
-  team: '' | TeamId = '',
-  role: Optional<TeamRole> = undefined,
-  isCaptain: boolean = false,
+  team: TeamId,
+  role: TeamRole,
+  isCaptain: boolean,
+  seed: number,
 ): Promise<AttendeeInput> {
   const avatar = await dlImage(`https://blbl.ch/img/${random.randomElem(images)()}`)
 
@@ -281,12 +253,12 @@ async function genAttendee(
     currentElo: random.randomElem(LolElo.values)(),
     comment: Math.random() < 0.2 ? '' : random.randomElem(comments)(),
     team,
-    role: role ?? random.randomElem(TeamRole.values)(),
+    role,
     championPool: random.randomElem(ChampionPool.values)(),
     birthplace: random.randomElem(places)(),
     avatar,
     isCaptain,
-    seed: Math.random() < 0.2 ? 0 : random.randomInt(1, 6)(),
+    seed,
     avatarRating: Math.random() < 0.2 ? 0 : random.randomInt(0, 5)(),
     price: Math.random() < 0.5 ? 0 : random.randomInt(1, 100)(),
   }
@@ -332,6 +304,59 @@ const images: NonEmptyArray<string> = [
   'tea-time.gif',
   'uwot.gif',
 ]
+
+const puuids: ReadonlyArray<Puuid> = [
+  '8_scoVR3JLkqmPY__ov4uQ78ZEon7gi2B_XOtJW5gXX5BnSWM0EUv8scgsyPF5k116Mj9ZD084kceA',
+  'oZst1CMmHY3E_j3JluDlsSzCVgLNkOqjFd73nQN5GJfjLzHoU17aocL2JDE787QSWXhWfXNYiUn1Sw',
+  'e5ZZiNvlwntsAMB4cqgWcRiuOCxd1G5W3iG2mRkSdkRg24UeA8Zm-23psi7pdED8qxyXv_k1ak9IKA',
+  'Va3-hdGynMB4FMVbmT8N01DBue2OehklvdUYK-jJfRAfpnuoE4zgZy-0B82HgRU-pyF6YOgg653oGQ',
+  '8-prW2qeG9-NSY3tM473FCzBR3jcWgjOPROsJIpp9bWlIuPC_0htvIRaDg8ZcbA6MSLc9ppPpCTXHg',
+  'YQLXLM9etyh_B74QjvlW6nWNsmvChJP2uig3llCtratiq2sruuX9pH8c0RVoO7j_xVaE_A0JRlKnRQ',
+  'b-z37sM-quwbTsD7M5Gk1AvhQpakpkZJfmedMT4ZxZ98B4VX1WD7F1szNU2687_Arr1jzTLdl2O-Ig',
+  '00JVgMQhZ4GAtohnW4rU_bvFckyCo3ev0r_hthAtU82PhIf4RLZzLFz7J3iemZX_J5HlbuyTNd4Rwg',
+  '-eh6X2DGw_sl8kkHcdZZCRZ0aDXXmewWA2cV2EUXiesadwJ22F74vJuD95Dq6MkHxz4io5eLg2aLqg',
+  '1fXnZSoWIVLlZr_ZUbwYRtl-GVppH-yrWsTR3pTOx2BbCTaDb4HAsQnBSMG8yyLkOkc294Rhr1gzpg',
+  'CRe16w6NRV6dmuhd-rpF_jAxHyAnC4-88hTrEIhCPL5Pl_ejegRNpWTyCsO6sHHLk0_Uj6rs8V3a2g',
+  '5N1S-XZ0R4g90jrtdGwlUidXEz0fAF4O6ucs1RKTxxHfeA9zLf9zAmzVMLOUqqhjzSc3Kq_fere84w',
+  '2FW6AAeJgQPtZv5f5n10uO8paxfRs9ElBsE1d-IXdBVObK7lOjUAcIT0W6oK6HG65KSEYeug02Uhvg',
+  '3bbHrEuvVpXq2ukEGcTaC-DTfFSvRMTWqAlg81hEqxbH-QvBmwZR_vDikolWSNfl9lNCjPNafY73OQ',
+  '6uU85SWQYy7fAjcIkJ9O7TtaVOj5vCwlzbzk4VlJR_hPwASzCaga6zAjYRK0GLIYl_GlIjiZ4imzNg',
+  '6H8AIXvSRmd5Darh8mvBPztPOnSRm40uqrNk8OODOi0goyGzGsgqz3vwUDgQj6HRUeLpK0clvQYsZw',
+  'kFuqw4vxHRr-NWt8AhjFH-SPInBu2DmmoLSd4fP-IqNK9EvHTCK_H6He9H-86pHMFrPl3Hb2-zJ8tA',
+  '3N_ZnTERKZdsJTpWX8vpi9Mueg9d76aTbQ5JjE44iwJ2eYvgeheSo-nc3b1ryUnngcp8QSdxLWp3TA',
+  'DhxDfwKIxHidGGLozOMXqmCnJR3arxPmEk_HYFhLPw6NI17TqtWXQUgxelUtYBHBXv_f0DaT3xfszw',
+  '8VXHj09qe4MZRQadHHqNrtoEPb-KK1ph2EkBKRoxhkY1gDHn3pZDxJr_HulgjKAXKL1UpeighVdYKg',
+  '7piSt81ltxiFg0tSNbxPaRBPqh60rsS5XdwtCw3CsdxevdpnbV4ysw5G545p3GU5CLtXw1le-i975A',
+  'QCFSz6IHMa2ohD3DYqZgmqDk-xmvd7j3Jzbzwz5hQBqB1hJA8VSLUzef-_7KnEPaepDTmlnjwclKHQ',
+  'C-ShGi05HAK7EKJeyFpnNRbR2XD6Iumcr1e5gx-pxWVo01eZZYhEy9n9wd1pB4IefE-tyWT0zInrSQ',
+  '_3Qc2AZUhVHQiS34rcqoXsm5fnkyMC_e6CdJa1WUAYX08mFpFsMkswvzDd5c-nvmC44GWQVaNG8W8w',
+  'ic3uRzP5PxVUDM57WREVMsA1s6Hn9ehkj7D39dCysZWYHw2kSUO8BOZRLT6psprmcPJHf6-j3H6M6A',
+  'Jrl1IQcHU4b0ffirLjDClauPTWTTV7iXFpcSz78fYeGA2fG0hG6E-2TuQA-DsZ9KbnCrWb3LLx3hrQ',
+  'wYS3X9hLzYAStINqspyinNmhU5aA3UsovYCmUZ_l-ZGbO-CtxMXQ5qiufXCf74Rh1aB-WDzBVjY-tg',
+  'mdyR74eCkuLNahbT07iRIj1GOSVTZbTEhw8UZWJF4IeP6cBu3CZNrHYhbO6zgtJcIqs1UVX8ZXzzWA',
+  'f8UoiSD1FlA0NfiVc9xjEojOapUR9pQBNVUqTV9lpdZDXpxZH5iVf6JHGGLldvOqhBpu2JJIwu-jZQ',
+  '_mS44qHCWhFFscnKCIWeHzebYyPNG3SotlJBvw7c1uB6XgtLZTR8DzVCATSks-drWPM8EE18xsfMpw',
+  // 'amjvu6waJNJmZNIZS1icLuSrYm3_j5L7JwolxI4bZABP0xFGZKhhBenh3871g0nG4wT6y8cmHNsZzA',
+  // 'LNxFxuyyhZ3ozc3F4OuFyuLAxGzqb2n9aIKO2P3S1btbPYnVO46vk2zmSha_v4_BK2OQ0cj-jOmJnQ',
+  // 'vyGmYfuPeOUcL9qwo1YIChrQTCTK33w5_Ar6zhzNxP0JvQceqLTzsptNPvpAVFiKHzSpGW5-_Y3LBg',
+  // 'h4eeQJ13ief-XjZ7Mp8LqTyjxmQrdi7hd1GMDtxI5dTn72lnJ3H_aTeuIxe7F7W7j0Oz_JFtLj6jGQ',
+  // 'N-Tei3nYBv2FLf4fA94MjbodoETndnnh9-KTviWV_q4xtWhmiIRVk_upjCO94w2ilC72Uh_2I3XKYw',
+  // 'HtvGcsXf9YkbGmfaYyutKTU-_n20P6Qj2w6OHmk_rsXR1uIfvsaKRWjhlJhQvpliYD6nSvacIH8-SA',
+  // 'amjSwLs80xnZqad5uMLPQPnYXVaphcb6htI16KtCbIFl1XGIw91uqQJg98E1Mub-gwOPgFbfGgacmg',
+  // 'ReJwODcAZy7rwquMw2xSQr5clSnEaUgozH5P-Uk7-rRANr72i6vAnEiW3P_9iV_7L7njtMqrcQ-LGw',
+  // 'imp0f9turJbigLi_RnlCfiMJfXzqT09JoFHWhk-VD8gMcRyJri9wgdlbLuhUgr3nxr1HSUigC68XkQ',
+  // 'iQkkpTkECDtQv9Hmj28c6Z2R_AY-ARNuAPERP-2SPUtSetdRDYTJmpoAGnYToyt0djKk__10cJuuDw',
+  // 'DioIDlJYoyexMBBPKjrSKLOfsWp50WtD410FXq9Dnkci7FkJGPcDA6l3v4bA86-ECM7j4_ulSnEc5Q',
+  // 'VCueB2aA9XdrjEc31q6WGbo7kqDGm8jggDN4JmzzadX42F-VJvB9dfbRg90BkF84OPdfCQqxhTMWQQ',
+  // 'l3kmj1abuxpvQaSft6JAmaroJzC9FGbDEnIFt6qMKZ5fd_m9CfTHcDpLOGJ-HR_5WNrzlqU9-Rj2hQ',
+  // '9-4XLjjMvf-aIOXG5N9NI__Zsygf5HthqeDfngUyHR3BOZyn_aUYw_kDf94k7zEEVdK7shi6DmL7sQ',
+  // '3uxaCr9dkbZbFTrk-OeJl6c82G_SsS-CAxaT9PQ1yJ07aFFR___7NPGhlQIkJy2QolZTbMXwd6Hwrw',
+  // 'Gg_RNC3-YTdSmS8IG8z_8c1mZpRwPLhDfkpz28Eq5ZGBEKMtUjpn3614mLsI83TZyYhtuPrsmqIt1g',
+  // 's6FQ1lI2RuK5tiUDe6WRbCaAykmerSFeJXG6BW9VjHvEoiasVs2IO1Eqy_LoWqBjXGeforYRDHiWbw',
+  // 'w6CMLXNQWj8k7-2cIVETe4RP9IZoJflTVdoTdS3zc1fouwfoDH9Tu_hDpVXrMhW1HM5KPgVuGdiCUA',
+  // 'wu9bPfc19I8DNwMf06XJ4IfyRgJqFKDf_85hTQMywL1nPuV4Eb1hXY1VLkhWaPMxMCI8PKn2kiwJBQ',
+  // 'zNJgHmkBAs8kMzmRpcqN6NtMTv91UH0-tXoJZ5TPosh37uAMMn648eNBcTk2pMysI9vh3RT_eV3rFw',
+].map(a => Puuid(a))
 
 async function dlImage(url: string): Promise<Blob> {
   const response = await fetch(url, { cache: 'no-store' })
