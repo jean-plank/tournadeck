@@ -40,7 +40,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
   const groupedAndSorted = useMemo(() => groupAndSortAttendees(attendees), [attendees])
 
   return (
-    <div className="flex flex-col items-start gap-5 pb-8">
+    <div className="flex flex-col items-start gap-5">
       {attendees.length < tournament.teamsCount * 5 && !alreadySubscribed && (
         <dialog ref={dialog} className="bg-transparent">
           <AttendeeForm
@@ -58,7 +58,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
         </dialog>
       )}
 
-      <div className="flex w-full flex-col items-center gap-6 py-6">
+      <div className="flex w-full flex-col items-center gap-6 pt-6">
         <div className="flex flex-col items-center gap-6">
           {!alreadySubscribed && (
             <button
@@ -74,7 +74,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
           </span>
         </div>
 
-        <div className="grid w-full grid-rows-5">
+        <div className="grid w-full grid-rows-5 overflow-auto pb-14">
           {TeamRole.values.map(role => (
             <div key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
               <div className="flex min-h-40 flex-col items-center justify-center self-center">
