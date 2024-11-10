@@ -16,6 +16,7 @@ import { GameName } from '../../../../../models/riot/GameName'
 import { RiotId } from '../../../../../models/riot/RiotId'
 import { TagLine } from '../../../../../models/riot/TagLine'
 import { objectEntries } from '../../../../../utils/fpTsUtils'
+import { round } from '../../../../../utils/numberUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
 type AttendeeTileProps = {
@@ -49,7 +50,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
   const highlight = user !== undefined && attendee.user === user.id
 
-  const avatarRating = `${(Math.round(attendee.avatarRating * 10) / 10).toLocaleString(constants.locale)}/5`
+  const avatarRating = `${round(attendee.avatarRating, 1).toLocaleString(constants.locale)}/5`
   const price = attendee.price.toLocaleString(constants.locale)
 
   return (
