@@ -12,6 +12,7 @@ import {
   useHover,
   useInteractions,
   useRole,
+  useTransitionStyles,
 } from '@floating-ui/react'
 import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -52,7 +53,7 @@ export type UseTooltipReference<RE extends Element> = {
 
 type UseTooltipFloating = {
   placement: Placement
-  isOpen: boolean
+  isMounted: boolean
   setFloating: (node: ContainerElement | null) => void
   styles: React.CSSProperties
   props: Record<string, unknown>
@@ -83,13 +84,13 @@ export function useTooltip<RE extends Element, PE extends Element | false = fals
     middleware: [offset(7), shift({ padding: 8 }), flip(), arrow_({ element: arrowRef })],
   })
 
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, { duration: 300 })
+
   const hover = useHover(context)
   const focus = useFocus(context)
   const role = useRole(context, { role: 'tooltip' })
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, role])
-
-  useFloating({ onOpenChange: setIsOpen })
 
   return {
     reference: {
@@ -101,9 +102,12 @@ export function useTooltip<RE extends Element, PE extends Element | false = fals
     },
     floating: {
       placement: context.placement,
-      isOpen,
+      isMounted,
       setFloating: refs.setFloating,
-      styles: floatingStyles,
+      styles: {
+        ...floatingStyles,
+        ...transitionStyles,
+      },
       props: getFloatingProps(),
       arrow: {
         ref: arrowRef,
@@ -129,7 +133,7 @@ type Props = UseTooltipFloating & {
 
 export const Tooltip: React.FC<Props> = ({
   placement,
-  isOpen,
+  isMounted,
   setFloating,
   styles,
   props,
@@ -138,7 +142,9 @@ export const Tooltip: React.FC<Props> = ({
   className,
   children,
 }) => {
-  if (tooltipLayer === undefined) return null
+  const shouldMount = alwaysVisible || isMounted
+
+  if (tooltipLayer === undefined || !shouldMount) return null
 
   const isTop = placement.startsWith('top')
   const isBottom = placement.startsWith('bottom')
@@ -149,8 +155,7 @@ export const Tooltip: React.FC<Props> = ({
     <div
       ref={setFloating}
       className={cx(
-        'z-40 whitespace-nowrap border border-brown bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black transition-all duration-300',
-        alwaysVisible || isOpen ? 'visible opacity-100' : 'invisible opacity-0',
+        'z-40 whitespace-nowrap border border-brown bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black',
         className,
       )}
       style={styles}

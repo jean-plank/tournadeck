@@ -9,6 +9,7 @@ import {
   useHover,
   useInteractions,
   useRole,
+  useTransitionStyles,
 } from '@floating-ui/react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -33,7 +34,7 @@ type UseContextMenu<RE extends Element> = {
 }
 
 type UseContextMenuFloating = {
-  isOpen: boolean
+  isMounted: boolean
   setFloating: (node: HTMLElement | null) => void
   styles: React.CSSProperties
   props: Record<string, unknown>
@@ -49,6 +50,8 @@ export function useContextMenu<RE extends Element>(): UseContextMenu<RE> {
     middleware: [shift({ padding: 8 }), flip()],
   })
 
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, { duration: 300 })
+
   const hover = useHover(context, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
@@ -63,9 +66,12 @@ export function useContextMenu<RE extends Element>(): UseContextMenu<RE> {
       ...getReferenceProps(),
     },
     floating: {
-      isOpen,
+      isMounted,
       setFloating: refs.setFloating,
-      styles: floatingStyles,
+      styles: {
+        ...floatingStyles,
+        ...transitionStyles,
+      },
       props: getFloatingProps(),
     },
   }
@@ -79,21 +85,20 @@ type Props = UseContextMenuFloating & {
 }
 
 export const ContextMenu: React.FC<Props> = ({
-  isOpen,
+  isMounted,
   setFloating,
   styles,
   props,
   className,
   children,
 }) => {
-  if (contextMenuLayer === undefined) return null
+  if (contextMenuLayer === undefined || !isMounted) return null
 
   return createPortal(
     <div
       ref={setFloating}
       className={cx(
-        'z-30 whitespace-nowrap bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black transition-all duration-300',
-        isOpen ? 'visible opacity-100' : 'invisible opacity-0',
+        'z-30 whitespace-nowrap bg-zinc-900 px-2 py-1 text-sm text-wheat shadow-even shadow-black',
         className,
       )}
       style={styles}
