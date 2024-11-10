@@ -163,3 +163,20 @@ export const objectValues: <A extends Partial<ReadonlyRecord<PropertyKey, unknow
 export const record = {
   empty: <K extends PropertyKey, A>(): ReadonlyRecord<K, A> => ({}) as ReadonlyRecord<K, A>,
 }
+
+export function transposeMatrix<A>(
+  matrix: ReadonlyArray<ReadonlyArray<A>>,
+): ReadonlyArray<ReadonlyArray<A>> {
+  return matrix.reduce<ReadonlyArray<ReadonlyArray<A>>>(
+    (prev, next) =>
+      next.map((_, i) => {
+        const res = prev[i] ?? []
+        const a = next[i]
+
+        if (a === undefined) return res
+
+        return [...res, a]
+      }),
+    [],
+  )
+}

@@ -10,14 +10,13 @@ import { TeamRole } from '../../models/TeamRole'
 import type { TournamentPhase } from '../../models/TournamentPhase'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { TableName } from '../../models/pocketBase/Tables'
-import type { AttendeeInput } from '../../models/pocketBase/tables/Attendee'
+import type { Attendee, AttendeeInput } from '../../models/pocketBase/tables/Attendee'
 import { TeamId } from '../../models/pocketBase/tables/Team'
 import type { TournamentId, TournamentInput } from '../../models/pocketBase/tables/Tournament'
-import type { UserId, UserInput } from '../../models/pocketBase/tables/User'
+import type { User, UserId, UserInput } from '../../models/pocketBase/tables/User'
 import { GameId } from '../../models/riot/GameId'
 import { Puuid } from '../../models/riot/Puuid'
-import { array, isDefined } from '../../utils/fpTsUtils'
-import { promiseSequenceSeq } from '../../utils/promiseUtils'
+import { array, isDefined, transposeMatrix } from '../../utils/fpTsUtils'
 
 export async function applyFixturesIfDbIsEmpty(logger: Logger, pb: MyPocketBase): Promise<void> {
   const isEmpty = await isDbEmpty(pb)
@@ -42,6 +41,12 @@ async function isDbEmpty(pb: MyPocketBase): Promise<boolean> {
   )
 
   return results.every(result => result.totalItems === 0)
+}
+
+type UserWithRoleAndSeed = {
+  user: User
+  role: TeamRole
+  seed: number
 }
 
 export async function addFixtures(logger: Logger, pb: MyPocketBase): Promise<void> {
@@ -93,16 +98,23 @@ export async function addFixtures(logger: Logger, pb: MyPocketBase): Promise<voi
     }),
   ] as const
 
-  const [, team2] = teams
-
   // users and attendees
 
   const teamsCount = 6
 
-  await promiseSequenceSeq(
-    TeamRole.values.map(async (role, i) => {
-      const users = await promiseSequenceSeq(
-        Array.from({ length: teamsCount }).map((_, j) => {
+  /**
+   * [
+   *   [0-top#5,  1-top#3,  2-top#6,  3-top#1,  4-top#4,  5-top#2,],
+   *   [6-jun#2,  7-jun#5,  8-jun#4,  9-jun#3,  10-jun#1, 11-jun#6],
+   *   [12-mid#6, 13-mid#3, 14-mid#4, 15-mid#1, 16-mid#2, 17-mid#5],
+   *   [18-bot#2, 19-bot#3, 20-bot#6, 21-bot#1, 22-bot#4, 23-bot#5],
+   *   [24-sup#2, 25-sup#5, 26-sup#3, 27-sup#4, 28-sup#1, 29-sup#6],
+   * ]
+   */
+  const groupedByRoles = await task.sequenceSeqArray(
+    TeamRole.values.map((role, i) => async () => {
+      const usersForRole = await task.sequenceSeqArray(
+        Array.from({ length: teamsCount }).map((_, j) => () => {
           const index = i * teamsCount + j
           const username = `user-${index}`
 
@@ -114,49 +126,83 @@ export async function addFixtures(logger: Logger, pb: MyPocketBase): Promise<voi
             throw Error(`Error while creating user ${username}`)
           }
         }),
-      )
+      )()
 
-      const usersWithSeed = pipe(
-        users,
+      return pipe(
+        usersForRole,
         readonlyArray.zip(array.shuffle(readonlyNonEmptyArray.range(1, teamsCount))()),
+        readonlyArray.map(([user, seed]): UserWithRoleAndSeed => ({ user, role, seed })),
       )
+    }),
+  )()
 
-      const captain = readonlyArray.isNonEmpty(users) ? random.randomElem(users)() : undefined
+  /**.
+   * [
+   *   [0-top#5, 6-jun#2,  12-mid#6, 18-bot#2, 24-sup#2],
+   *   [1-top#3, 7-jun#5,  13-mid#3, 19-bot#3, 25-sup#5],
+   *   [2-top#6, 8-jun#4,  14-mid#4, 20-bot#6, 26-sup#3],
+   *   [3-top#1, 9-jun#3,  15-mid#1, 21-bot#1, 27-sup#4],
+   *   [4-top#4, 10-jun#1, 16-mid#2, 22-bot#4, 28-sup#1],
+   *   [5-top#2, 11-jun#6, 17-mid#5, 23-bot#5, 29-sup#6],
+   * ]
+   */
+  const groupedByTeam = transposeMatrix(groupedByRoles)
 
-      await promiseSequenceSeq(
-        usersWithSeed.map(async ([user, seed], j) => {
-          const puuidIndex = i * teamsCount + j
+  const imagesCache = new Map<string, Blob>()
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const attendees: ReadonlyArray<ReadonlyArray<Attendee>> = await task.sequenceSeqArray(
+    groupedByTeam.map((teamMembers, i) => () => {
+      if (!readonlyArray.isNonEmpty(teamMembers)) {
+        throw Error(`Empty team members ${i}`)
+      }
+
+      const captain = random.randomElem(teamMembers)()
+      const team = teams[i]
+
+      if (team === undefined) {
+        throw Error(`team with index ${i} doesn't exist`)
+      }
+
+      return task.sequenceSeqArray(
+        teamMembers.map(({ user, role, seed }, j) => async () => {
+          const puuidIndex = i * TeamRole.values.length + j
           const puuid = puuids[puuidIndex]
 
           if (puuid === undefined) {
             throw Error(`Puuid with index ${puuidIndex} doesn't exist`)
           }
 
-          const team = teams[j]
+          const isCaptain = user.id === captain.user.id
 
-          if (team === undefined) {
-            throw Error(`team with index ${j} doesn't exist`)
+          const attendee = await genAttendee(
+            imagesCache,
+            user.id,
+            tournament1.id,
+            puuid,
+            isCaptain ? team.id : undefined,
+            role,
+            isCaptain,
+            seed,
+          )
+
+          const prettyAttendee = `(${user.username},${tournament1.name},${puuid},${team.name},${role},${isCaptain},${seed})`
+
+          logger.debug(`Creating attendee ${prettyAttendee}`)
+
+          try {
+            return pb.collection('attendees').create(attendee)
+          } catch {
+            throw Error(`Error while creating attendee ${prettyAttendee}`)
           }
-
-          return pb
-            .collection('attendees')
-            .create(
-              await genAttendee(
-                user.id,
-                tournament1.id,
-                puuid,
-                team.id,
-                role,
-                user.id === captain?.id,
-                seed,
-              ),
-            )
         }),
-      )
+      )()
     }),
-  )
+  )()
 
   // matches
+
+  const [, team2] = teams
 
   const matches = genTournamentMatches(tournament1.id, teams)
 
@@ -236,15 +282,16 @@ function genTournament(
 // Attendee
 
 async function genAttendee(
+  imagesCache: Map<string, Blob>,
   user: UserId,
   tournament: TournamentId,
   puuid: Puuid,
-  team: TeamId,
+  team: Optional<TeamId>,
   role: TeamRole,
   isCaptain: boolean,
   seed: number,
 ): Promise<AttendeeInput> {
-  const avatar = await dlImage(`https://blbl.ch/img/${random.randomElem(images)()}`)
+  const avatar = await dlImage(imagesCache, `https://blbl.ch/img/${random.randomElem(images)()}`)
 
   return {
     user,
@@ -252,15 +299,15 @@ async function genAttendee(
     puuid,
     currentElo: random.randomElem(LolElo.values)(),
     comment: Math.random() < 0.2 ? '' : random.randomElem(comments)(),
-    team,
+    team: team ?? '',
     role,
     championPool: random.randomElem(ChampionPool.values)(),
     birthplace: random.randomElem(places)(),
     avatar,
     isCaptain,
     seed,
-    avatarRating: Math.random() < 0.2 ? 0 : random.randomInt(0, 5)(),
-    price: Math.random() < 0.5 ? 0 : random.randomInt(1, 100)(),
+    avatarRating: random.randomInt(0, 500)() / 100,
+    price: Math.random() < 0.2 ? 0 : random.randomInt(1, 100)(),
   }
 }
 
@@ -304,6 +351,19 @@ const images: NonEmptyArray<string> = [
   'tea-time.gif',
   'uwot.gif',
 ]
+
+async function dlImage(cache: Map<string, Blob>, url: string): Promise<Blob> {
+  const cached = cache.get(url)
+
+  if (cached !== undefined) return cached
+
+  const response = await fetch(url, { cache: 'no-store' })
+  const image = await response.blob()
+
+  cache.set(url, image)
+
+  return image
+}
 
 const puuids: ReadonlyArray<Puuid> = [
   '8_scoVR3JLkqmPY__ov4uQ78ZEon7gi2B_XOtJW5gXX5BnSWM0EUv8scgsyPF5k116Mj9ZD084kceA',
@@ -357,8 +417,3 @@ const puuids: ReadonlyArray<Puuid> = [
   // 'wu9bPfc19I8DNwMf06XJ4IfyRgJqFKDf_85hTQMywL1nPuV4Eb1hXY1VLkhWaPMxMCI8PKn2kiwJBQ',
   // 'zNJgHmkBAs8kMzmRpcqN6NtMTv91UH0-tXoJZ5TPosh37uAMMn648eNBcTk2pMysI9vh3RT_eV3rFw',
 ].map(a => Puuid(a))
-
-async function dlImage(url: string): Promise<Blob> {
-  const response = await fetch(url, { cache: 'no-store' })
-  return await response.blob()
-}
