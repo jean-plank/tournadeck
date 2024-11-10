@@ -15,6 +15,7 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { GameName } from '../../../../../models/riot/GameName'
 import { RiotId } from '../../../../../models/riot/RiotId'
 import { TagLine } from '../../../../../models/riot/TagLine'
+import { cx } from '../../../../../utils/cx'
 import { objectEntries } from '../../../../../utils/fpTsUtils'
 import { round } from '../../../../../utils/numberUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
@@ -30,6 +31,8 @@ const summonerUrls = objectEntries({
   'League of Graphs': leagueOfGraphsUrl,
   'OP.GG': opGGUrl,
 })
+
+const avatarRatingClassName = 'absolute block rounded-l-md bg-black/90 px-1 py-px'
 
 export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   attendee,
@@ -50,7 +53,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
   const highlight = user !== undefined && attendee.user === user.id
 
-  const avatarRating = `${round(attendee.avatarRating, 1).toLocaleString(constants.locale)}/5`
+  const avatarRatingLong = `${round(attendee.avatarRating, 2).toLocaleString(constants.locale)}/5`
   const price = attendee.price.toLocaleString(constants.locale)
 
   return (
@@ -60,7 +63,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
       )}
 
       <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-2 area-1">
-        <div className="grid h-48">
+        <div className="relative h-48">
           <Image
             src={pbFileUrl('attendees', attendee.id, attendee.avatar)}
             className="size-full object-cover area-1"
@@ -71,19 +74,29 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
           {shouldDisplayAvatarRating && (
             <div
-              className="group -mb-2 grid h-8 w-10 self-end justify-self-end overflow-hidden rounded-l-full text-sm leading-4 area-1"
+              className="group absolute -bottom-2 right-0 flex h-8 w-12 items-center justify-end overflow-hidden rounded-l-full text-sm leading-4 text-white"
               {...avatarRatingTooltip.reference}
             >
-              {/* hitbox */}
+              {/* hitbox (for position) */}
               <span
-                className="invisible self-center justify-self-end pl-1 pt-px area-1"
+                className={cx(avatarRatingClassName, 'invisible -right-px')}
                 {...avatarRatingTooltip.positionReference}
               >
-                {avatarRating}
+                {avatarRatingLong}
               </span>
 
-              <span className="-mr-3 self-center justify-self-end rounded-l-md bg-black/90 pl-1 pt-px text-white transition-all duration-300 area-1 group-hover:mr-0">
-                {avatarRating}
+              <span className={cx(avatarRatingClassName, '-right-px group-hover:invisible')}>
+                {round(attendee.avatarRating, 1).toLocaleString(constants.locale)}
+              </span>
+
+              {/* on hover */}
+              <span
+                className={cx(
+                  avatarRatingClassName,
+                  'absolute invisible -right-3 transition-[right] duration-300 group-hover:-right-px group-hover:visible',
+                )}
+              >
+                {avatarRatingLong}
               </span>
               <Tooltip {...avatarRatingTooltip.floating}>Note photo de profil</Tooltip>
             </div>
