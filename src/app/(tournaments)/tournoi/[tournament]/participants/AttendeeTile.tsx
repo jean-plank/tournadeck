@@ -63,7 +63,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
       )}
 
       <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-2 area-1">
-        <div className="relative h-48">
+        <div className="grid h-48">
           <Image
             src={pbFileUrl('attendees', attendee.id, attendee.avatar)}
             className="size-full object-cover area-1"
@@ -74,7 +74,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
           {shouldDisplayAvatarRating && (
             <div
-              className="group absolute -bottom-2 right-0 flex h-8 w-12 items-center justify-end overflow-hidden rounded-l-full text-sm leading-4 text-white"
+              className="group relative flex h-8 w-12 translate-y-2 items-center justify-end self-end justify-self-end overflow-hidden rounded-l-full text-sm leading-4 text-white area-1"
               {...avatarRatingTooltip.reference}
             >
               {/* hitbox (for position) */}
@@ -93,7 +93,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
               <span
                 className={cx(
                   avatarRatingClassName,
-                  'absolute invisible -right-3 transition-[right] duration-300 group-hover:-right-px group-hover:visible',
+                  'absolute invisible -right-3 transition-[right] duration-300 group-hover:-right-px group-hover:visible cursor-none',
                 )}
               >
                 {avatarRatingLong}
