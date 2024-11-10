@@ -17,8 +17,8 @@ import { RiotId } from '../../../../../models/riot/RiotId'
 import { TagLine } from '../../../../../models/riot/TagLine'
 import { cx } from '../../../../../utils/cx'
 import { objectEntries } from '../../../../../utils/fpTsUtils'
-import { round } from '../../../../../utils/numberUtils'
 import { pbFileUrl } from '../../../../../utils/pbFileUrl'
+import { formatNumber } from '../../../../../utils/stringUtils'
 
 type AttendeeTileProps = {
   attendee: AttendeeWithRiotId
@@ -53,7 +53,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
   const highlight = user !== undefined && attendee.user === user.id
 
-  const avatarRatingLong = `${round(attendee.avatarRating, 2).toLocaleString(constants.locale)}/5`
+  const avatarRatingLong = `${formatNumber(attendee.avatarRating, 2)}/5`
   const price = attendee.price.toLocaleString(constants.locale)
 
   return (
@@ -86,7 +86,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
               </span>
 
               <span className={cx(avatarRatingClassName, '-right-px group-hover:invisible')}>
-                {round(attendee.avatarRating, 1).toLocaleString(constants.locale)}
+                {formatNumber(attendee.avatarRating, 1)}
               </span>
 
               {/* on hover */}

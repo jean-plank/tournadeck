@@ -12,7 +12,7 @@ import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import type { Team } from '../../../../../models/pocketBase/tables/Team'
 import { cx } from '../../../../../utils/cx'
-import { round } from '../../../../../utils/numberUtils'
+import { formatNumber } from '../../../../../utils/stringUtils'
 import { AttendeeTile, EmptyAttendeeTile } from '../participants/AttendeeTile'
 
 type TeamsProps = {
@@ -72,6 +72,7 @@ export const Teams: React.FC<TeamsProps> = ({ teams, teamlessAttendees }) => (
                 <TeamRoleIconGold role={role} className="size-12" />
                 <span>{attendees.length}</span>
               </div>
+
               {attendees.map(p => (
                 <AttendeeTile
                   key={p.id}
@@ -118,7 +119,7 @@ const Team: React.FC<TeamProps> = ({ index, team }) => {
 
         <div className="flex items-center gap-2 text-sky-300" {...averageTooltip.reference}>
           <ImagesOutline className="size-6" />
-          <span>{round(team.averageAvatarRating, 2).toLocaleString(constants.locale)} / 5</span>
+          <span>{formatNumber(team.averageAvatarRating, 2)} / 5</span>
         </div>
         <Tooltip {...averageTooltip.floating}>Moyenne des notes de photos de profil</Tooltip>
       </div>
