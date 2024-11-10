@@ -19,6 +19,7 @@ import { pbFileUrl } from '../../../../../utils/pbFileUrl'
 
 type AttendeeTileProps = {
   attendee: AttendeeWithRiotId
+  shouldDisplayAvatarRating: boolean
   captainShouldDisplayPrice: boolean
 }
 
@@ -30,27 +31,53 @@ const summonerUrls = objectEntries({
 
 export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   attendee,
+  shouldDisplayAvatarRating,
   captainShouldDisplayPrice,
 }) => {
+  const avatarRatingTooltip = useTooltip<HTMLDivElement, HTMLSpanElement>({ placement: 'right' })
   const commentTooltip = useTooltip<HTMLParagraphElement>()
   const summonerLinks = useContextMenu<HTMLDivElement>()
   const poolTooltip = useTooltip<HTMLDivElement, HTMLImageElement>()
   const birthplaceTooltip = useTooltip<HTMLDivElement>()
   const roleTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
+  const priceTooltip = useTooltip<HTMLDivElement>()
   const captainTooltip = useTooltip<HTMLDivElement>()
   const seedTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
+
+  const avatarRating = `${(Math.round(attendee.avatarRating * 10) / 10).toLocaleString(constants.locale)}/5`
+  const price = attendee.price.toLocaleString(constants.locale)
 
   return (
     <div className="grid bg-dark-red shadow-even shadow-burgundy/50">
       <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-2 area-1">
-        <div className="h-48">
+        <div className="grid h-48">
           <Image
             src={pbFileUrl('attendees', attendee.id, attendee.avatar)}
-            className="size-full object-cover"
+            className="size-full object-cover area-1"
             width={512}
             height={512}
             alt={`Avatar de ${attendee.riotId.gameName}#${attendee.riotId.tagLine}`}
           />
+
+          {shouldDisplayAvatarRating && (
+            <div
+              className="group -mb-2 grid h-8 w-10 self-end justify-self-end overflow-hidden rounded-l-full text-sm leading-4 area-1"
+              {...avatarRatingTooltip.reference}
+            >
+              {/* hitbox */}
+              <span
+                className="invisible self-center justify-self-end pl-1 pt-px area-1"
+                {...avatarRatingTooltip.positionReference}
+              >
+                {avatarRating}
+              </span>
+
+              <span className="-mr-3 self-center justify-self-end rounded-l-md bg-black/90 pl-1 pt-px text-white transition-all duration-300 area-1 group-hover:mr-0">
+                {avatarRating}
+              </span>
+              <Tooltip {...avatarRatingTooltip.floating}>Note photo de profil</Tooltip>
+            </div>
+          )}
         </div>
 
         <div className="-mb-1 mt-0.5 flex self-center" {...summonerLinks.reference}>
@@ -61,7 +88,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
             #{TagLine.unwrap(attendee.riotId.tagLine)}
           </span>
         </div>
-        <ContextMenu {...summonerLinks.floating}>
+        <ContextMenu {...summonerLinks.floating} className="shadow-burgundy">
           <ul className="flex flex-col items-center gap-2 py-1">
             {summonerUrls.map(([label, getUrl]) => (
               <li key={label} className="flex items-center gap-2">
@@ -137,11 +164,17 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
       <Tooltip {...roleTooltip.floating}>{TeamRole.label[attendee.role]}</Tooltip>
 
       {(captainShouldDisplayPrice || !attendee.isCaptain) && attendee.price !== 0 && (
-        <div className="mb-1 mr-1 grid grid-cols-[auto_auto] self-end justify-self-end rounded-tl-md bg-dark-red pl-1 pt-1 area-1">
-          <span className="rounded-br-md rounded-tl-md bg-green1/90 px-0.5 leading-5 text-white">
-            ${attendee.price.toLocaleString(constants.locale)}
-          </span>
-        </div>
+        <>
+          <div
+            className="mb-1 mr-1 grid grid-cols-[auto_auto] self-end justify-self-end rounded-tl-md bg-dark-red pl-1 pt-1 area-1"
+            {...priceTooltip.reference}
+          >
+            <span className="rounded-br-md rounded-tl-md bg-green1/90 px-0.5 leading-5 text-white">
+              ${price}
+            </span>
+          </div>
+          <Tooltip {...priceTooltip.floating}>Prix d’achat</Tooltip>
+        </>
       )}
 
       {attendee.isCaptain && (

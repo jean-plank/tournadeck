@@ -80,7 +80,7 @@ export function useTooltip<RE extends Element, PE extends Element | false = fals
     open: isOpen,
     onOpenChange: setIsOpen,
     whileElementsMounted: autoUpdate,
-    middleware: [arrow_({ element: arrowRef }), offset(7), shift({ padding: 8 }), flip()],
+    middleware: [offset(7), shift({ padding: 8 }), flip(), arrow_({ element: arrowRef })],
   })
 
   const hover = useHover(context)

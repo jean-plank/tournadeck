@@ -36,6 +36,7 @@ export type PbAttendee = PbBaseModel<
     avatar: SingleFileField
     isCaptain: BoolField<'nullable'>
     seed: NumberField<'nullable'>
+    avatarRating: NumberField<'nullable'>
     price: NumberField<'nullable'>
   }
 >

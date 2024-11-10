@@ -58,6 +58,7 @@ export async function createAttendee(
     team: '',
     isCaptain: false,
     seed: 0,
+    avatarRating: 0,
     price: 0,
   })
 

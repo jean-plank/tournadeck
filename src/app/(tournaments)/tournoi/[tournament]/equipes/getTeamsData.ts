@@ -1,6 +1,6 @@
 'use server'
 
-import { number, option, ord, readonlyArray, readonlyRecord, string } from 'fp-ts'
+import { monoid, number, option, ord, readonlyArray, readonlyRecord, string } from 'fp-ts'
 import type { Option } from 'fp-ts/Option'
 import { pipe, tuple } from 'fp-ts/function'
 
@@ -16,7 +16,7 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
-import { array, record } from '../../../../../utils/fpTsUtils'
+import { array, objectEntries, record } from '../../../../../utils/fpTsUtils'
 import { groupAndSortAttendees } from '../participants/groupAndSortAttendees'
 import type { TeamWithRoleMembers } from './Teams'
 
@@ -112,21 +112,32 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
         }),
       )
 
+      const rolesEntries = objectEntries(roles)
+
       const balance = pipe(
-        roles,
-        readonlyRecord.toReadonlyArray,
+        rolesEntries,
         readonlyArray.findFirstMap(([, a]) =>
           a !== undefined && a.isCaptain ? option.some(a.price) : option.none,
         ),
         option.getOrElse(() => 0),
       )
 
+      const avatarRatings = pipe(
+        rolesEntries,
+        readonlyArray.filterMap(([, a]) =>
+          a !== undefined ? option.some(a.avatarRating) : option.none,
+        ),
+      )
+      const averageAvatarRating: number = readonlyArray.isNonEmpty(avatarRatings)
+        ? pipe(avatarRatings, monoid.concatAll(number.MonoidSum)) / avatarRatings.length
+        : 0
+
       return {
         teams: pipe(
           teamsAcc.teams,
-          readonlyArray.append<TeamWithRoleMembersWithCount>(
-            tuple(
-              { ...team, balance },
+          readonlyArray.append(
+            tuple<TeamWithRoleMembersWithCount>(
+              { ...team, balance, averageAvatarRating },
               roles,
               pipe(
                 roles,

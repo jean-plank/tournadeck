@@ -84,7 +84,12 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
                 </span>
               </div>
               {groupedAndSorted[role]?.map(p => (
-                <AttendeeTile key={p.id} attendee={p} captainShouldDisplayPrice={true} />
+                <AttendeeTile
+                  key={p.id}
+                  attendee={p}
+                  shouldDisplayAvatarRating={false}
+                  captainShouldDisplayPrice={true}
+                />
               ))}
             </div>
           ))}

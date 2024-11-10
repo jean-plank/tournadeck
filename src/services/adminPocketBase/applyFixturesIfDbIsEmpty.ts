@@ -286,7 +286,8 @@ async function genAttendee(
     birthplace: random.randomElem(places)(),
     avatar,
     isCaptain,
-    seed: Math.random() < 0.5 ? 0 : random.randomInt(1, 5)(),
+    seed: Math.random() < 0.2 ? 0 : random.randomInt(1, 6)(),
+    avatarRating: Math.random() < 0.2 ? 0 : random.randomInt(0, 5)(),
     price: Math.random() < 0.5 ? 0 : random.randomInt(1, 100)(),
   }
 }
