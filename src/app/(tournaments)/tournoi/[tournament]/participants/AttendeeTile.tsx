@@ -8,6 +8,7 @@ import { ContextMenu, useContextMenu } from '../../../../../components/floating/
 import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { MapMarkerStar, OpenInNew } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
+import { usePocketBase } from '../../../../../contexts/PocketBaseContext'
 import { ChampionPool } from '../../../../../models/ChampionPool'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
@@ -44,11 +45,19 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   const captainTooltip = useTooltip<HTMLDivElement>()
   const seedTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
 
+  const { user } = usePocketBase()
+
+  const highlight = user !== undefined && attendee.user === user.id
+
   const avatarRating = `${(Math.round(attendee.avatarRating * 10) / 10).toLocaleString(constants.locale)}/5`
   const price = attendee.price.toLocaleString(constants.locale)
 
   return (
     <div className="grid bg-dark-red shadow-even shadow-burgundy/50">
+      {highlight && (
+        <span className="size-[calc(100%_+_1rem)] self-center justify-self-center rounded-lg border border-goldenrod area-1" />
+      )}
+
       <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-2 area-1">
         <div className="grid h-48">
           <Image
