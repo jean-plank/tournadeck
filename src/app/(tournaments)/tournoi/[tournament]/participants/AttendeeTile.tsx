@@ -57,7 +57,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   const price = attendee.price.toLocaleString(constants.locale)
 
   return (
-    <div className="grid bg-dark-red shadow-even shadow-burgundy/50">
+    <li className="grid bg-dark-red shadow-even shadow-burgundy/50">
       {highlight && (
         <span className="size-[calc(100%_+_1rem)] self-center justify-self-center rounded-lg border border-goldenrod area-1" />
       )}
@@ -231,7 +231,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
           <Tooltip {...seedTooltip.floating}>Seed #{attendee.seed}</Tooltip>
         </>
       )}
-    </div>
+    </li>
   )
 }
 
@@ -256,7 +256,7 @@ type EmptyAttendeeTileProps = {
 }
 
 export const EmptyAttendeeTile: React.FC<EmptyAttendeeTileProps> = ({ role }) => (
-  <div className="min-h-[344px]">
+  <li className="min-h-[344px]">
     <div className="m-1 flex h-full w-60 items-center justify-center rounded-lg border-2 border-burgundy/30">
       <TeamRoleIcon
         role={role}
@@ -264,5 +264,5 @@ export const EmptyAttendeeTile: React.FC<EmptyAttendeeTileProps> = ({ role }) =>
         secondaryClassName="text-burgundy/30"
       />
     </div>
-  </div>
+  </li>
 )

@@ -74,26 +74,29 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
           </span>
         </div>
 
-        <div className="grid w-full grid-rows-5 overflow-auto pb-14">
+        <ul className="grid w-full grid-rows-5 overflow-auto pb-14">
           {TeamRole.values.map(role => (
-            <div key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
+            <li key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
               <div className="flex min-h-40 flex-col items-center justify-center self-center">
                 <TeamRoleIconGold role={role} className="size-12" />
                 <span>
                   {groupedAndSorted[role]?.length ?? 0}/{tournament.teamsCount}
                 </span>
               </div>
-              {groupedAndSorted[role]?.map(p => (
-                <AttendeeTile
-                  key={p.id}
-                  attendee={p}
-                  shouldDisplayAvatarRating={false}
-                  captainShouldDisplayPrice={true}
-                />
-              ))}
-            </div>
+
+              <ul className="contents">
+                {groupedAndSorted[role]?.map(p => (
+                  <AttendeeTile
+                    key={p.id}
+                    attendee={p}
+                    shouldDisplayAvatarRating={false}
+                    captainShouldDisplayPrice={true}
+                  />
+                ))}
+              </ul>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   )
