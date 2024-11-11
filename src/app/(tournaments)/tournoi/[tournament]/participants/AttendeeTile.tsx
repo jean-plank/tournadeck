@@ -59,7 +59,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   return (
     <li className="grid bg-dark-red shadow-even shadow-burgundy/50">
       {highlight && (
-        <span className="size-[calc(100%_+_1rem)] self-center justify-self-center rounded-lg border border-goldenrod area-1" />
+        <span className="size-[calc(100%+1rem)] self-center justify-self-center rounded-lg border border-goldenrod area-1" />
       )}
 
       <div className="m-1 flex w-60 flex-col gap-1 border-2 border-burgundy p-1 pb-2 area-1">
