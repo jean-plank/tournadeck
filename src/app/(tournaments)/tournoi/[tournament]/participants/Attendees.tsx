@@ -76,7 +76,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
 
         <ul className="grid w-full grid-rows-5 overflow-auto pb-14">
           {TeamRole.values.map(role => (
-            <li key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
+            <li key={role} className="flex justify-center gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
               <div className="flex min-h-40 flex-col items-center justify-center self-center">
                 <TeamRoleIconGold role={role} className="size-12" />
                 <span>
