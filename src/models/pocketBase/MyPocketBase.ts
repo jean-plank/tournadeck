@@ -8,7 +8,7 @@ import type {
   RecordOptions,
   RecordService,
 } from 'pocketbase'
-import PocketBase, { ClientResponseError } from 'pocketbase'
+import PocketBase from 'pocketbase'
 import type { OverrideProperties } from 'type-fest'
 
 import { immutableAssign } from '../../utils/fpTsUtils'
@@ -83,10 +83,14 @@ const MyPocketBase = immutableAssign(
     statusesToUndefined:
       (...statuses: NonEmptyArray<number>) =>
       (e: unknown): undefined => {
-        if (e instanceof ClientResponseError && readonlyArray.elem(number.Eq)(e.status, statuses))
+        if (
+          e instanceof Error &&
+          'status' in e &&
+          typeof e.status === 'number' &&
+          readonlyArray.elem(number.Eq)(e.status, statuses)
+        ) {
           return undefined
-
-        throw e
+        }
       },
   },
 )
