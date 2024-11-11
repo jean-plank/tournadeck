@@ -5,7 +5,7 @@ import type { Merge } from 'type-fest'
 
 import { viewTournament } from '../../../../../actions/viewTournament'
 import { Permissions } from '../../../../../helpers/Permissions'
-import { getDraftlolLink } from '../../../../../helpers/getDraftlolLink'
+import { draftlolLink as getDraftlolLink } from '../../../../../helpers/draftlolLink'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
@@ -39,11 +39,10 @@ type ChampionsLoadedProps = {
 const ChampionsLoaded: React.FC<ChampionsLoadedProps> = ({ data }) => {
   if (data === undefined) return notFound()
 
-  const { tournament, staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
+  const { staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
 
   return (
     <Champions
-      tournamentId={tournament.id}
       staticData={staticData}
       stillAvailable={stillAvailable}
       alreadyPlayed={alreadyPlayed}
@@ -79,10 +78,7 @@ async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTo
   )
 
   const draftlolLink: Optional<string> = Permissions.championSelect.create(user.role)
-    ? await getDraftlolLink(
-        tournament.id,
-        alreadyPlayed.map(c => c.id),
-      )
+    ? getDraftlolLink(alreadyPlayed.map(c => c.key))
     : undefined
 
   return { tournament, staticData, stillAvailable, alreadyPlayed, draftlolLink }

@@ -1,12 +1,11 @@
 'use client'
 
 import { random, readonlyArray } from 'fp-ts'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Merge } from 'type-fest'
 
 import { CroppedChampionSquare } from '../../../../../components/CroppedChampionSquare'
 import { OpenInNew } from '../../../../../components/svgs/icons'
-import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { StaticData } from '../../../../../models/theQuest/staticData/StaticData'
 import type { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { cleanUTF8ToASCII } from '../../../../../utils/stringUtils'
@@ -14,7 +13,6 @@ import { SearchChampion } from './SearchChampion'
 
 export type Props = Merge<
   {
-    tournamentId: TournamentId
     staticData: StaticData
     draftlolLink: Optional<string>
   },
@@ -27,7 +25,6 @@ export type PartionedChampions = {
 }
 
 export const Champions: React.FC<Props> = ({
-  tournamentId,
   staticData,
   stillAvailable,
   alreadyPlayed,
@@ -44,12 +41,6 @@ export const Champions: React.FC<Props> = ({
 
     return () => random.randomElem(stillAvailable)().name
   }, [stillAvailable])
-
-  const copyAlreadyPlayed = useCallback(() => {
-    navigator.clipboard.writeText(
-      `yarn draftlolLink ${tournamentId} '${JSON.stringify(alreadyPlayed.map(c => c.id))}'`,
-    )
-  }, [alreadyPlayed, tournamentId])
 
   const totalChampionsCount = stillAvailable.length + alreadyPlayed.length
 
@@ -110,23 +101,15 @@ export const Champions: React.FC<Props> = ({
       </div>
 
       {draftlolLink !== undefined && (
-        <div className="flex items-center gap-4">
-          <span className="font-bold">Organisateurs seulement :</span>
-
-          <a
-            href={draftlolLink}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 underline"
-          >
-            <span>Créer un salon sur Draftlol</span>
-            <OpenInNew className="h-4" />
-          </a>
-
-          <button type="button" className="border border-white" onClick={copyAlreadyPlayed}>
-            Copier la liste des champions déjà joués
-          </button>
-        </div>
+        <a
+          href={draftlolLink}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-8 flex items-center gap-2 underline"
+        >
+          <span>Créer un salon sur Draftlol</span>
+          <OpenInNew className="h-4" />
+        </a>
       )}
     </div>
   )

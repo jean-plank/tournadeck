@@ -2,9 +2,8 @@ import { either, json } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 
-import { getDraftlolLink } from '../helpers/getDraftlolLink'
-import { TournamentId } from '../models/pocketBase/tables/Tournament'
-import { ChampionId } from '../models/riot/ChampionId'
+import { draftlolLink } from '../helpers/draftlolLink'
+import { ChampionKey } from '../models/riot/ChampionKey'
 import { eitherGetOrThrow } from '../utils/fpTsUtils'
 import { decodeError } from '../utils/ioTsUtils'
 import { loadDotenv } from './helpers/loadDotenv'
@@ -14,7 +13,6 @@ loadDotenv()
 const argvDecoder = D.tuple(
   D.id<unknown>(),
   D.id<unknown>(),
-  TournamentId.codec,
   pipe(
     D.string,
     D.parse(str =>
@@ -23,22 +21,22 @@ const argvDecoder = D.tuple(
         either.fold(() => D.failure(str, 'JsonFromString'), D.success),
       ),
     ),
-    D.compose(D.array(ChampionId.codec)),
+    D.compose(D.array(ChampionKey.codec)),
   ),
 )
 
-async function draftlolLink(): Promise<void> {
-  const [, , cacheForTournament, championsToBan] = pipe(
+async function draftlolLink_(): Promise<void> {
+  const [, , championsToBan] = pipe(
     argvDecoder.decode(process.argv),
     either.mapLeft(decodeError('Argv')(process.argv)),
     eitherGetOrThrow,
   )
 
-  const link = await getDraftlolLink(cacheForTournament, championsToBan)
+  const link = draftlolLink(championsToBan)
 
   console.log()
   console.log(link)
   console.log()
 }
 
-draftlolLink()
+draftlolLink_()
