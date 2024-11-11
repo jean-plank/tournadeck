@@ -17,6 +17,9 @@ type Props = {
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
+const attendeeTileWidth = 248 // px
+const attendeesGap = 16 // px
+
 export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
   const { user } = usePocketBase()
 
@@ -84,7 +87,13 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
                 </span>
               </div>
 
-              <ul className="contents">
+              <ul
+                className="flex min-h-[344px] gap-4"
+                style={{
+                  minWidth:
+                    (attendeeTileWidth + attendeesGap) * tournament.teamsCount - attendeesGap,
+                }}
+              >
                 {groupedAndSorted[role]?.map(p => (
                   <AttendeeTile
                     key={p.id}
