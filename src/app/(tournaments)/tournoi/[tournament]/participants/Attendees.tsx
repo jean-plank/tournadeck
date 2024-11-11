@@ -88,7 +88,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
               </div>
 
               <ul
-                className="flex min-h-[344px] gap-4"
+                className="flex min-h-[21.5rem] gap-4"
                 style={{
                   minWidth:
                     (attendeeTileWidth + attendeesGap) * tournament.teamsCount - attendeesGap,

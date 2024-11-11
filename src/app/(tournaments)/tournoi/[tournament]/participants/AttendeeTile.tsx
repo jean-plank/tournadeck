@@ -256,7 +256,7 @@ type EmptyAttendeeTileProps = {
 }
 
 export const EmptyAttendeeTile: React.FC<EmptyAttendeeTileProps> = ({ role }) => (
-  <li className="min-h-[344px]">
+  <li className="min-h-[21.5rem]">
     <div className="m-1 flex h-full w-60 items-center justify-center rounded-lg border-2 border-burgundy/30">
       <TeamRoleIcon
         role={role}
