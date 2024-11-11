@@ -16,8 +16,10 @@
     "dc": "depcruise src test",
     "dcGraph": "depcruise -v -T dot src -x '(node_modules|pocketbase)' | dot -T svg | depcruise-wrap-stream-in-html > dependency-graph.html",
     "ci": "yarn tsc && yarn formatCheck && yarn lint && yarn dc && yarn testUnit",
-    "draftlolLink": "RUNNING_IN_CLI=true vite-node src/scripts/draftlolLink.ts",
-    "parseGame": "RUNNING_IN_CLI=true vite-node src/scripts/parseGame.ts",
+    "_vnode": "RUNNING_IN_CLI=true vite-node",
+    "draftlolLink": "yarn _vnode src/scripts/draftlolLink.ts",
+    "parseGame": "yarn _vnode src/scripts/parseGame.ts",
+    "sourceMap": "yarn _vnode src/scripts/sourceMap.ts",
     "tailwindConfigViewer": "tailwind-config-viewer serve -p 3001"
   },
   "dependencies": {
@@ -37,6 +39,7 @@
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "server-cli-only": "0.3.2",
+    "source-map": "0.7.4",
     "swr": "2.2.5",
     "type-fest": "4.26.1"
   },
