@@ -21,6 +21,6 @@ export const Permissions = {
     create: isOrganiser,
   },
   championSelect: {
-    create: isOrganiser,
+    create: isAnyRole,
   },
 }
