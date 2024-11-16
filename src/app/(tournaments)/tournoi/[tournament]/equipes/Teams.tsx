@@ -29,7 +29,7 @@ import {
   shouldDisplayAvatarRating,
 } from './MercatoPanel'
 
-type TeamsProps = {
+export type TeamsProps = {
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
   teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
@@ -79,7 +79,12 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
     null,
   )
 
-  const { left: otherAttendees, right: mercatoViewAttendees } = useMemo(
+  type OtherAndMercatoAttendees = Separated<
+    ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>,
+    ReadonlyArray<AttendeeWithRiotId>
+  >
+
+  const { left: otherAttendees, right: mercatoViewAttendees } = useMemo<OtherAndMercatoAttendees>(
     () =>
       pipe(
         partitionTeamlessAttendees(teamlessAttendees, mercatoValue),
@@ -153,7 +158,11 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
                         {attendees.map(attendee => (
                           <AttendeeTile
                             key={attendee.id}
-                            {...{ attendee, shouldDisplayAvatarRating, captainShouldDisplayPrice }}
+                            {...{
+                              attendee,
+                              shouldDisplayAvatarRating,
+                              captainShouldDisplayPrice,
+                            }}
                           />
                         ))}
                       </ul>
