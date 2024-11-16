@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import { Attendee } from '../../../../../models/pocketBase/tables/Attendee'
 import type { Team } from '../../../../../models/pocketBase/tables/Team'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
@@ -196,11 +197,6 @@ const byOptionalRole = pipe(
   ord.contramap((b: EnrichedParticipant) => b.member?.role),
 )
 
-const byRole = pipe(
-  TeamRole.Ord,
-  ord.contramap((b: AttendeeWithRiotId) => b.role),
-)
-
 type TeamWithMember = {
   team: Team
   members: ReadonlyArray<AttendeeWithRiotId>
@@ -220,7 +216,7 @@ function getTeamWithMembers(
     members: pipe(
       attendees,
       readonlyArray.filter(a => a.team !== '' && TeamId.Eq.equals(a.team, team.id)),
-      readonlyArray.sort(byRole),
+      readonlyArray.sort(Attendee.byRole),
     ),
   }
 }

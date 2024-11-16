@@ -4,13 +4,13 @@ import { useCallback, useMemo, useRef } from 'react'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../../../contexts/PocketBaseContext'
+import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { array } from '../../../../../utils/fpTsUtils'
 import { AttendeeForm } from './AttendeeForm'
 import { AttendeeTile } from './AttendeeTile'
-import { groupAndSortAttendees } from './groupAndSortAttendees'
 
 type Props = {
   tournament: Tournament
@@ -37,8 +37,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
     if (dialog.current !== null) dialog.current.close()
   }, [])
 
-  const alreadySubscribed =
-    user !== undefined && attendees.find(a => a.user === user.id) !== undefined
+  const alreadySubscribed = user !== undefined && attendees.some(a => a.user === user.id)
 
   const groupedAndSorted = useMemo(() => groupAndSortAttendees(attendees), [attendees])
 

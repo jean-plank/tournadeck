@@ -1,10 +1,13 @@
+import { number, ord } from 'fp-ts'
+import type { Ord } from 'fp-ts/Ord'
+import { pipe } from 'fp-ts/function'
 import type { Newtype } from 'newtype-ts'
 import { iso } from 'newtype-ts'
 
 import { immutableAssign } from '../../../utils/fpTsUtils'
 import type { ChampionPool } from '../../ChampionPool'
 import type { LolElo } from '../../LolElo'
-import type { TeamRole } from '../../TeamRole'
+import { TeamRole } from '../../TeamRole'
 import type { Puuid } from '../../riot/Puuid'
 import type {
   BoolField,
@@ -40,6 +43,18 @@ export type PbAttendee = PbBaseModel<
     price: NumberField<'nullable'>
   }
 >
+
+const byRole: Ord<Attendee> = pipe(
+  TeamRole.Ord,
+  ord.contramap((a: Attendee) => a.role),
+)
+
+const bySeed: Ord<Attendee> = pipe(
+  number.Ord,
+  ord.contramap((a: Attendee) => (a.seed === 0 ? Infinity : a.seed)),
+)
+
+export const Attendee = { byRole, bySeed }
 
 type AttendeeId = Newtype<{ readonly AttendeeId: unique symbol }, string>
 

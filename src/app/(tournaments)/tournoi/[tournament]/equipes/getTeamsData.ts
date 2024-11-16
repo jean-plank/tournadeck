@@ -1,7 +1,6 @@
 'use server'
 
-import { monoid, number, option, ord, readonlyArray, readonlyRecord, string } from 'fp-ts'
-import type { Option } from 'fp-ts/Option'
+import { monoid, number, option, ord, readonlyArray, string } from 'fp-ts'
 import { pipe, tuple } from 'fp-ts/function'
 
 import { listAttendeesForTournament } from '../../../../../actions/helpers/listAttendeesForTournament'
@@ -16,8 +15,7 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
-import { array, objectEntries, record } from '../../../../../utils/fpTsUtils'
-import { groupAndSortAttendees } from '../participants/groupAndSortAttendees'
+import { array, objectEntries, record, tupleIsDefined } from '../../../../../utils/fpTsUtils'
 import type { TeamWithRoleMembers } from './Teams'
 
 const { getFromPbCacheDuration, tags } = Config.constants
@@ -25,7 +23,7 @@ const { getFromPbCacheDuration, tags } = Config.constants
 export type TeamsData = {
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
-  teamlessAttendees: ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
+  teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
 type TeamsAcc = {
@@ -33,10 +31,10 @@ type TeamsAcc = {
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
-type TeamWithRoleMembersWithCount = [...TeamWithRoleMembers, number]
+type TeamWithRoleMembersWithCount = readonly [...TeamWithRoleMembers, number]
 
 type AttendeesAcc = {
-  roles: ReadonlyRecord<TeamRole, Optional<AttendeeWithRiotId>>
+  roles: Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
@@ -84,7 +82,7 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
     attendees: allAttendees,
   }
 
-  const { teams: groupedTeams, attendees } = pipe(
+  const { teams: groupedTeams, attendees: teamlessAttendees } = pipe(
     teams,
     readonlyArray.reduce(initTeamsAcc, (teamsAcc, team): TeamsAcc => {
       const initAttendeesAcc: AttendeesAcc = {
@@ -140,12 +138,8 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
               { ...team, balance, averageAvatarRating },
               roles,
               pipe(
-                roles,
-                readonlyRecord.toReadonlyArray,
-                readonlyArray.filterMap(
-                  ([, val]): Option<AttendeeWithRiotId> =>
-                    val !== undefined ? option.some(val) : option.none,
-                ),
+                objectEntries(roles),
+                readonlyArray.filter(tupleIsDefined<TeamRole, AttendeeWithRiotId>()),
                 readonlyArray.size,
               ),
             ),
@@ -156,24 +150,13 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
     }),
   )
 
-  const groupedAttendees = groupAndSortAttendees(attendees)
-
   return {
     tournament,
-
     teams: pipe(
       groupedTeams,
       readonlyArray.sortBy([ord.reverse(byMembersCount), byName]),
       readonlyArray.map(([team, roles]) => tuple(team, roles)),
     ),
-
-    teamlessAttendees: pipe(
-      TeamRole.values,
-      readonlyArray.filterMap(role => {
-        const as = groupedAttendees[role]
-
-        return as !== undefined ? option.some(tuple(role, as)) : option.none
-      }),
-    ),
+    teamlessAttendees,
   }
 }

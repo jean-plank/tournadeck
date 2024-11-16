@@ -12,12 +12,14 @@ import {
   useRole,
   useTransitionStyles,
 } from '@floating-ui/react'
-import { readonlyArray } from 'fp-ts'
+import { option, readonlyArray, separated } from 'fp-ts'
+import type { Separated } from 'fp-ts/Separated'
+import { flow, pipe, tuple } from 'fp-ts/function'
 import type { Codec } from 'io-ts/Codec'
 import * as C from 'io-ts/Codec'
 import * as D from 'io-ts/Decoder'
 import * as E from 'io-ts/Encoder'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { Merge } from 'type-fest'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
@@ -29,25 +31,29 @@ import {
   SettingsSharp,
 } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
+import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
 import { useLocalStorageState } from '../../../../../hooks/useLocalStorageState'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import { Attendee } from '../../../../../models/pocketBase/tables/Attendee'
 import type { Team } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { cx } from '../../../../../utils/cx'
 import { formatNumber } from '../../../../../utils/stringUtils'
 import { AttendeeTile, EmptyAttendeeTile } from '../participants/AttendeeTile'
 
+const shouldDisplayAvatarRating = true
+const captainShouldDisplayPrice = false
+
 type TeamsProps = {
   tournament: Tournament
-
   teams: ReadonlyArray<TeamWithRoleMembers>
-  teamlessAttendees: ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
+  teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
 export type TeamWithRoleMembers = Tuple<
   TeamWithStats,
-  ReadonlyRecord<TeamRole, Optional<AttendeeWithRiotId>>
+  Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
 >
 
 type TeamWithStats = Merge<
@@ -65,11 +71,12 @@ const mercatoValueCodec: Codec<unknown, MercatoValue, MercatoValue> = C.make(
   D.union(D.number, TeamRole.decoder),
   E.id<MercatoValue>(),
 )
+const nullableMercatoValueCodec = C.nullable(mercatoValueCodec)
 
 export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttendees }) => {
   const [memberScrolled, setMemberScrolled] = useState(false)
 
-  const onMembersMount = useCallback((e: HTMLUListElement | null) => {
+  const onMembersMount = useCallback((e: Nullable<HTMLUListElement>) => {
     if (e !== null) {
       setMemberScrolled(e.scrollLeft > 0)
     }
@@ -79,23 +86,32 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
     setMemberScrolled((e.target as HTMLUListElement).scrollLeft > 0)
   }, [])
 
-  const [mercatoOpen, setMercatoOpen] = useLocalStorageState(
-    `${tournament.id}-mercatoOpen`,
+  const [mercatoPanelOpen, setMercatoPanelOpen] = useLocalStorageState(
+    `${tournament.id}-mercatoPanelOpen`,
     [C.boolean, 'boolean'],
     false,
   )
 
-  const toggleFocusView = useCallback(() => {
-    setMercatoOpen(b => !b)
-  }, [setMercatoOpen])
+  const toggleMercatoPanelOpen = useCallback(() => {
+    setMercatoPanelOpen(b => !b)
+  }, [setMercatoPanelOpen])
 
   const [mercatoValue, setMercatoValue] = useLocalStorageState(
     `${tournament.id}-mercatoValue`,
-    [C.nullable(mercatoValueCodec), 'MercatoValue'],
+    [nullableMercatoValueCodec, 'Nullable<MercatoValue>'],
     null,
   )
 
-  const showTeamlessAttendees = readonlyArray.isNonEmpty(teamlessAttendees)
+  const { left: otherAttendees, right: mercatoViewAttendees } = useMemo(
+    () =>
+      pipe(
+        partitionTeamlessAttendees(teamlessAttendees, mercatoValue),
+        separated.mapLeft(roleEntries),
+      ),
+    [mercatoValue, teamlessAttendees],
+  )
+
+  const showTeamlessAttendees = readonlyArray.isNonEmpty(otherAttendees)
 
   return (
     <div className="grid h-full grid-cols-[1fr_auto]">
@@ -114,18 +130,16 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
                 <li key={team.id} className="group/team w-max min-w-full">
                   <ul className="flex gap-4 py-4 pl-2 pr-8 group-even/team:bg-black/30">
                     {TeamRole.values.map(role => {
-                      const member = members[role]
+                      const attendee = members[role]
 
-                      if (member === undefined) {
+                      if (attendee === undefined) {
                         return <EmptyAttendeeTile key={role} role={role} />
                       }
 
                       return (
                         <AttendeeTile
-                          key={role}
-                          attendee={member}
-                          shouldDisplayAvatarRating={true}
-                          captainShouldDisplayPrice={false}
+                          key={attendee.id}
+                          {...{ attendee, shouldDisplayAvatarRating, captainShouldDisplayPrice }}
                         />
                       )
                     })}
@@ -151,7 +165,7 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
 
               <div className="overflow-x-auto pb-14">
                 <ul className="w-max min-w-full">
-                  {teamlessAttendees.map(([role, attendees]) => (
+                  {otherAttendees.map(([role, attendees]) => (
                     <li key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
                       <div className="flex min-h-40 flex-col items-center justify-center self-center">
                         <TeamRoleIconGold role={role} className="size-12" />
@@ -159,12 +173,10 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
                       </div>
 
                       <ul className="contents">
-                        {attendees.map(p => (
+                        {attendees.map(attendee => (
                           <AttendeeTile
-                            key={p.id}
-                            attendee={p}
-                            shouldDisplayAvatarRating={true}
-                            captainShouldDisplayPrice={false}
+                            key={attendee.id}
+                            {...{ attendee, shouldDisplayAvatarRating, captainShouldDisplayPrice }}
                           />
                         ))}
                       </ul>
@@ -178,21 +190,75 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
 
         <button
           type="button"
-          onClick={toggleFocusView}
+          onClick={toggleMercatoPanelOpen}
           className="self-center justify-self-end rounded-l-lg bg-goldenrod py-1 text-black area-1"
         >
-          <ChevronForwardFilled className={cx('size-6', ['rotate-180', !mercatoOpen])} />
+          <ChevronForwardFilled className={cx('size-6', ['rotate-180', !mercatoPanelOpen])} />
         </button>
       </div>
 
-      {mercatoOpen && (
-        <FocusView
+      {mercatoPanelOpen && (
+        <MercatoPanel
           tournamentTeamsCount={tournament.teamsCount}
           mercatoValue={mercatoValue}
           setMercatoValue={setMercatoValue}
+          attendees={mercatoViewAttendees}
         />
       )}
     </div>
+  )
+}
+
+/**
+ * Rights are the mercato view attendees. Lefts are the others.
+ */
+function partitionTeamlessAttendees(
+  teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>,
+  mercatoValue: Nullable<MercatoValue>,
+): Separated<
+  Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>,
+  ReadonlyArray<AttendeeWithRiotId>
+> {
+  if (mercatoValue === null) {
+    return separated.separated(groupAndSortAttendees(teamlessAttendees), [])
+  }
+
+  return pipe(
+    teamlessAttendees,
+    typeof mercatoValue === 'number'
+      ? flow(
+          readonlyArray.partition(filterBySeed(mercatoValue)),
+          separated.map(readonlyArray.sort(Attendee.byRole)),
+        )
+      : flow(
+          readonlyArray.partition(filterByRole(mercatoValue)),
+          separated.map(readonlyArray.sort(Attendee.bySeed)),
+        ),
+    separated.mapLeft(groupAndSortAttendees),
+  )
+}
+
+const filterBySeed =
+  (seed: Seed) =>
+  (attendee: AttendeeWithRiotId): boolean =>
+    attendee.seed === seed
+
+const filterByRole =
+  (role: TeamRole) =>
+  (attendee: AttendeeWithRiotId): boolean =>
+    TeamRole.Eq.equals(attendee.role, role)
+
+function roleEntries(
+  attendeesByRole: Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>,
+): ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>> {
+  return pipe(
+    TeamRole.values,
+    readonlyArray.filterMap(role =>
+      pipe(
+        option.fromNullable(attendeesByRole[role]),
+        option.map(as => tuple(role, as)),
+      ),
+    ),
   )
 }
 
@@ -231,16 +297,18 @@ const TeamInfo: React.FC<TeamInfoProps> = ({ team }) => {
   )
 }
 
-type FocusViewProps = {
+type MercatoPanelProps = {
   tournamentTeamsCount: number
-  mercatoValue: MercatoValue | null
-  setMercatoValue: React.Dispatch<React.SetStateAction<MercatoValue | null>>
+  mercatoValue: Nullable<MercatoValue>
+  setMercatoValue: React.Dispatch<React.SetStateAction<Nullable<MercatoValue>>>
+  attendees: ReadonlyArray<AttendeeWithRiotId>
 }
 
-const FocusView: React.FC<FocusViewProps> = ({
+const MercatoPanel: React.FC<MercatoPanelProps> = ({
   tournamentTeamsCount,
   mercatoValue,
   setMercatoValue,
+  attendees,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -269,7 +337,7 @@ const FocusView: React.FC<FocusViewProps> = ({
   )
 
   return (
-    <div className="min-w-[17.5rem] border-l border-goldenrod bg-blue1 p-4">
+    <div className="min-w-[17.5rem] overflow-y-auto border-l border-goldenrod bg-blue1 p-4">
       <div className="flex justify-between gap-4">
         <button ref={refs.setReference} type="button" {...getReferenceProps()}>
           <SettingsSharp className="size-6" />
@@ -307,6 +375,17 @@ const FocusView: React.FC<FocusViewProps> = ({
           ))}
         </ul>
       </ContextMenu>
+
+      {readonlyArray.isNonEmpty(attendees) && (
+        <ul>
+          {attendees.map(attendee => (
+            <AttendeeTile
+              key={attendee.id}
+              {...{ attendee, shouldDisplayAvatarRating, captainShouldDisplayPrice }}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
