@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useRef } from 'react'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
+import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
 import { usePocketBase } from '../../../../../contexts/PocketBaseContext'
 import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
 import { TeamRole } from '../../../../../models/TeamRole'
@@ -10,7 +11,6 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { array } from '../../../../../utils/fpTsUtils'
 import { AttendeeForm } from './AttendeeForm'
-import { AttendeeTile } from './AttendeeTile'
 
 type Props = {
   tournament: Tournament

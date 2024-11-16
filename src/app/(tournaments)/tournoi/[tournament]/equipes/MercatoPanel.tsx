@@ -17,12 +17,12 @@ import * as D from 'io-ts/Decoder'
 import * as E from 'io-ts/Encoder'
 import { useCallback, useState } from 'react'
 
+import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
 import { ContextMenu } from '../../../../../components/floating/ContextMenu'
 import { SettingsSharp } from '../../../../../components/svgs/icons'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { cx } from '../../../../../utils/cx'
-import { AttendeeTile } from '../participants/AttendeeTile'
 
 export const shouldDisplayAvatarRating = true
 export const captainShouldDisplayPrice = false

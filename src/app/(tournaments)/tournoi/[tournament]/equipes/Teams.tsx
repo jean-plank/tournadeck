@@ -8,6 +8,7 @@ import { useCallback, useMemo, useState } from 'react'
 import type { Merge } from 'type-fest'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
+import { AttendeeTile, EmptyAttendeeTile } from '../../../../../components/attendee/AttendeeTile'
 import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { ChevronForwardFilled, ImagesOutline } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
@@ -20,7 +21,6 @@ import type { Team } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { cx } from '../../../../../utils/cx'
 import { formatNumber } from '../../../../../utils/stringUtils'
-import { AttendeeTile, EmptyAttendeeTile } from '../participants/AttendeeTile'
 import type { Seed } from './MercatoPanel'
 import {
   MercatoPanel,
