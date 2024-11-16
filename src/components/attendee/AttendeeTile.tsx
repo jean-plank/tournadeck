@@ -216,7 +216,13 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
         </>
       )}
 
-      {attendee.seed !== 0 && <SeedTag seed={attendee.seed} withTooltip={true} />}
+      {attendee.seed !== 0 && (
+        <SeedTag
+          seed={attendee.seed}
+          withTooltip={true}
+          className="self-start justify-self-end area-1"
+        />
+      )}
     </li>
   )
 }

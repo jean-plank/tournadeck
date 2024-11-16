@@ -17,7 +17,9 @@ import * as D from 'io-ts/Decoder'
 import * as E from 'io-ts/Encoder'
 import { useCallback, useState } from 'react'
 
+import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
+import { SeedTag } from '../../../../../components/attendee/SeedTag'
 import { ContextMenu } from '../../../../../components/floating/ContextMenu'
 import { SettingsSharp } from '../../../../../components/svgs/icons'
 import { TeamRole } from '../../../../../models/TeamRole'
@@ -78,14 +80,22 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
 
   return (
     <div className="flex min-w-[281px] flex-col gap-4 overflow-y-auto border-l border-goldenrod bg-blue1 px-4 pb-14 pt-4">
-      <div className="grid grid-cols-[1.5rem_1fr_1.5rem] gap-4">
+      <div className="grid grid-cols-[1.5rem_1fr_1.5rem] items-start justify-items-center gap-4">
         <button ref={refs.setReference} type="button" {...getReferenceProps()}>
           <SettingsSharp className="size-6" />
         </button>
 
-        {mercatoValue !== null && (
-          <pre className="justify-self-center">mercatoValue = {mercatoValue}</pre>
-        )}
+        {mercatoValue !== null &&
+          (typeof mercatoValue === 'number' ? (
+            <SeedTag seed={mercatoValue} withTooltip={false} className="mb-2" />
+          ) : (
+            <span className="bg-dark-red shadow-even shadow-burgundy/50">
+              <TeamRoleIconGold
+                role={mercatoValue}
+                className={mercatoValue === 'sup' ? 'm-0.5 size-7' : 'size-8'}
+              />
+            </span>
+          ))}
       </div>
 
       <ContextMenu
