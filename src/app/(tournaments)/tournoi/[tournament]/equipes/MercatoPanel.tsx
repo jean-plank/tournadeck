@@ -77,13 +77,15 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
   )
 
   return (
-    <div className="min-w-[281px] overflow-y-auto border-l border-goldenrod bg-blue1 p-4">
-      <div className="flex justify-between gap-4">
+    <div className="flex min-w-[281px] flex-col gap-4 overflow-y-auto border-l border-goldenrod bg-blue1 px-4 pb-14 pt-4">
+      <div className="grid grid-cols-[1.5rem_1fr_1.5rem] gap-4">
         <button ref={refs.setReference} type="button" {...getReferenceProps()}>
           <SettingsSharp className="size-6" />
         </button>
 
-        {mercatoValue !== null && <pre>mercatoValue = {mercatoValue}</pre>}
+        {mercatoValue !== null && (
+          <pre className="justify-self-center">mercatoValue = {mercatoValue}</pre>
+        )}
       </div>
 
       <ContextMenu
@@ -117,7 +119,11 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
       </ContextMenu>
 
       {readonlyArray.isNonEmpty(attendees) && (
-        <ul>
+        <ul
+          className={cx('grid grid-cols-[auto] gap-4', {
+            'xl:grid-cols-[auto_auto]': attendees.length > 1,
+          })}
+        >
           {attendees.map(attendee => (
             <AttendeeTile
               key={attendee.id}
