@@ -16,6 +16,7 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { Attendee } from '../../../../../models/pocketBase/tables/Attendee'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { cx } from '../../../../../utils/cx'
+import { DraggableAttendeeTile } from './DraggableAttendeeTile'
 import type { Seed } from './MercatoPanel'
 import { MercatoPanel, MercatoValue } from './MercatoPanel'
 import type { TeamWithStats } from './TeamInfo'
@@ -43,6 +44,7 @@ export const Teams: React.FC<TeamsProps> = ({
   teamlessAttendees,
   draggable,
 }) => {
+  //
   // scroll shadow
 
   const [memberScrolled, setMemberScrolled] = useState(false)
@@ -136,14 +138,23 @@ export const Teams: React.FC<TeamsProps> = ({
                       </div>
 
                       <ul className="contents">
-                        {attendees.map(attendee => (
-                          <AttendeeTile
-                            key={attendee.id}
-                            attendee={attendee}
-                            shouldDisplayAvatarRating={shouldDisplayAvatarRating}
-                            captainShouldDisplayPrice={captainShouldDisplayPrice}
-                          />
-                        ))}
+                        {attendees.map(attendee =>
+                          draggable ? (
+                            <DraggableAttendeeTile
+                              key={attendee.id}
+                              attendee={attendee}
+                              shouldDisplayAvatarRating={shouldDisplayAvatarRating}
+                              captainShouldDisplayPrice={captainShouldDisplayPrice}
+                            />
+                          ) : (
+                            <AttendeeTile
+                              key={attendee.id}
+                              attendee={attendee}
+                              shouldDisplayAvatarRating={shouldDisplayAvatarRating}
+                              captainShouldDisplayPrice={captainShouldDisplayPrice}
+                            />
+                          ),
+                        )}
                       </ul>
                     </li>
                   ))}
