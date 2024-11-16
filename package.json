@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "~compile": "yarn tsc -w --preserveWatchOutput",
     "_prettier": "prettier .",
     "formatCheck": "yarn _prettier --check",
     "format": "yarn _prettier --write",
