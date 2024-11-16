@@ -1,7 +1,7 @@
 import type { File } from 'buffer'
 import type { Literal } from 'io-ts/lib/Schemable'
 import type { Newtype } from 'newtype-ts'
-import type { Merge } from 'type-fest'
+import type { Except, Merge } from 'type-fest'
 
 import type { TableName, Tables } from './Tables'
 
@@ -50,7 +50,7 @@ export type PbInput<A extends PbBaseModel<PbAnyId, PbAnyModel>> =
       >
     : InputBis<A>
 
-type InputBis<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Omit<
+type InputBis<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Except<
   { [K in keyof A]: A[K]['input'] },
   BaseModelKeys
 >

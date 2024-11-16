@@ -7,6 +7,7 @@ import * as D from 'io-ts/Decoder'
 import type { Encoder } from 'io-ts/Encoder'
 import * as E from 'io-ts/Encoder'
 import type { Literal } from 'io-ts/Schemable'
+import type { Except } from 'type-fest'
 
 type Enum<A extends NonEmptyArray<Literal>> = {
   values: A
@@ -35,6 +36,6 @@ export const createEnum = <A extends NonEmptyArray<Literal>>(...values: A): Enum
     ),
   )
 
-  const res: Omit<Enum<A>, 'T'> = { values, decoder, encoder, codec, Eq, Ord }
+  const res: Except<Enum<A>, 'T'> = { values, decoder, encoder, codec, Eq, Ord }
   return res as Enum<A>
 }
