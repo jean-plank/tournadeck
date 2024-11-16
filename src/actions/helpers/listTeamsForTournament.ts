@@ -11,6 +11,6 @@ export async function listTeamsForTournament(
 ): Promise<ReadonlyArray<Team>> {
   return await adminPb.collection('teams').getFullList({
     filter: `tournament="${tournamentId}"`,
-    next: { revalidate: getFromPbCacheDuration, tags: [tags.teams.list] },
+    next: { revalidate: getFromPbCacheDuration, tags: [tags.teams] },
   })
 }

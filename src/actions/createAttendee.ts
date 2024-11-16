@@ -62,7 +62,7 @@ export async function createAttendee(
     price: 0,
   })
 
-  revalidateTag(tags.attendees.list)
+  revalidateTag(tags.attendees)
 
   return attendee
 }
@@ -83,7 +83,7 @@ async function validateCount(adminPb: MyPocketBase, tournamentId: TournamentId):
     adminPb.collection('attendees').getFullList<ReadonlyRecord<string, never>>({
       filter: `tournament="${tournamentId}"`,
       fields: 'none',
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees.list] },
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),
   ])
 

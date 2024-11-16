@@ -46,7 +46,7 @@ export async function viewTournamentMatches(
   const tournament = await adminPb
     .collection('tournaments')
     .getOne(tournamentId, {
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments.view] },
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments] },
     })
     .catch(MyPocketBase.statusesToUndefined(404))
 
@@ -63,7 +63,7 @@ export async function viewTournamentMatches(
 
     adminPb.collection('matches').getFullList({
       filter: `tournament="${tournamentId}"`,
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.matches.list] },
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.matches] },
     }),
   ])
 

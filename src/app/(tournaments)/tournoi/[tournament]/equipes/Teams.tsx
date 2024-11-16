@@ -5,34 +5,29 @@ import type { Separated } from 'fp-ts/Separated'
 import { flow, pipe, tuple } from 'fp-ts/function'
 import * as C from 'io-ts/Codec'
 import { useCallback, useMemo, useState } from 'react'
-import type { Merge } from 'type-fest'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { AttendeeTile, EmptyAttendeeTile } from '../../../../../components/attendee/AttendeeTile'
-import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
-import { ChevronForwardFilled, ImagesOutline } from '../../../../../components/svgs/icons'
-import { constants } from '../../../../../config/constants'
+import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
+import { ChevronForwardFilled } from '../../../../../components/svgs/icons'
 import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
 import { useLocalStorageState } from '../../../../../hooks/useLocalStorageState'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { Attendee } from '../../../../../models/pocketBase/tables/Attendee'
-import type { Team } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { cx } from '../../../../../utils/cx'
-import { formatNumber } from '../../../../../utils/stringUtils'
 import type { Seed } from './MercatoPanel'
-import {
-  MercatoPanel,
-  MercatoValue,
-  captainShouldDisplayPrice,
-  shouldDisplayAvatarRating,
-} from './MercatoPanel'
+import { MercatoPanel, MercatoValue } from './MercatoPanel'
+import type { TeamWithStats } from './TeamInfo'
+import { TeamInfo } from './TeamInfo'
+import { TeamLi } from './TeamLi'
+import { captainShouldDisplayPrice, shouldDisplayAvatarRating } from './constants'
 
 export type TeamsProps = {
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
   teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
+  draggable: boolean
 }
 
 export type TeamWithRoleMembers = Tuple<
@@ -40,17 +35,16 @@ export type TeamWithRoleMembers = Tuple<
   Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
 >
 
-type TeamWithStats = Merge<
-  Team,
-  {
-    balance: number
-    averageAvatarRating: number
-  }
->
-
 const nullableMercatoValueCodec = C.nullable(MercatoValue.codec)
 
-export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttendees }) => {
+export const Teams: React.FC<TeamsProps> = ({
+  tournament,
+  teams,
+  teamlessAttendees,
+  draggable,
+}) => {
+  // scroll shadow
+
   const [memberScrolled, setMemberScrolled] = useState(false)
 
   const onMembersMount = useCallback((e: Nullable<HTMLUListElement>) => {
@@ -62,6 +56,8 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
   const handleMembersScroll = useCallback((e: React.UIEvent<HTMLUListElement>) => {
     setMemberScrolled((e.target as HTMLUListElement).scrollLeft > 0)
   }, [])
+
+  // mercato panel
 
   const [mercatoPanelOpen, setMercatoPanelOpen] = useLocalStorageState(
     `${tournament.id}-mercatoPanelOpen`,
@@ -78,6 +74,8 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
     [nullableMercatoValueCodec, 'Nullable<MercatoValue>'],
     null,
   )
+
+  // ---
 
   type OtherAndMercatoAttendees = Separated<
     ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>,
@@ -109,24 +107,7 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
               )}
             >
               {teams.map(([team, members]) => (
-                <li key={team.id} className="group/team w-max min-w-full">
-                  <ul className="flex gap-4 py-4 pl-2 pr-8 group-even/team:bg-black/30">
-                    {TeamRole.values.map(role => {
-                      const attendee = members[role]
-
-                      if (attendee === undefined) {
-                        return <EmptyAttendeeTile key={role} role={role} />
-                      }
-
-                      return (
-                        <AttendeeTile
-                          key={attendee.id}
-                          {...{ attendee, shouldDisplayAvatarRating, captainShouldDisplayPrice }}
-                        />
-                      )
-                    })}
-                  </ul>
-                </li>
+                <TeamLi key={team.id} teamId={team.id} members={members} />
               ))}
             </ul>
 
@@ -158,11 +139,9 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
                         {attendees.map(attendee => (
                           <AttendeeTile
                             key={attendee.id}
-                            {...{
-                              attendee,
-                              shouldDisplayAvatarRating,
-                              captainShouldDisplayPrice,
-                            }}
+                            attendee={attendee}
+                            shouldDisplayAvatarRating={shouldDisplayAvatarRating}
+                            captainShouldDisplayPrice={captainShouldDisplayPrice}
                           />
                         ))}
                       </ul>
@@ -189,6 +168,7 @@ export const Teams: React.FC<TeamsProps> = ({ tournament, teams, teamlessAttende
           mercatoValue={mercatoValue}
           setMercatoValue={setMercatoValue}
           attendees={mercatoViewAttendees}
+          draggable={draggable}
         />
       )}
     </div>
@@ -245,40 +225,5 @@ function roleEntries(
         option.map(as => tuple(role, as)),
       ),
     ),
-  )
-}
-
-type TeamInfoProps = {
-  team: TeamWithStats
-}
-
-const TeamInfo: React.FC<TeamInfoProps> = ({ team }) => {
-  const balanceTooltip = useTooltip<HTMLSpanElement>()
-  const averageTooltip = useTooltip<HTMLDivElement>()
-
-  return (
-    <li className="flex min-h-[23.5rem] flex-col items-center justify-center gap-2 px-2 even:bg-black/30">
-      <span className="font-lib-mono font-bold">{team.tag}</span>
-      <span className="text-white">{team.name}</span>
-
-      <div className="mx-2 mt-2 flex items-center justify-around gap-6 self-stretch">
-        <span
-          className="rounded-br-md rounded-tl-md bg-green1/90 px-1.5 text-white"
-          {...balanceTooltip.reference}
-        >
-          ${team.balance.toLocaleString(constants.locale)}
-        </span>
-        <Tooltip {...balanceTooltip.floating}>Solde</Tooltip>
-
-        <div
-          className="flex shrink-0 items-center gap-2 text-sky-300"
-          {...averageTooltip.reference}
-        >
-          <ImagesOutline className="size-6" />
-          <span>{formatNumber(team.averageAvatarRating, 2)} / 5</span>
-        </div>
-        <Tooltip {...averageTooltip.floating}>Moyenne des notes de photos de profil</Tooltip>
-      </div>
-    </li>
   )
 }

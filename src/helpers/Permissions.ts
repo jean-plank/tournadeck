@@ -20,6 +20,9 @@ export const Permissions = {
 
     create: isOrganiser,
   },
+  teams: {
+    buyAttendee: isOrganiser,
+  },
   championSelect: {
     create: isAnyRole,
   },

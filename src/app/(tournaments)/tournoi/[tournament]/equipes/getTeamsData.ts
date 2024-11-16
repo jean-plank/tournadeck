@@ -15,12 +15,14 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import type { User } from '../../../../../models/pocketBase/tables/User'
 import { array, objectEntries, record, tupleIsDefined } from '../../../../../utils/fpTsUtils'
 import type { TeamWithRoleMembers } from './Teams'
 
 const { getFromPbCacheDuration, tags } = Config.constants
 
 export type TeamsData = {
+  user: User
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
   teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
@@ -37,11 +39,6 @@ type AttendeesAcc = {
   roles: Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
-
-const byMembersCount = pipe(
-  number.Ord,
-  ord.contramap((b: TeamWithRoleMembersWithCount) => b[2]),
-)
 
 const byName = pipe(
   string.Ord,
@@ -62,7 +59,7 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
   const tournament = await adminPb
     .collection('tournaments')
     .getOne(tournamentId, {
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments.view] },
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments] },
     })
     .catch(MyPocketBase.statusesToUndefined(404))
 
@@ -151,10 +148,11 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
   )
 
   return {
+    user,
     tournament,
     teams: pipe(
       groupedTeams,
-      readonlyArray.sortBy([ord.reverse(byMembersCount), byName]),
+      readonlyArray.sort(byName),
       readonlyArray.map(([team, roles]) => tuple(team, roles)),
     ),
     teamlessAttendees,

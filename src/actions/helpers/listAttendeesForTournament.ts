@@ -20,7 +20,7 @@ export async function listAttendeesForTournament(
 ): Promise<ReadonlyArray<AttendeeWithRiotId>> {
   const attendees = await adminPb.collection('attendees').getFullList({
     filter: `tournament="${tournamentId}"`,
-    next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees.list] },
+    next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
   })
 
   return Promise.all(
