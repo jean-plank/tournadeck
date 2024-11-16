@@ -108,10 +108,6 @@ export const Teams: React.FC<TeamsProps> = ({
     <div className="grid h-full grid-cols-[1fr_auto]">
       <div className="grid h-full overflow-hidden">
         <div className="flex flex-col gap-6 overflow-y-auto area-1">
-          <pre>
-            active: {`${draggingState?.active.role}`}, over: {`${draggingState?.over}`}
-          </pre>
-
           <div className="grid grid-cols-[auto_1fr]">
             <ul
               ref={onMembersMount}
