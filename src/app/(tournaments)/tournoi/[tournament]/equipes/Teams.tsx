@@ -21,7 +21,7 @@ import type { Seed } from './MercatoPanel'
 import { MercatoPanel, MercatoValue } from './MercatoPanel'
 import type { TeamWithStats } from './TeamInfo'
 import { TeamInfo } from './TeamInfo'
-import { TeamLi } from './TeamLi'
+import { TeamDroppable, TeamLi } from './TeamLi'
 import { captainShouldDisplayPrice, shouldDisplayAvatarRating } from './constants'
 
 export type TeamsProps = {
@@ -109,18 +109,23 @@ export const Teams: React.FC<TeamsProps> = ({
       <div className="grid h-full overflow-hidden">
         <div className="flex flex-col gap-6 overflow-y-auto area-1">
           <div className="grid grid-cols-[auto_1fr]">
+            <ul className="-z-10 col-start-2 row-start-1 w-[calc(100%-2rem)]">
+              {teams.map(([team]) => (
+                <TeamDroppable key={team.id} teamId={team.id} />
+              ))}
+            </ul>
+
             <ul
               ref={onMembersMount}
               onScroll={handleMembersScroll}
               className={cx(
-                'col-start-2 overflow-x-auto',
+                'col-start-2 row-start-1 overflow-x-auto',
                 showTeamlessAttendees ? 'pb-6' : 'pb-14',
               )}
             >
               {teams.map(([team, members]) => (
                 <TeamLi
                   key={team.id}
-                  teamId={team.id}
                   members={members}
                   highlight={
                     highlight(draggingState, team.id) ? draggingState.active.role : undefined

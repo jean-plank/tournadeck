@@ -9,45 +9,37 @@ import { cx } from '../../../../../utils/cx'
 import { captainShouldDisplayPrice, shouldDisplayAvatarRating } from './constants'
 
 type TeamLiProps = {
-  teamId: TeamId
   members: Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
   highlight: Optional<TeamRole>
 }
 
-export const TeamLi: React.FC<TeamLiProps> = ({ teamId, members, highlight }) => {
-  const { setNodeRef } = useDroppable({
-    id: `${teamId}-teamLi`,
-    data: teamId,
-  })
+export const TeamLi: React.FC<TeamLiProps> = ({ members, highlight }) => (
+  <li className="group/team w-max min-w-full">
+    <ul
+      className={cx(
+        'flex gap-4 py-4 pl-2 pr-8 transition-[background] duration-300',
+        highlight !== undefined ? 'bg-green1/30' : 'group-even/team:bg-black/30',
+      )}
+    >
+      {TeamRole.values.map(role => {
+        const attendee = members[role]
 
-  return (
-    <li ref={setNodeRef} className="group/team w-max min-w-full">
-      <ul
-        className={cx(
-          'flex gap-4 py-4 pl-2 pr-8 transition-[background] duration-300',
-          highlight !== undefined ? 'bg-green1/30' : 'group-even/team:bg-black/30',
-        )}
-      >
-        {TeamRole.values.map(role => {
-          const attendee = members[role]
+        if (attendee === undefined) {
+          return <EmptyAttendeeTile key={role} role={role} highlight={highlight === role} />
+        }
 
-          if (attendee === undefined) {
-            return <EmptyAttendeeTile key={role} role={role} highlight={highlight === role} />
-          }
-
-          return (
-            <AttendeeTile
-              key={attendee.id}
-              attendee={attendee}
-              shouldDisplayAvatarRating={shouldDisplayAvatarRating}
-              captainShouldDisplayPrice={captainShouldDisplayPrice}
-            />
-          )
-        })}
-      </ul>
-    </li>
-  )
-}
+        return (
+          <AttendeeTile
+            key={attendee.id}
+            attendee={attendee}
+            shouldDisplayAvatarRating={shouldDisplayAvatarRating}
+            captainShouldDisplayPrice={captainShouldDisplayPrice}
+          />
+        )
+      })}
+    </ul>
+  </li>
+)
 
 type EmptyAttendeeTileProps = {
   role: TeamRole
@@ -76,3 +68,16 @@ const EmptyAttendeeTile: React.FC<EmptyAttendeeTileProps> = ({ role, highlight }
     </div>
   </li>
 )
+
+type TeamDroppableProps = {
+  teamId: TeamId
+}
+
+export const TeamDroppable: React.FC<TeamDroppableProps> = ({ teamId }) => {
+  const { setNodeRef } = useDroppable({
+    id: `${teamId}-teamLi`,
+    data: teamId,
+  })
+
+  return <li ref={setNodeRef} className="min-h-[23.5rem] w-full" />
+}
