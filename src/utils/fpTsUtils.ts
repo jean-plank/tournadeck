@@ -14,6 +14,7 @@ import type { IO } from 'fp-ts/IO'
 import type { Option } from 'fp-ts/Option'
 import type { Ord } from 'fp-ts/Ord'
 import type { Predicate } from 'fp-ts/Predicate'
+import type { Refinement } from 'fp-ts/Refinement'
 import { pipe } from 'fp-ts/function'
 
 export function todo(...[]: ReadonlyArray<unknown>): never {
@@ -38,6 +39,11 @@ export function immutableAssign<
 export function isDefined<A>(a: Optional<A>): a is A {
   return a !== undefined
 }
+
+export const tupleIsDefined =
+  <A, B>(): Refinement<Tuple<A, Optional<B>>, Tuple<A, B>> =>
+  (t): t is Tuple<A, B> =>
+    t[1] !== undefined
 
 /**
  * Like ord.trivial, but with actual equals.
