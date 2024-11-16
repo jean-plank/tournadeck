@@ -16,7 +16,7 @@ import { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { User } from '../../../../../models/pocketBase/tables/User'
-import { array, objectEntries, record, tupleIsDefined } from '../../../../../utils/fpTsUtils'
+import { array, objectEntries, record } from '../../../../../utils/fpTsUtils'
 import type { TeamWithRoleMembers } from './Teams'
 
 const { getFromPbCacheDuration, tags } = Config.constants
@@ -29,11 +29,9 @@ export type TeamsData = {
 }
 
 type TeamsAcc = {
-  teams: ReadonlyArray<TeamWithRoleMembersWithCount>
+  teams: ReadonlyArray<TeamWithRoleMembers>
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
-
-type TeamWithRoleMembersWithCount = readonly [...TeamWithRoleMembers, number]
 
 type AttendeesAcc = {
   roles: Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
@@ -42,7 +40,7 @@ type AttendeesAcc = {
 
 const byName = pipe(
   string.Ord,
-  ord.contramap((b: TeamWithRoleMembersWithCount) => b[0].name),
+  ord.contramap((b: TeamWithRoleMembers) => b[0].name),
 )
 
 export async function getTeamsData(tournamentId: TournamentId): Promise<Optional<TeamsData>> {
@@ -131,15 +129,7 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
         teams: pipe(
           teamsAcc.teams,
           readonlyArray.append(
-            tuple<TeamWithRoleMembersWithCount>(
-              { ...team, balance, averageAvatarRating },
-              roles,
-              pipe(
-                objectEntries(roles),
-                readonlyArray.filter(tupleIsDefined<TeamRole, AttendeeWithRiotId>()),
-                readonlyArray.size,
-              ),
-            ),
+            tuple<TeamWithRoleMembers>({ ...team, balance, averageAvatarRating }, roles),
           ),
         ),
         attendees: newAttendees,
@@ -150,11 +140,7 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
   return {
     user,
     tournament,
-    teams: pipe(
-      groupedTeams,
-      readonlyArray.sort(byName),
-      readonlyArray.map(([team, roles]) => tuple(team, roles)),
-    ),
+    teams: pipe(groupedTeams, readonlyArray.sort(byName)),
     teamlessAttendees,
   }
 }
