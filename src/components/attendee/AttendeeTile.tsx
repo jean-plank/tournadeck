@@ -19,6 +19,7 @@ import { TeamRoleIcon, TeamRoleIconGold } from '../TeamRoleIcon'
 import { ContextMenu, useContextMenu } from '../floating/ContextMenu'
 import { Tooltip, useTooltip } from '../floating/Tooltip'
 import { MapMarkerStar, OpenInNew } from '../svgs/icons'
+import { SeedTag } from './SeedTag'
 
 type AttendeeTileProps = {
   attendee: AttendeeWithRiotId
@@ -47,7 +48,6 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
   const roleTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
   const priceTooltip = useTooltip<HTMLDivElement>()
   const captainTooltip = useTooltip<HTMLDivElement>()
-  const seedTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
 
   const { user } = usePocketBase()
 
@@ -216,19 +216,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
         </>
       )}
 
-      {attendee.seed !== 0 && (
-        <>
-          <div
-            className="self-start justify-self-end rounded-b-xl bg-goldenrod px-px pb-px shadow-even shadow-black area-1"
-            {...seedTooltip.reference}
-          >
-            <div className="rounded-b-xl border-x border-b border-white px-1 pb-0.5 font-lib-mono text-sm text-black">
-              #{attendee.seed}
-            </div>
-          </div>
-          <Tooltip {...seedTooltip.floating}>Seed #{attendee.seed}</Tooltip>
-        </>
-      )}
+      {attendee.seed !== 0 && <SeedTag seed={attendee.seed} withTooltip={true} />}
     </li>
   )
 }
