@@ -74,7 +74,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
 
           {shouldDisplayAvatarRating && (
             <div
-              className="group relative flex h-8 w-12 translate-y-2 items-center justify-end self-end justify-self-end overflow-hidden rounded-l-full text-sm leading-4 text-white area-1"
+              className="group/tile relative flex h-8 w-12 translate-y-2 items-center justify-end self-end justify-self-end overflow-hidden rounded-l-full text-sm leading-4 text-white area-1"
               {...avatarRatingTooltip.reference}
             >
               {/* hitbox (for position) */}
@@ -85,7 +85,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
                 {avatarRatingLong}
               </span>
 
-              <span className={cx(avatarRatingClassName, '-right-px group-hover:invisible')}>
+              <span className={cx(avatarRatingClassName, '-right-px group-hover/tile:invisible')}>
                 {formatNumber(attendee.avatarRating, 1)}
               </span>
 
@@ -93,7 +93,7 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
               <span
                 className={cx(
                   avatarRatingClassName,
-                  'absolute invisible -right-3 transition-[right] duration-300 group-hover:-right-px group-hover:visible cursor-none',
+                  'absolute invisible -right-3 transition-[right] duration-300 group-hover/tile:-right-px group-hover/tile:visible cursor-none',
                 )}
               >
                 {avatarRatingLong}
@@ -104,12 +104,10 @@ export const AttendeeTile: React.FC<AttendeeTileProps> = ({
         </div>
 
         <div className="-mb-1 mt-0.5 flex self-center" {...summonerLinks.reference}>
-          <span className="font-bold text-goldenrod group-hover:underline">
+          <span className="font-bold text-goldenrod">
             {GameName.unwrap(attendee.riotId.gameName)}
           </span>
-          <span className="text-grey-500 group-hover:underline">
-            #{TagLine.unwrap(attendee.riotId.tagLine)}
-          </span>
+          <span className="text-grey-500">#{TagLine.unwrap(attendee.riotId.tagLine)}</span>
         </div>
         <ContextMenu {...summonerLinks.floating} className="shadow-burgundy">
           <ul className="flex flex-col items-center gap-2 py-1">
