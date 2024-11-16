@@ -36,7 +36,7 @@ const TeamsLoaded: React.FC<TeamsLoadedProps> = ({ data }) => {
     return redirectAppRoute(`/tournoi/${tournament.id}/participants`)
   }
 
-  return <Teams teams={teams} teamlessAttendees={teamlessAttendees} />
+  return <Teams tournament={tournament} teams={teams} teamlessAttendees={teamlessAttendees} />
 }
 
 export default TeamsPage
