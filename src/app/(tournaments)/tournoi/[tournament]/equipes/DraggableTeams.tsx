@@ -3,7 +3,7 @@
 import type { DragEndEvent } from '@dnd-kit/core'
 import { DndContext, DragOverlay, useDndContext } from '@dnd-kit/core'
 import { pipe, tuple } from 'fp-ts/function'
-import { startTransition, useCallback, useOptimistic, useState } from 'react'
+import { startTransition, useCallback, useMemo, useOptimistic, useState } from 'react'
 import type { Except } from 'type-fest'
 
 import { buyAttendee } from '../../../../../actions/buyAttendee'
@@ -13,11 +13,11 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import { partialRecord } from '../../../../../utils/fpTsUtils'
 import type { TeamWithStats } from './TeamInfo'
-import type { TeamsProps } from './Teams'
+import type { DraggingState, TeamsProps } from './Teams'
 import { Teams } from './Teams'
 import { captainShouldDisplayPrice, shouldDisplayAvatarRating } from './constants'
 
-type Props = Except<TeamsProps, 'draggable'>
+type Props = Except<TeamsProps, 'draggingState'>
 
 export const DraggableTeams: React.FC<Props> = ({
   tournament,
@@ -70,7 +70,7 @@ export const DraggableTeams: React.FC<Props> = ({
   const handleDragEnd = useCallback(
     async ({ active, over }: DragEndEvent) => {
       if (over !== null) {
-        const teamId = TeamId(over.id as string)
+        const teamId = over.data.current as TeamId
         const team = optimisticTeams.find(([t]) => TeamId.Eq.equals(t.id, teamId))
 
         const attendee = active.data.current as AttendeeWithRiotId
@@ -113,11 +113,26 @@ export const DraggableTeams: React.FC<Props> = ({
 }
 
 const DraggableTeamsBis: React.FC<Props & { isDragging: boolean }> = ({ isDragging, ...props }) => {
-  const { active } = useDndContext()
+  const { active, over } = useDndContext()
+
+  const draggingState = useMemo<Optional<DraggingState>>(() => {
+    if (active === null) return undefined
+
+    const attendee = active.data.current as AttendeeWithRiotId
+    const teamId = over?.data.current as Optional<TeamId>
+
+    return {
+      active: attendee,
+      over: teamId,
+      disabled:
+        teamId !== undefined &&
+        props.teams.some(([t, as]) => t.id === teamId && as[attendee.role] !== undefined),
+    }
+  }, [active, over?.data, props.teams])
 
   return (
     <>
-      <Teams {...props} draggable={true} />
+      <Teams {...props} draggingState={draggingState} />
 
       <DragOverlay>
         {isDragging && active !== null ? (

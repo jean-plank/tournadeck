@@ -7,13 +7,13 @@ import * as C from 'io-ts/Codec'
 import { useCallback, useMemo, useState } from 'react'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
 import { ChevronForwardFilled } from '../../../../../components/svgs/icons'
 import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
 import { useLocalStorageState } from '../../../../../hooks/useLocalStorageState'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { Attendee } from '../../../../../models/pocketBase/tables/Attendee'
+import type { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { cx } from '../../../../../utils/cx'
 import { DraggableAttendeeTile } from './DraggableAttendeeTile'
@@ -28,7 +28,7 @@ export type TeamsProps = {
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
   teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
-  draggable: boolean
+  draggingState: Optional<DraggingState>
 }
 
 export type TeamWithRoleMembers = Tuple<
@@ -36,13 +36,22 @@ export type TeamWithRoleMembers = Tuple<
   Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
 >
 
+export type DraggingState = {
+  active: AttendeeWithRiotId
+  over: Optional<TeamId>
+  /**
+   * If over should be disabled for this active.
+   */
+  disabled: boolean
+}
+
 const nullableMercatoValueCodec = C.nullable(MercatoValue.codec)
 
 export const Teams: React.FC<TeamsProps> = ({
   tournament,
   teams,
   teamlessAttendees,
-  draggable,
+  draggingState,
 }) => {
   //
   // scroll shadow
@@ -99,6 +108,10 @@ export const Teams: React.FC<TeamsProps> = ({
     <div className="grid h-full grid-cols-[1fr_auto]">
       <div className="grid h-full overflow-hidden">
         <div className="flex flex-col gap-6 overflow-y-auto area-1">
+          <pre>
+            active: {`${draggingState?.active.role}`}, over: {`${draggingState?.over}`}
+          </pre>
+
           <div className="grid grid-cols-[auto_1fr]">
             <ul
               ref={onMembersMount}
@@ -109,14 +122,25 @@ export const Teams: React.FC<TeamsProps> = ({
               )}
             >
               {teams.map(([team, members]) => (
-                <TeamLi key={team.id} teamId={team.id} members={members} />
+                <TeamLi
+                  key={team.id}
+                  teamId={team.id}
+                  members={members}
+                  highlight={
+                    highlight(draggingState, team.id) ? draggingState.active.role : undefined
+                  }
+                />
               ))}
             </ul>
 
             <div className="self-start overflow-y-clip area-1">
               <ul className={cx(['shadow-even shadow-black', memberScrolled])}>
                 {teams.map(([team]) => (
-                  <TeamInfo key={team.id} team={team} />
+                  <TeamInfo
+                    key={team.id}
+                    team={team}
+                    highlight={highlight(draggingState, team.id)}
+                  />
                 ))}
               </ul>
             </div>
@@ -138,23 +162,14 @@ export const Teams: React.FC<TeamsProps> = ({
                       </div>
 
                       <ul className="contents">
-                        {attendees.map(attendee =>
-                          draggable ? (
-                            <DraggableAttendeeTile
-                              key={attendee.id}
-                              attendee={attendee}
-                              shouldDisplayAvatarRating={shouldDisplayAvatarRating}
-                              captainShouldDisplayPrice={captainShouldDisplayPrice}
-                            />
-                          ) : (
-                            <AttendeeTile
-                              key={attendee.id}
-                              attendee={attendee}
-                              shouldDisplayAvatarRating={shouldDisplayAvatarRating}
-                              captainShouldDisplayPrice={captainShouldDisplayPrice}
-                            />
-                          ),
-                        )}
+                        {attendees.map(attendee => (
+                          <DraggableAttendeeTile
+                            key={attendee.id}
+                            attendee={attendee}
+                            shouldDisplayAvatarRating={shouldDisplayAvatarRating}
+                            captainShouldDisplayPrice={captainShouldDisplayPrice}
+                          />
+                        ))}
                       </ul>
                     </li>
                   ))}
@@ -179,7 +194,6 @@ export const Teams: React.FC<TeamsProps> = ({
           mercatoValue={mercatoValue}
           setMercatoValue={setMercatoValue}
           attendees={mercatoViewAttendees}
-          draggable={draggable}
         />
       )}
     </div>
@@ -237,4 +251,11 @@ function roleEntries(
       ),
     ),
   )
+}
+
+function highlight(
+  draggingState: Optional<DraggingState>,
+  teamId: TeamId,
+): draggingState is DraggingState {
+  return draggingState !== undefined && !draggingState.disabled && draggingState.over === teamId
 }

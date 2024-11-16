@@ -18,7 +18,6 @@ import * as E from 'io-ts/Encoder'
 import { useCallback, useState } from 'react'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
 import { SeedTag } from '../../../../../components/attendee/SeedTag'
 import { ContextMenu } from '../../../../../components/floating/ContextMenu'
 import { SettingsSharp } from '../../../../../components/svgs/icons'
@@ -43,7 +42,6 @@ type MercatoPanelProps = {
   mercatoValue: Nullable<MercatoValue>
   setMercatoValue: React.Dispatch<React.SetStateAction<Nullable<MercatoValue>>>
   attendees: ReadonlyArray<AttendeeWithRiotId>
-  draggable: boolean
 }
 
 export const MercatoPanel: React.FC<MercatoPanelProps> = ({
@@ -51,7 +49,6 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
   mercatoValue,
   setMercatoValue,
   attendees,
-  draggable,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -135,23 +132,14 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
             'xl:grid-cols-[auto_auto]': attendees.length > 1,
           })}
         >
-          {attendees.map(attendee =>
-            draggable ? (
-              <DraggableAttendeeTile
-                key={attendee.id}
-                attendee={attendee}
-                shouldDisplayAvatarRating={shouldDisplayAvatarRating}
-                captainShouldDisplayPrice={captainShouldDisplayPrice}
-              />
-            ) : (
-              <AttendeeTile
-                key={attendee.id}
-                attendee={attendee}
-                shouldDisplayAvatarRating={shouldDisplayAvatarRating}
-                captainShouldDisplayPrice={captainShouldDisplayPrice}
-              />
-            ),
-          )}
+          {attendees.map(attendee => (
+            <DraggableAttendeeTile
+              key={attendee.id}
+              attendee={attendee}
+              shouldDisplayAvatarRating={shouldDisplayAvatarRating}
+              captainShouldDisplayPrice={captainShouldDisplayPrice}
+            />
+          ))}
         </ul>
       )}
     </div>

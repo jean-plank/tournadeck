@@ -49,7 +49,7 @@ const TeamsLoaded: React.FC<TeamsLoadedProps> = ({ data }) => {
       tournament={tournament}
       teams={teams}
       teamlessAttendees={teamlessAttendees}
-      draggable={false}
+      draggingState={undefined}
     />
   )
 }

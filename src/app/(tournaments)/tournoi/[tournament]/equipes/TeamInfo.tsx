@@ -1,15 +1,18 @@
 'use client'
 
+import { useDroppable } from '@dnd-kit/core'
 import type { Merge } from 'type-fest'
 
 import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { ImagesOutline } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
-import type { Team } from '../../../../../models/pocketBase/tables/Team'
+import { type Team } from '../../../../../models/pocketBase/tables/Team'
+import { cx } from '../../../../../utils/cx'
 import { formatNumber } from '../../../../../utils/stringUtils'
 
 type Props = {
   team: TeamWithStats
+  highlight: boolean
 }
 
 export type TeamWithStats = Merge<
@@ -20,12 +23,23 @@ export type TeamWithStats = Merge<
   }
 >
 
-export const TeamInfo: React.FC<Props> = ({ team }) => {
+export const TeamInfo: React.FC<Props> = ({ team, highlight }) => {
+  const { setNodeRef } = useDroppable({
+    id: `${team.id}-teamInfo`,
+    data: team.id,
+  })
+
   const balanceTooltip = useTooltip<HTMLSpanElement>()
   const averageTooltip = useTooltip<HTMLDivElement>()
 
   return (
-    <li className="flex min-h-[23.5rem] flex-col items-center justify-center gap-2 px-2 even:bg-black/30">
+    <li
+      ref={setNodeRef}
+      className={cx(
+        'flex min-h-[23.5rem] flex-col items-center justify-center gap-2 px-2 transition-[background] duration-300',
+        highlight ? 'bg-green1/30' : 'even:bg-black/30',
+      )}
+    >
       <span className="font-lib-mono font-bold">{team.tag}</span>
       <span className="text-white">{team.name}</span>
 

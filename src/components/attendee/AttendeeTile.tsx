@@ -17,7 +17,7 @@ import { objectEntries } from '../../utils/fpTsUtils'
 import { pbFileUrl } from '../../utils/pbFileUrl'
 import { formatNumber } from '../../utils/stringUtils'
 import { LolEloIcon } from '../LolEloIcon'
-import { TeamRoleIcon, TeamRoleIconGold } from '../TeamRoleIcon'
+import { TeamRoleIconGold } from '../TeamRoleIcon'
 import { ContextMenu, useContextMenu } from '../floating/ContextMenu'
 import { Tooltip, useTooltip } from '../floating/Tooltip'
 import { MapMarkerStar, OpenInNew } from '../svgs/icons'
@@ -247,22 +247,3 @@ function leagueOfGraphsUrl(riotId: RiotId): string {
 function opGGUrl(riotId: RiotId): string {
   return `https://www.op.gg/summoners/${platform}/${RiotId.stringify('-')(riotId)}`
 }
-
-// ---
-
-type EmptyAttendeeTileProps = {
-  role: TeamRole
-  highlight: boolean
-}
-
-export const EmptyAttendeeTile: React.FC<EmptyAttendeeTileProps> = ({ role, highlight }) => (
-  <li className={cx('min-h-[21.5rem]', ['outline outline-1 outline-[lime]', highlight])}>
-    <div className="m-1 flex h-full w-60 items-center justify-center rounded-lg border-2 border-burgundy/30">
-      <TeamRoleIcon
-        role={role}
-        className="size-14 text-burgundy/80"
-        secondaryClassName="text-burgundy/30"
-      />
-    </div>
-  </li>
-)
