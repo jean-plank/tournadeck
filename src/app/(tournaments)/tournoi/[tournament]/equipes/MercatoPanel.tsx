@@ -100,18 +100,18 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
             const seed = i + 1
 
             return (
-              <SelectView key={seed} selected={seed === mercatoValue} onClick={handleClick(seed)}>
+              <MenuOption key={seed} selected={seed === mercatoValue} onClick={handleClick(seed)}>
                 Seed #{seed}
-              </SelectView>
+              </MenuOption>
             )
           })}
         </ul>
 
         <ul className="flex flex-col justify-center gap-1 border-l border-goldenrod pl-2">
           {TeamRole.values.map(role => (
-            <SelectView key={role} selected={role === mercatoValue} onClick={handleClick(role)}>
+            <MenuOption key={role} selected={role === mercatoValue} onClick={handleClick(role)}>
               {TeamRole.label[role]}
-            </SelectView>
+            </MenuOption>
           ))}
         </ul>
       </ContextMenu>
@@ -130,13 +130,13 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
   )
 }
 
-type SelectViewProps = {
+type MenuOptionProps = {
   selected: boolean
   onClick: React.MouseEventHandler<HTMLButtonElement>
   children?: React.ReactNode
 }
 
-const SelectView: React.FC<SelectViewProps> = ({ selected, onClick, children }) => (
+const MenuOption: React.FC<MenuOptionProps> = ({ selected, onClick, children }) => (
   <li>
     <button
       type="button"
