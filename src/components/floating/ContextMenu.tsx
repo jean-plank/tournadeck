@@ -20,7 +20,7 @@ let contextMenuLayer: Optional<HTMLDivElement> = undefined
 
 export const ContextMenuLayer: React.FC = () => <div ref={onMount} />
 
-function onMount(e: HTMLDivElement | null): void {
+function onMount(e: Nullable<HTMLDivElement>): void {
   contextMenuLayer = e ?? undefined
 }
 
@@ -28,14 +28,14 @@ function onMount(e: HTMLDivElement | null): void {
 
 type UseContextMenu<RE extends Element> = {
   reference: {
-    ref: (node: RE | null) => void
+    ref: (node: Nullable<RE>) => void
   } & Record<string, unknown>
   floating: UseContextMenuFloating
 }
 
 type UseContextMenuFloating = {
   isMounted: boolean
-  setFloating: (node: HTMLElement | null) => void
+  setFloating: (node: Nullable<HTMLElement>) => void
   styles: React.CSSProperties
   props: Record<string, unknown>
 }

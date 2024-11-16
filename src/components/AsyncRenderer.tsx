@@ -3,10 +3,10 @@ import type { SWRResponse } from 'swr'
 import { Loader } from './Loader'
 
 type Props<A> = Pick<SWRResponse<A, unknown>, 'data' | 'error'> & {
-  children: (data: A) => React.ReactElement | null
+  children: (data: A) => React.ReactNode
 }
 
-export function AsyncRenderer<A>({ data, error, children }: Props<A>): React.ReactElement | null {
+export function AsyncRenderer<A>({ data, error, children }: Props<A>): React.ReactNode {
   if (error !== undefined) {
     return (
       <div className="flex justify-center">

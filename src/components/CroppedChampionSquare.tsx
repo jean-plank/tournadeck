@@ -42,7 +42,7 @@ export const CroppedChampionSquare = forwardRef(function <A extends HTMLTag>(
   )
 }) as <A extends HTMLTag = 'div'>(
   props: Props<A> & React.RefAttributes<ExtractElement<A>>,
-) => React.ReactElement | null
+) => React.ReactElement
 
 type HTMLTag = keyof JSX.IntrinsicElements
 
