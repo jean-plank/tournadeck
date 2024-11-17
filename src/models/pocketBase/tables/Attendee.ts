@@ -1,10 +1,15 @@
+import { number, ord } from 'fp-ts'
+import type { Ord } from 'fp-ts/Ord'
+import { pipe } from 'fp-ts/function'
+import * as C from 'io-ts/Codec'
 import type { Newtype } from 'newtype-ts'
 import { iso } from 'newtype-ts'
 
 import { immutableAssign } from '../../../utils/fpTsUtils'
+import { fromNewtype } from '../../../utils/ioTsUtils'
 import type { ChampionPool } from '../../ChampionPool'
 import type { LolElo } from '../../LolElo'
-import type { TeamRole } from '../../TeamRole'
+import { TeamRole } from '../../TeamRole'
 import type { Puuid } from '../../riot/Puuid'
 import type {
   BoolField,
@@ -41,10 +46,24 @@ export type PbAttendee = PbBaseModel<
   }
 >
 
+const byRole: Ord<Attendee> = pipe(
+  TeamRole.Ord,
+  ord.contramap((a: Attendee) => a.role),
+)
+
+const bySeed: Ord<Attendee> = pipe(
+  number.Ord,
+  ord.contramap((a: Attendee) => (a.seed === 0 ? Infinity : a.seed)),
+)
+
+export const Attendee = { byRole, bySeed }
+
 type AttendeeId = Newtype<{ readonly AttendeeId: unique symbol }, string>
+
+const codec = fromNewtype<AttendeeId>(C.string)
 
 const { wrap, unwrap } = iso<AttendeeId>()
 
-const AttendeeId = immutableAssign(wrap, { unwrap })
+const AttendeeId = immutableAssign(wrap, { unwrap, codec })
 
 export { AttendeeId }

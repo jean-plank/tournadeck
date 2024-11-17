@@ -20,6 +20,10 @@ export const Permissions = {
 
     create: isOrganiser,
   },
+  teams: {
+    buyAttendee: (role: UserRole, tournament: Tournament) =>
+      tournament.phase === 'teamDraft' && isOrganiser(role),
+  },
   championSelect: {
     create: isAnyRole,
   },

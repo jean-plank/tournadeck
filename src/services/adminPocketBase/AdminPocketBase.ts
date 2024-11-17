@@ -124,7 +124,7 @@ async function load(
                   apiData: MatchApiDatas.codec.encode(newApiDatas),
                 })
 
-                revalidateTag(Config.constants.tags.matches.list)
+                revalidateTag(Config.constants.tags.matches)
               }
             },
           ),

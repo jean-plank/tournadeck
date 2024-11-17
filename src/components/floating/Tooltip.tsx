@@ -24,7 +24,7 @@ let tooltipLayer: Optional<HTMLDivElement> = undefined
 
 export const TooltipLayer: React.FC = () => <div ref={onMount} />
 
-function onMount(e: HTMLDivElement | null): void {
+function onMount(e: Nullable<HTMLDivElement>): void {
   tooltipLayer = e ?? undefined
 }
 
@@ -38,7 +38,7 @@ type UseTooltip<RE extends Element, PE extends Element | false = false> = PE ext
   ? UseTooltipBase<RE>
   : UseTooltipBase<RE> & {
       positionReference: {
-        ref: (node: PE | null) => void
+        ref: (node: Nullable<PE>) => void
       }
     }
 
@@ -48,17 +48,17 @@ type UseTooltipBase<RE extends Element> = {
 }
 
 export type UseTooltipReference<RE extends Element> = {
-  ref: (node: RE | null) => void
+  ref: (node: Nullable<RE>) => void
 } & Record<string, unknown>
 
 type UseTooltipFloating = {
   placement: Placement
   isMounted: boolean
-  setFloating: (node: ContainerElement | null) => void
+  setFloating: (node: Nullable<ContainerElement>) => void
   styles: React.CSSProperties
   props: Record<string, unknown>
   arrow: {
-    ref: React.RefObject<ArrowElement | null>
+    ref: React.RefObject<Nullable<ArrowElement>>
     styles: Optional<{
       left: Optional<React.CSSProperties['left']>
       top: Optional<React.CSSProperties['top']>

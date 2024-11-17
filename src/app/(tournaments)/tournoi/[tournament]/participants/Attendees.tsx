@@ -2,20 +2,23 @@
 
 import { useCallback, useMemo, useRef } from 'react'
 
+import { AttendeeTile } from '../../../../../components/AttendeeTile'
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../../../contexts/PocketBaseContext'
+import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { array } from '../../../../../utils/fpTsUtils'
 import { AttendeeForm } from './AttendeeForm'
-import { AttendeeTile } from './AttendeeTile'
-import { groupAndSortAttendees } from './groupAndSortAttendees'
 
 type Props = {
   tournament: Tournament
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
+
+const attendeeTileWidth = 248 // px
+const attendeesGap = 16 // px
 
 export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
   const { user } = usePocketBase()
@@ -34,8 +37,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
     if (dialog.current !== null) dialog.current.close()
   }, [])
 
-  const alreadySubscribed =
-    user !== undefined && attendees.find(a => a.user === user.id) !== undefined
+  const alreadySubscribed = user !== undefined && attendees.some(a => a.user === user.id)
 
   const groupedAndSorted = useMemo(() => groupAndSortAttendees(attendees), [attendees])
 
@@ -74,26 +76,35 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
           </span>
         </div>
 
-        <div className="grid w-full grid-rows-5 overflow-auto pb-14">
+        <ul className="grid w-full grid-rows-5 overflow-auto pb-14">
           {TeamRole.values.map(role => (
-            <div key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
+            <li key={role} className="flex justify-center gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
               <div className="flex min-h-40 flex-col items-center justify-center self-center">
                 <TeamRoleIconGold role={role} className="size-12" />
                 <span>
                   {groupedAndSorted[role]?.length ?? 0}/{tournament.teamsCount}
                 </span>
               </div>
-              {groupedAndSorted[role]?.map(p => (
-                <AttendeeTile
-                  key={p.id}
-                  attendee={p}
-                  shouldDisplayAvatarRating={false}
-                  captainShouldDisplayPrice={true}
-                />
-              ))}
-            </div>
+
+              <ul
+                className="flex min-h-[21.5rem] gap-4"
+                style={{
+                  minWidth:
+                    (attendeeTileWidth + attendeesGap) * tournament.teamsCount - attendeesGap,
+                }}
+              >
+                {groupedAndSorted[role]?.map(p => (
+                  <AttendeeTile
+                    key={p.id}
+                    attendee={p}
+                    shouldDisplayAvatarRating={false}
+                    captainShouldDisplayPrice={true}
+                  />
+                ))}
+              </ul>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   )

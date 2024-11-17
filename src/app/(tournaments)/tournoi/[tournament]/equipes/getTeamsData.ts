@@ -1,7 +1,6 @@
 'use server'
 
-import { monoid, number, option, ord, readonlyArray, readonlyRecord, string } from 'fp-ts'
-import type { Option } from 'fp-ts/Option'
+import { monoid, number, option, ord, readonlyArray, string } from 'fp-ts'
 import { pipe, tuple } from 'fp-ts/function'
 
 import { listAttendeesForTournament } from '../../../../../actions/helpers/listAttendeesForTournament'
@@ -17,7 +16,6 @@ import { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { array, objectEntries, record } from '../../../../../utils/fpTsUtils'
-import { groupAndSortAttendees } from '../participants/groupAndSortAttendees'
 import type { TeamWithRoleMembers } from './Teams'
 
 const { getFromPbCacheDuration, tags } = Config.constants
@@ -25,29 +23,23 @@ const { getFromPbCacheDuration, tags } = Config.constants
 export type TeamsData = {
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
-  teamlessAttendees: ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
+  teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
+  draggable: boolean
 }
 
 type TeamsAcc = {
-  teams: ReadonlyArray<TeamWithRoleMembersWithCount>
+  teams: ReadonlyArray<TeamWithRoleMembers>
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
-
-type TeamWithRoleMembersWithCount = [...TeamWithRoleMembers, number]
 
 type AttendeesAcc = {
-  roles: ReadonlyRecord<TeamRole, Optional<AttendeeWithRiotId>>
+  roles: Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
   attendees: ReadonlyArray<AttendeeWithRiotId>
 }
-
-const byMembersCount = pipe(
-  number.Ord,
-  ord.contramap((b: TeamWithRoleMembersWithCount) => b[2]),
-)
 
 const byName = pipe(
   string.Ord,
-  ord.contramap((b: TeamWithRoleMembersWithCount) => b[0].name),
+  ord.contramap((b: TeamWithRoleMembers) => b[0].name),
 )
 
 export async function getTeamsData(tournamentId: TournamentId): Promise<Optional<TeamsData>> {
@@ -64,7 +56,7 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
   const tournament = await adminPb
     .collection('tournaments')
     .getOne(tournamentId, {
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments.view] },
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments] },
     })
     .catch(MyPocketBase.statusesToUndefined(404))
 
@@ -84,7 +76,7 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
     attendees: allAttendees,
   }
 
-  const { teams: groupedTeams, attendees } = pipe(
+  const { teams: groupedTeams, attendees: teamlessAttendees } = pipe(
     teams,
     readonlyArray.reduce(initTeamsAcc, (teamsAcc, team): TeamsAcc => {
       const initAttendeesAcc: AttendeesAcc = {
@@ -136,19 +128,7 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
         teams: pipe(
           teamsAcc.teams,
           readonlyArray.append(
-            tuple<TeamWithRoleMembersWithCount>(
-              { ...team, balance, averageAvatarRating },
-              roles,
-              pipe(
-                roles,
-                readonlyRecord.toReadonlyArray,
-                readonlyArray.filterMap(
-                  ([, val]): Option<AttendeeWithRiotId> =>
-                    val !== undefined ? option.some(val) : option.none,
-                ),
-                readonlyArray.size,
-              ),
-            ),
+            tuple<TeamWithRoleMembers>({ ...team, balance, averageAvatarRating }, roles),
           ),
         ),
         attendees: newAttendees,
@@ -156,24 +136,10 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
     }),
   )
 
-  const groupedAttendees = groupAndSortAttendees(attendees)
-
   return {
     tournament,
-
-    teams: pipe(
-      groupedTeams,
-      readonlyArray.sortBy([ord.reverse(byMembersCount), byName]),
-      readonlyArray.map(([team, roles]) => tuple(team, roles)),
-    ),
-
-    teamlessAttendees: pipe(
-      TeamRole.values,
-      readonlyArray.filterMap(role => {
-        const as = groupedAttendees[role]
-
-        return as !== undefined ? option.some(tuple(role, as)) : option.none
-      }),
-    ),
+    teams: pipe(groupedTeams, readonlyArray.sort(byName)),
+    teamlessAttendees,
+    draggable: Permissions.teams.buyAttendee(user.role, tournament),
   }
 }

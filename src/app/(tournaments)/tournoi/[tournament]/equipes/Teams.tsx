@@ -1,127 +1,262 @@
 'use client'
 
-import { readonlyArray } from 'fp-ts'
-import { Fragment } from 'react'
-import type { Merge } from 'type-fest'
+import { option, readonlyArray, separated } from 'fp-ts'
+import type { Separated } from 'fp-ts/Separated'
+import { flow, pipe, tuple } from 'fp-ts/function'
+import * as C from 'io-ts/Codec'
+import { useCallback, useMemo, useState } from 'react'
 
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
-import { ImagesOutline } from '../../../../../components/svgs/icons'
-import { constants } from '../../../../../config/constants'
+import { ChevronForwardFilled } from '../../../../../components/svgs/icons'
+import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
+import { useLocalStorageState } from '../../../../../hooks/useLocalStorageState'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
-import type { Team } from '../../../../../models/pocketBase/tables/Team'
+import { Attendee } from '../../../../../models/pocketBase/tables/Attendee'
+import type { TeamId } from '../../../../../models/pocketBase/tables/Team'
+import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { cx } from '../../../../../utils/cx'
-import { round } from '../../../../../utils/numberUtils'
-import { AttendeeTile, EmptyAttendeeTile } from '../participants/AttendeeTile'
+import { DraggableAttendeeTile } from './DraggableAttendeeTile'
+import type { Seed } from './MercatoPanel'
+import { MercatoPanel, MercatoValue } from './MercatoPanel'
+import type { TeamWithStats } from './TeamInfo'
+import { TeamInfo } from './TeamInfo'
+import { TeamDroppable, TeamLi } from './TeamLi'
+import { captainShouldDisplayPrice, shouldDisplayAvatarRating } from './constants'
 
-type TeamsProps = {
+export type TeamsProps = {
+  tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
-  teamlessAttendees: ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>
+  teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
+  draggingState: Optional<DraggingState>
 }
 
 export type TeamWithRoleMembers = Tuple<
   TeamWithStats,
-  ReadonlyRecord<TeamRole, Optional<AttendeeWithRiotId>>
+  Partial<ReadonlyRecord<TeamRole, AttendeeWithRiotId>>
 >
 
-type TeamWithStats = Merge<
-  Team,
-  {
-    balance: number
-    averageAvatarRating: number
-  }
->
-
-export const Teams: React.FC<TeamsProps> = ({ teams, teamlessAttendees }) => (
-  <div className="flex flex-col pb-8">
-    <div className="grid grid-cols-[auto_1fr]">
-      {teams.map(([team, members], index) => (
-        <Fragment key={team.id}>
-          <Team index={index} team={team} />
-          <div
-            className={cx('flex flex-wrap gap-4 py-4 pl-2 pr-8', ['bg-black/30', index % 2 === 0])}
-          >
-            {TeamRole.values.map(role => {
-              const member = members[role]
-
-              return member !== undefined ? (
-                <AttendeeTile
-                  key={role}
-                  attendee={member}
-                  shouldDisplayAvatarRating={true}
-                  captainShouldDisplayPrice={false}
-                />
-              ) : (
-                <EmptyAttendeeTile key={role} role={role} />
-              )
-            })}
-          </div>
-        </Fragment>
-      ))}
-    </div>
-
-    {readonlyArray.isNonEmpty(teamlessAttendees) && (
-      <>
-        <h2 className="self-center px-2 py-6 text-lg font-bold">Participant·es encore libres</h2>
-
-        <div className="flex flex-col">
-          {teamlessAttendees.map(([role, attendees]) => (
-            <div key={role} className="flex gap-4 py-4 pl-2 odd:bg-black/30">
-              <div className="flex min-h-40 flex-col items-center justify-center self-center">
-                <TeamRoleIconGold role={role} className="size-12" />
-                <span>{attendees.length}</span>
-              </div>
-              {attendees.map(p => (
-                <AttendeeTile
-                  key={p.id}
-                  attendee={p}
-                  shouldDisplayAvatarRating={true}
-                  captainShouldDisplayPrice={false}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      </>
-    )}
-  </div>
-)
-
-type TeamProps = {
-  index: number
-  team: TeamWithStats
+export type DraggingState = {
+  active: AttendeeWithRiotId
+  over: Optional<TeamId>
+  /**
+   * If over should be disabled for this active.
+   */
+  disabled: boolean
 }
 
-const Team: React.FC<TeamProps> = ({ index, team }) => {
-  const balanceTooltip = useTooltip<HTMLSpanElement>()
-  const averageTooltip = useTooltip<HTMLDivElement>()
+const nullableMercatoValueCodec = C.nullable(MercatoValue.codec)
+
+export const Teams: React.FC<TeamsProps> = ({
+  tournament,
+  teams,
+  teamlessAttendees,
+  draggingState,
+}) => {
+  //
+  // scroll shadow
+
+  const [memberScrolled, setMemberScrolled] = useState(false)
+
+  const onMembersMount = useCallback((e: Nullable<HTMLUListElement>) => {
+    if (e !== null) {
+      setMemberScrolled(e.scrollLeft > 0)
+    }
+  }, [])
+
+  const handleMembersScroll = useCallback((e: React.UIEvent<HTMLUListElement>) => {
+    setMemberScrolled((e.target as HTMLUListElement).scrollLeft > 0)
+  }, [])
+
+  // mercato panel
+
+  const [mercatoPanelOpen, setMercatoPanelOpen] = useLocalStorageState(
+    `${tournament.id}-mercatoPanelOpen`,
+    [C.boolean, 'boolean'],
+    false,
+  )
+
+  const toggleMercatoPanelOpen = useCallback(() => {
+    setMercatoPanelOpen(b => !b)
+  }, [setMercatoPanelOpen])
+
+  const [mercatoValue, setMercatoValue] = useLocalStorageState(
+    `${tournament.id}-mercatoValue`,
+    [nullableMercatoValueCodec, 'Nullable<MercatoValue>'],
+    null,
+  )
+
+  // ---
+
+  type OtherAndMercatoAttendees = Separated<
+    ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>,
+    ReadonlyArray<AttendeeWithRiotId>
+  >
+
+  const { left: otherAttendees, right: mercatoViewAttendees } = useMemo<OtherAndMercatoAttendees>(
+    () =>
+      pipe(
+        partitionTeamlessAttendees(teamlessAttendees, mercatoValue),
+        separated.mapLeft(roleEntries),
+      ),
+    [mercatoValue, teamlessAttendees],
+  )
+
+  const showTeamlessAttendees = readonlyArray.isNonEmpty(otherAttendees)
 
   return (
-    <div
-      className={cx('flex flex-col items-center justify-center gap-2 px-2', [
-        'bg-black/30',
-        index % 2 === 0,
-      ])}
-    >
-      <span className="font-lib-mono font-bold">{team.tag}</span>
-      <span className="text-white">{team.name}</span>
+    <div className="grid h-full grid-cols-[1fr_auto]">
+      <div className="grid h-full overflow-hidden">
+        <div className="flex flex-col gap-6 overflow-y-auto area-1">
+          <div className="grid grid-cols-[auto_1fr]">
+            <ul className="-z-10 col-start-2 row-start-1 w-[calc(100%-2rem)]">
+              {teams.map(([team]) => (
+                <TeamDroppable key={team.id} teamId={team.id} />
+              ))}
+            </ul>
 
-      <div className="mt-2 flex flex-wrap items-center justify-around gap-6 self-stretch">
-        <span
-          className="rounded-br-md rounded-tl-md bg-green1/90 px-1.5 text-white"
-          {...balanceTooltip.reference}
-        >
-          ${team.balance.toLocaleString(constants.locale)}
-        </span>
-        <Tooltip {...balanceTooltip.floating}>Argent restant</Tooltip>
+            <ul
+              ref={onMembersMount}
+              onScroll={handleMembersScroll}
+              className={cx(
+                'col-start-2 row-start-1 overflow-x-auto',
+                showTeamlessAttendees ? 'pb-6' : 'pb-14',
+              )}
+            >
+              {teams.map(([team, members]) => (
+                <TeamLi
+                  key={team.id}
+                  members={members}
+                  highlight={
+                    highlight(draggingState, team.id) ? draggingState.active.role : undefined
+                  }
+                />
+              ))}
+            </ul>
 
-        <div className="flex items-center gap-2 text-sky-300" {...averageTooltip.reference}>
-          <ImagesOutline className="size-6" />
-          <span>{round(team.averageAvatarRating, 2).toLocaleString(constants.locale)} / 5</span>
+            <div className="self-start overflow-y-clip area-1">
+              <ul className={cx(['shadow-even shadow-black', memberScrolled])}>
+                {teams.map(([team]) => (
+                  <TeamInfo
+                    key={team.id}
+                    team={team}
+                    highlight={highlight(draggingState, team.id)}
+                  />
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {showTeamlessAttendees && (
+            <div className="flex w-full flex-col">
+              <h2 className="w-[calc(100%-9.5rem)] self-center border-t border-goldenrod px-2 py-6 text-center text-lg font-bold">
+                Participant·es sans équipe
+              </h2>
+
+              <div className="overflow-x-auto pb-14">
+                <ul className="w-max min-w-full">
+                  {otherAttendees.map(([role, attendees]) => (
+                    <li key={role} className="flex gap-4 py-4 pl-2 pr-8 odd:bg-black/30">
+                      <div className="flex min-h-40 flex-col items-center justify-center self-center">
+                        <TeamRoleIconGold role={role} className="size-12" />
+                        <span>{attendees.length}</span>
+                      </div>
+
+                      <ul className="contents">
+                        {attendees.map(attendee => (
+                          <DraggableAttendeeTile
+                            key={attendee.id}
+                            attendee={attendee}
+                            shouldDisplayAvatarRating={shouldDisplayAvatarRating}
+                            captainShouldDisplayPrice={captainShouldDisplayPrice}
+                          />
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
-        <Tooltip {...averageTooltip.floating}>Moyenne des notes de photos de profil</Tooltip>
+
+        <button
+          type="button"
+          onClick={toggleMercatoPanelOpen}
+          className="self-center justify-self-end rounded-l-lg bg-goldenrod py-1 text-black area-1"
+        >
+          <ChevronForwardFilled className={cx('size-6', ['rotate-180', !mercatoPanelOpen])} />
+        </button>
       </div>
+
+      {mercatoPanelOpen && (
+        <MercatoPanel
+          tournamentTeamsCount={tournament.teamsCount}
+          mercatoValue={mercatoValue}
+          setMercatoValue={setMercatoValue}
+          attendees={mercatoViewAttendees}
+        />
+      )}
     </div>
   )
+}
+
+/**
+ * Rights are the mercato view attendees. Lefts are the others.
+ */
+function partitionTeamlessAttendees(
+  teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>,
+  mercatoValue: Nullable<MercatoValue>,
+): Separated<
+  Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>,
+  ReadonlyArray<AttendeeWithRiotId>
+> {
+  if (mercatoValue === null) {
+    return separated.separated(groupAndSortAttendees(teamlessAttendees), [])
+  }
+
+  return pipe(
+    teamlessAttendees,
+    typeof mercatoValue === 'number'
+      ? flow(
+          readonlyArray.partition(filterBySeed(mercatoValue)),
+          separated.map(readonlyArray.sort(Attendee.byRole)),
+        )
+      : flow(
+          readonlyArray.partition(filterByRole(mercatoValue)),
+          separated.map(readonlyArray.sort(Attendee.bySeed)),
+        ),
+    separated.mapLeft(groupAndSortAttendees),
+  )
+}
+
+const filterBySeed =
+  (seed: Seed) =>
+  (attendee: AttendeeWithRiotId): boolean =>
+    attendee.seed === seed
+
+const filterByRole =
+  (role: TeamRole) =>
+  (attendee: AttendeeWithRiotId): boolean =>
+    TeamRole.Eq.equals(attendee.role, role)
+
+function roleEntries(
+  attendeesByRole: Partial<ReadonlyRecord<TeamRole, NonEmptyArray<AttendeeWithRiotId>>>,
+): ReadonlyArray<Tuple<TeamRole, NonEmptyArray<AttendeeWithRiotId>>> {
+  return pipe(
+    TeamRole.values,
+    readonlyArray.filterMap(role =>
+      pipe(
+        option.fromNullable(attendeesByRole[role]),
+        option.map(as => tuple(role, as)),
+      ),
+    ),
+  )
+}
+
+function highlight(
+  draggingState: Optional<DraggingState>,
+  teamId: TeamId,
+): draggingState is DraggingState {
+  return draggingState !== undefined && !draggingState.disabled && draggingState.over === teamId
 }

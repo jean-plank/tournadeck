@@ -32,7 +32,7 @@ export const TournamentHeader: React.FC = () => {
   }, [logoutAndRedirect])
 
   return (
-    <header className="flex min-h-[59px] flex-wrap items-center justify-between gap-1 border-b border-goldenrod bg-gradient-to-br from-zinc-950 to-zinc-900 p-4">
+    <header className="flex min-h-[59px] flex-wrap items-center justify-between gap-1 border-b border-goldenrod bg-gradient-to-br from-black to-blue1 p-4">
       <nav className="flex flex-wrap items-center gap-4">
         {user === undefined && <Link href="/">Connexion</Link>}
 

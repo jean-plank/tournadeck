@@ -1,5 +1,7 @@
-import { either, json } from 'fp-ts'
-import { identity, pipe } from 'fp-ts/function'
+import { either, json, option } from 'fp-ts'
+import type { Either } from 'fp-ts/Either'
+import type { Option } from 'fp-ts/Option'
+import { flow, identity, pipe } from 'fp-ts/function'
 import type { Codec } from 'io-ts/Codec'
 import * as C from 'io-ts/Codec'
 import type { DecodeError, Decoder } from 'io-ts/Decoder'
@@ -41,13 +43,58 @@ export const fromReadonlyArrayDecoder = D.fromArray as unknown as <I, A>(
 ) => Decoder<ReadonlyArray<I>, ReadonlyArray<A>>
 
 /**
- * maybeDecoder
+ * Option
  */
 
-export function maybeDecoder<A>(decoder: Decoder<unknown, A>): Decoder<unknown, A | null> {
+function optionDecoder<I, A>(decoder: Decoder<I, A>): Decoder<I | null | undefined, Option<A>> {
   return {
-    decode: i => (i === undefined || i === null ? D.success(null) : decoder.decode(i)),
+    decode: u =>
+      u === null || u === undefined
+        ? D.success(option.none)
+        : pipe(decoder.decode(u), either.map(option.some)),
   }
+}
+
+function optionEncoder<O, A>(encoder: Encoder<O, A>): Encoder<O | null, Option<A>> {
+  return {
+    encode: flow(option.map(encoder.encode), option.toNullable),
+  }
+}
+
+export function optionCodec<O, A>(
+  codec: Codec<unknown, O, A>,
+): Codec<unknown, O | null, Option<A>> {
+  return C.make(optionDecoder(codec), optionEncoder(codec))
+}
+
+/**
+ * Either
+ */
+
+function eitherDecoder<E, A>(
+  left: Decoder<unknown, E>,
+  right: Decoder<unknown, A>,
+): Decoder<unknown, Either<E, A>> {
+  return D.sum('_tag')({
+    Left: D.struct({ _tag: D.literal('Left'), left }),
+    Right: D.struct({ _tag: D.literal('Right'), right }),
+  })
+}
+
+function eitherEncoder<OE, E, OA, A>(
+  left: Encoder<OE, E>,
+  right: Encoder<OA, A>,
+): Encoder<Either<OE, OA>, Either<E, A>> {
+  return {
+    encode: either.bimap(left.encode, right.encode),
+  }
+}
+
+export function eitherCodec<OE, E, OA, A>(
+  left: Codec<unknown, OE, E>,
+  right: Codec<unknown, OA, A>,
+): Codec<unknown, Either<OE, OA>, Either<E, A>> {
+  return C.make(eitherDecoder(left, right), eitherEncoder(left, right))
 }
 
 /**

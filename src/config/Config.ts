@@ -57,13 +57,10 @@ const Config = {
      */
     getFromPbCacheDuration: DayjsDuration({ seconds: 30 }).asSeconds(),
     tags: {
-      attendees: { list: 'attendees/list' },
-      matches: { list: 'matches/list' },
-      teams: { list: 'teams/list' },
-      tournaments: {
-        list: 'tournaments/list',
-        view: 'tournaments/view',
-      },
+      attendees: 'attendees',
+      matches: 'matches',
+      teams: 'teams',
+      tournaments: 'tournaments',
     },
   },
 }

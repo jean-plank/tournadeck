@@ -62,7 +62,7 @@ export async function createAttendee(
     price: 0,
   })
 
-  revalidateTag(tags.attendees.list)
+  revalidateTag(tags.attendees)
 
   return attendee
 }
@@ -81,9 +81,9 @@ async function validateCount(adminPb: MyPocketBase, tournamentId: TournamentId):
   const [tournament, attendees] = await Promise.all([
     adminPb.collection('tournaments').getOne(tournamentId),
     adminPb.collection('attendees').getFullList<ReadonlyRecord<string, never>>({
-      filter: `tournament="${tournamentId}"`,
+      filter: adminPb.smartFilter<'attendees'>({ tournament: tournamentId }),
       fields: 'none',
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees.list] },
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),
   ])
 

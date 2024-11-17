@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
 
+import { ClientOnly } from '../../../../../components/ClientOnly'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { redirectAppRoute } from '../../../../../utils/redirectAppRoute'
 import { SetTournament } from '../../../TournamentContext'
+import { DraggableTeams } from './DraggableTeams'
 import { Teams } from './Teams'
 import type { TeamsData } from './getTeamsData'
 import { getTeamsData } from './getTeamsData'
@@ -30,13 +32,30 @@ type TeamsLoadedProps = {
 const TeamsLoaded: React.FC<TeamsLoadedProps> = ({ data }) => {
   if (data === undefined) return notFound()
 
-  const { tournament, teams, teamlessAttendees } = data
+  const { tournament, teams, teamlessAttendees, draggable } = data
 
   if (tournament.phase === 'created') {
     return redirectAppRoute(`/tournoi/${tournament.id}/participants`)
   }
 
-  return <Teams teams={teams} teamlessAttendees={teamlessAttendees} />
+  return (
+    <ClientOnly>
+      {draggable ? (
+        <DraggableTeams
+          tournament={tournament}
+          teams={teams}
+          teamlessAttendees={teamlessAttendees}
+        />
+      ) : (
+        <Teams
+          tournament={tournament}
+          teams={teams}
+          teamlessAttendees={teamlessAttendees}
+          draggingState={undefined}
+        />
+      )}
+    </ClientOnly>
+  )
 }
 
 export default TeamsPage

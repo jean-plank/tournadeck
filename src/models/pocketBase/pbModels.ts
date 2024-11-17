@@ -1,7 +1,7 @@
 import type { File } from 'buffer'
 import type { Literal } from 'io-ts/lib/Schemable'
 import type { Newtype } from 'newtype-ts'
-import type { Merge } from 'type-fest'
+import type { Except, Merge } from 'type-fest'
 
 import type { TableName, Tables } from './Tables'
 
@@ -50,9 +50,16 @@ export type PbInput<A extends PbBaseModel<PbAnyId, PbAnyModel>> =
       >
     : InputBis<A>
 
-type InputBis<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Omit<
+type InputBis<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Except<
   { [K in keyof A]: A[K]['input'] },
   BaseModelKeys
+>
+
+export type PbInputWithId<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Merge<
+  PbInput<A>,
+  {
+    id: A['id']['input']
+  }
 >
 
 export type PbOutput<A extends PbBaseModel<PbAnyId, PbAnyModel>> = {
@@ -220,8 +227,8 @@ export type MultipleFileField<N extends NullReq = 'required'> = PbField<
 
 export type JsonField<A extends PbJson, N extends NullReq = 'required', O = A> = PbField<
   'Json',
-  N extends 'nullable' ? A | null : A,
-  N extends 'nullable' ? O | null : O,
+  N extends 'nullable' ? Nullable<A> : A,
+  N extends 'nullable' ? Nullable<O> : O,
   N
 >
 

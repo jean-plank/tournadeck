@@ -94,7 +94,7 @@ export const Champions: React.FC<Props> = ({
               as="li"
               className="relative size-12"
             >
-              <span className="absolute top-[calc(100%_-_2px)] w-20 origin-left -rotate-45 border-t-4 border-red-500 shadow-even shadow-black" />
+              <span className="absolute top-[calc(100%-2px)] w-20 origin-left -rotate-45 border-t-4 border-red-500 shadow-even shadow-black" />
             </CroppedChampionSquare>
           ))}
         </ul>
