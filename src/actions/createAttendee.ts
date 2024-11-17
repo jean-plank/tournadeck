@@ -81,7 +81,7 @@ async function validateCount(adminPb: MyPocketBase, tournamentId: TournamentId):
   const [tournament, attendees] = await Promise.all([
     adminPb.collection('tournaments').getOne(tournamentId),
     adminPb.collection('attendees').getFullList<ReadonlyRecord<string, never>>({
-      filter: `tournament="${tournamentId}"`,
+      filter: adminPb.smartFilter<'attendees'>({ tournament: tournamentId }),
       fields: 'none',
       next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),

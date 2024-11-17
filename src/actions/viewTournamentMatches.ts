@@ -62,7 +62,7 @@ export async function viewTournamentMatches(
     listAttendeesForTournament(adminPb, tournamentId),
 
     adminPb.collection('matches').getFullList({
-      filter: `tournament="${tournamentId}"`,
+      filter: adminPb.smartFilter<'matches'>({ tournament: tournamentId }),
       next: { revalidate: getFromPbCacheDuration, tags: [tags.matches] },
     }),
   ])

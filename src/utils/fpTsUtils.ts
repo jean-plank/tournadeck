@@ -74,6 +74,23 @@ function arrayPopWhereRec<A>(
   return arrayPopWhereRec(tail, predicate, pipe(acc, readonlyArray.append(head)))
 }
 
+function arrayMkString(sep: string): (as: ReadonlyArray<string>) => string
+function arrayMkString(
+  start: string,
+  sep: string,
+  end: string,
+): (as: ReadonlyArray<string>) => string
+function arrayMkString(
+  startOrSep: string,
+  sep?: string,
+  end?: string,
+): (as: ReadonlyArray<string>) => string {
+  return list =>
+    sep !== undefined && end !== undefined
+      ? `${startOrSep}${list.join(sep)}${end}`
+      : list.join(startOrSep)
+}
+
 const arrayShuffle =
   <A>(as: ReadonlyArray<A>): IO<ReadonlyArray<A>> =>
   () => {
@@ -125,6 +142,8 @@ export const array = {
 
       return out
     },
+
+  mkString: arrayMkString,
 
   shuffle: arrayShuffle,
   // shuffle:

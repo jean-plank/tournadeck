@@ -9,20 +9,30 @@ import type {
   RecordService,
 } from 'pocketbase'
 import PocketBase from 'pocketbase'
-import type { OverrideProperties } from 'type-fest'
+import type { Merge, OverrideProperties } from 'type-fest'
 
 import { immutableAssign } from '../../utils/fpTsUtils'
 import type { Branded } from '../Branded'
 import { brand } from '../Branded'
 import type { TableName, Tables } from './Tables'
-import type { PbAnyId, PbAnyModel, PbBaseModel, PbInput, PbOutput } from './pbModels'
+import type { PbAnyId, PbAnyModel, PbBaseModel, PbInput, PbInputWithId, PbOutput } from './pbModels'
+import { smartFilter } from './smartFilter'
 
-type MyPocketBase_ = OverrideProperties<
+type MyPocketBase_ = Merge<OverridenPocketBase, PocketBaseAugment>
+
+type OverridenPocketBase = OverrideProperties<
   PocketBase,
   {
     collection: <A extends TableName>(name: A) => MyRecordService<Tables[A]>
   }
 >
+
+type PocketBaseAugment = {
+  // TODO: directly override getFullList, getList and getFirstListItem
+  smartFilter: <A extends TableName = never>(
+    filter: Partial<PbInputWithId<Tables[A]>>,
+  ) => Optional<string>
+}
 
 type MyRecordService<A extends PbBaseModel<PbAnyId, PbAnyModel>> = OverrideProperties<
   RecordService<PbOutput<A>>,
@@ -77,8 +87,15 @@ type Tag = { readonly MyPocketBase: unique symbol }
 type MyPocketBase = Branded<Tag, MyPocketBase_>
 
 const MyPocketBase = immutableAssign(
-  (baseUrl: Optional<string>, authStore?: Nullable<BaseAuthStore>, lang?: string): MyPocketBase =>
-    brand<Tag>()(new PocketBase(baseUrl, authStore, lang) as MyPocketBase_),
+  (baseUrl: Optional<string>, authStore?: Nullable<BaseAuthStore>, lang?: string): MyPocketBase => {
+    const pb = new PocketBase(baseUrl, authStore, lang) as OverridenPocketBase
+
+    const myPb: MyPocketBase_ = Object.assign<OverridenPocketBase, PocketBaseAugment>(pb, {
+      smartFilter: params => pb.filter(smartFilter(params), params),
+    })
+
+    return brand<Tag>()(myPb)
+  },
   {
     statusesToUndefined:
       (...statuses: NonEmptyArray<number>) =>

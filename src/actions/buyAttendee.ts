@@ -3,6 +3,7 @@
 import { either } from 'fp-ts'
 import * as D from 'io-ts/Decoder'
 import { revalidateTag } from 'next/cache'
+import type { OverrideProperties } from 'type-fest'
 
 import { Config } from '../config/Config'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
@@ -10,7 +11,9 @@ import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
 import { AttendeeId } from '../models/pocketBase/tables/Attendee'
+import type { Team } from '../models/pocketBase/tables/Team'
 import { TeamId } from '../models/pocketBase/tables/Team'
+import type { Tournament } from '../models/pocketBase/tables/Tournament'
 
 const { getFromPbCacheDuration, tags } = Config.constants
 
@@ -33,10 +36,6 @@ export async function buyAttendee(
 
   const { user } = maybeAuth
 
-  if (!Permissions.teams.buyAttendee(user.role)) {
-    throw new AuthError('Forbidden')
-  }
-
   const validated = payloadDecoder.decode({
     teamId: teamId_,
     attendeeId: attendeeId_,
@@ -51,13 +50,32 @@ export async function buyAttendee(
 
   const adminPb = await adminPocketBase()
 
-  const [team, teamMembers, attendee] = await Promise.all([
-    adminPb.collection('teams').getOne(teamId),
+  const team_: Team = await adminPb
+    .collection('teams')
+    // TODO: improve expand typings
+    .getOne(teamId, { expand: 'tournament' satisfies keyof Team })
+  const team = team_ as unknown as OverrideProperties<Team, { tournament: Tournament }>
+
+  const { tournament } = team
+
+  if (!Permissions.teams.buyAttendee(user.role, tournament)) {
+    throw new AuthError('Forbidden')
+  }
+
+  const [teamMembers, attendee] = await Promise.all([
     adminPb.collection('attendees').getFullList({
-      filter: `team="${teamId}"`,
+      filter: adminPb.smartFilter<'attendees'>({
+        tournament: tournament.id,
+        team: team.id,
+      }),
       next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),
-    adminPb.collection('attendees').getOne(attendeeId),
+    adminPb.collection('attendees').getFirstListItem(
+      adminPb.smartFilter<'attendees'>({
+        id: attendeeId,
+        tournament: tournament.id,
+      }) ?? '',
+    ),
   ])
 
   if (teamMembers.some(a => a.id === attendee.id)) {

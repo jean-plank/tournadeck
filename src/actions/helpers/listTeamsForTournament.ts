@@ -10,7 +10,7 @@ export async function listTeamsForTournament(
   tournamentId: TournamentId,
 ): Promise<ReadonlyArray<Team>> {
   return await adminPb.collection('teams').getFullList({
-    filter: `tournament="${tournamentId}"`,
+    filter: adminPb.smartFilter<'teams'>({ tournament: tournamentId }),
     next: { revalidate: getFromPbCacheDuration, tags: [tags.teams] },
   })
 }

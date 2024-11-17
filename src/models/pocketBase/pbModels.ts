@@ -55,6 +55,13 @@ type InputBis<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Except<
   BaseModelKeys
 >
 
+export type PbInputWithId<A extends PbBaseModel<PbAnyId, PbAnyModel>> = Merge<
+  PbInput<A>,
+  {
+    id: A['id']['input']
+  }
+>
+
 export type PbOutput<A extends PbBaseModel<PbAnyId, PbAnyModel>> = {
   [K in keyof A]: A[K]['output']
 }

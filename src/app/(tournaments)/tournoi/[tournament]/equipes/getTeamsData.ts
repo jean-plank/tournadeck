@@ -15,17 +15,16 @@ import type { AttendeeWithRiotId } from '../../../../../models/attendee/Attendee
 import { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
-import type { User } from '../../../../../models/pocketBase/tables/User'
 import { array, objectEntries, record } from '../../../../../utils/fpTsUtils'
 import type { TeamWithRoleMembers } from './Teams'
 
 const { getFromPbCacheDuration, tags } = Config.constants
 
 export type TeamsData = {
-  user: User
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
   teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
+  draggable: boolean
 }
 
 type TeamsAcc = {
@@ -138,9 +137,9 @@ export async function getTeamsData(tournamentId: TournamentId): Promise<Optional
   )
 
   return {
-    user,
     tournament,
     teams: pipe(groupedTeams, readonlyArray.sort(byName)),
     teamlessAttendees,
+    draggable: Permissions.teams.buyAttendee(user.role, tournament),
   }
 }

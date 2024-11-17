@@ -19,7 +19,7 @@ export async function listAttendeesForTournament(
   tournamentId: TournamentId,
 ): Promise<ReadonlyArray<AttendeeWithRiotId>> {
   const attendees = await adminPb.collection('attendees').getFullList({
-    filter: `tournament="${tournamentId}"`,
+    filter: adminPb.smartFilter<'attendees'>({ tournament: tournamentId }),
     next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
   })
 

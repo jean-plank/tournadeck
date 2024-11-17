@@ -69,7 +69,7 @@ async function listMatchesForTournament(
   tournamentId: TournamentId,
 ): Promise<ReadonlyArray<MatchApiDataDecoded>> {
   const matches = await adminPb.collection('matches').getFullList({
-    filter: `tournament="${tournamentId}"`,
+    filter: adminPb.smartFilter<'matches'>({ tournament: tournamentId }),
     next: { revalidate: getFromPbCacheDuration, tags: [tags.matches] },
   })
 
