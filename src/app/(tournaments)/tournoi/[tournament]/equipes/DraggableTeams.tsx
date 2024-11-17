@@ -7,7 +7,7 @@ import { startTransition, useCallback, useMemo, useOptimistic, useState } from '
 import type { Except } from 'type-fest'
 
 import { buyAttendee } from '../../../../../actions/buyAttendee'
-import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
+import { AttendeeTile } from '../../../../../components/AttendeeTile'
 import type { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'

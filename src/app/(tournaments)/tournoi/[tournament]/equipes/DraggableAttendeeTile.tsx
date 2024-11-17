@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core'
 
-import type { BaseAttendeeTileProps } from '../../../../../components/attendee/AttendeeTile'
-import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
+import type { BaseAttendeeTileProps } from '../../../../../components/AttendeeTile'
+import { AttendeeTile } from '../../../../../components/AttendeeTile'
 import { AttendeeId } from '../../../../../models/pocketBase/tables/Attendee'
 
 export const DraggableAttendeeTile: React.FC<BaseAttendeeTileProps> = props => {

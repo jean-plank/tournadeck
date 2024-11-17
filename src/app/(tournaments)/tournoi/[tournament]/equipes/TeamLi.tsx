@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core'
 
+import { AttendeeTile } from '../../../../../components/AttendeeTile'
 import { TeamRoleIcon } from '../../../../../components/TeamRoleIcon'
-import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import type { TeamId } from '../../../../../models/pocketBase/tables/Team'

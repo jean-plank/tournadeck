@@ -4,24 +4,23 @@ import Image from 'next/image'
 import { forwardRef } from 'react'
 import type { Except } from 'type-fest'
 
-import { constants } from '../../config/constants'
-import { usePocketBase } from '../../contexts/PocketBaseContext'
-import { ChampionPool } from '../../models/ChampionPool'
-import { TeamRole } from '../../models/TeamRole'
-import type { AttendeeWithRiotId } from '../../models/attendee/AttendeeWithRiotId'
-import { GameName } from '../../models/riot/GameName'
-import { RiotId } from '../../models/riot/RiotId'
-import { TagLine } from '../../models/riot/TagLine'
-import { cx } from '../../utils/cx'
-import { objectEntries } from '../../utils/fpTsUtils'
-import { pbFileUrl } from '../../utils/pbFileUrl'
-import { formatNumber } from '../../utils/stringUtils'
-import { LolEloIcon } from '../LolEloIcon'
-import { TeamRoleIconGold } from '../TeamRoleIcon'
-import { ContextMenu, useContextMenu } from '../floating/ContextMenu'
-import { Tooltip, useTooltip } from '../floating/Tooltip'
-import { MapMarkerStar, OpenInNew } from '../svgs/icons'
-import { SeedTag } from './SeedTag'
+import { constants } from '../config/constants'
+import { usePocketBase } from '../contexts/PocketBaseContext'
+import { ChampionPool } from '../models/ChampionPool'
+import { TeamRole } from '../models/TeamRole'
+import type { AttendeeWithRiotId } from '../models/attendee/AttendeeWithRiotId'
+import { GameName } from '../models/riot/GameName'
+import { RiotId } from '../models/riot/RiotId'
+import { TagLine } from '../models/riot/TagLine'
+import { cx } from '../utils/cx'
+import { objectEntries } from '../utils/fpTsUtils'
+import { pbFileUrl } from '../utils/pbFileUrl'
+import { formatNumber } from '../utils/stringUtils'
+import { LolEloIcon } from './LolEloIcon'
+import { TeamRoleIconGold } from './TeamRoleIcon'
+import { ContextMenu, useContextMenu } from './floating/ContextMenu'
+import { Tooltip, useTooltip } from './floating/Tooltip'
+import { MapMarkerStar, OpenInNew } from './svgs/icons'
 
 export type BaseAttendeeTileProps = {
   attendee: AttendeeWithRiotId
@@ -54,6 +53,7 @@ export const AttendeeTile = forwardRef<HTMLLIElement, AttendeeTileProps>(
     const roleTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
     const priceTooltip = useTooltip<HTMLDivElement>()
     const captainTooltip = useTooltip<HTMLDivElement>()
+    const seedTooltip = useTooltip<HTMLDivElement>({ placement: 'top' })
 
     const { user } = usePocketBase()
 
@@ -223,11 +223,17 @@ export const AttendeeTile = forwardRef<HTMLLIElement, AttendeeTileProps>(
         )}
 
         {attendee.seed !== 0 && (
-          <SeedTag
-            seed={attendee.seed}
-            withTooltip={true}
-            className="self-start justify-self-end area-1"
-          />
+          <>
+            <div
+              className="self-start justify-self-end rounded-b-xl bg-goldenrod px-px pb-px shadow-even shadow-black area-1"
+              {...seedTooltip.reference}
+            >
+              <div className="rounded-b-xl border-x border-b border-white px-1 pb-0.5 font-lib-mono text-sm text-black">
+                #{attendee.seed}
+              </div>
+            </div>
+            <Tooltip {...seedTooltip.floating}>Seed #{attendee.seed}</Tooltip>
+          </>
         )}
       </li>
     )

@@ -2,8 +2,8 @@
 
 import { useCallback, useMemo, useRef } from 'react'
 
+import { AttendeeTile } from '../../../../../components/AttendeeTile'
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
-import { AttendeeTile } from '../../../../../components/attendee/AttendeeTile'
 import { usePocketBase } from '../../../../../contexts/PocketBaseContext'
 import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
 import { TeamRole } from '../../../../../models/TeamRole'
