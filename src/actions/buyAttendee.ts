@@ -3,7 +3,7 @@
 import { either } from 'fp-ts'
 import * as D from 'io-ts/Decoder'
 import { revalidateTag } from 'next/cache'
-import type { OverrideProperties } from 'type-fest'
+import type { Merge } from 'type-fest'
 
 import { Config } from '../config/Config'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
@@ -44,13 +44,16 @@ export async function buyAttendee(payload: Payload): Promise<void> {
 
   const adminPb = await adminPocketBase()
 
-  const team_: Team = await adminPb
+  const team = await adminPb
     .collection('teams')
     // TODO: improve expand typings
-    .getOne(teamId, { expand: 'tournament' satisfies keyof Team })
-  const team = team_ as unknown as OverrideProperties<Team, { tournament: Tournament }>
+    .getOne<Merge<Team, { expand: { tournament: Tournament } }>>(teamId, {
+      expand: 'tournament' satisfies keyof Team,
+    })
 
-  const { tournament } = team
+  const {
+    expand: { tournament },
+  } = team
 
   if (!Permissions.teams.buyAttendee(user.role, tournament)) {
     throw new AuthError('Forbidden')
