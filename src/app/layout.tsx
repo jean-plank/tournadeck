@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
-import { startupLoad } from '../actions/startupLoad'
+import { onDevStartup } from '../actions/onDevStartup'
 import { ContextMenuLayer } from '../components/floating/ContextMenu'
 import { TooltipLayer } from '../components/floating/Tooltip'
 import { PocketBaseContextProvider } from '../contexts/PocketBaseContext'
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
 const RootLayout: ChildrenFC = async ({ children }) => {
   if (process.env.NODE_ENV === 'development') {
     // import to trigger all effectful startup actions
-    await startupLoad()
+    await onDevStartup()
   }
 
   return (

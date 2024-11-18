@@ -10,6 +10,7 @@ import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
+import { TeamRole } from '../models/TeamRole'
 import { AttendeeCreate } from '../models/attendee/AttendeeCreate'
 import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { Attendee } from '../models/pocketBase/tables/Attendee'
@@ -87,7 +88,7 @@ async function validateCount(adminPb: MyPocketBase, tournamentId: TournamentId):
     }),
   ])
 
-  if (tournament.teamsCount * 5 <= attendees.length) {
-    throw Error('BadRequest')
+  if (tournament.teamsCount * TeamRole.values.length <= attendees.length) {
+    throw Error('BadRequest - Tournament already full')
   }
 }

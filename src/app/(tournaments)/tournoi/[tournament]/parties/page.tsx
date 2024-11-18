@@ -1,16 +1,33 @@
-import { option, readonlyArray } from 'fp-ts'
+'use server'
+
+import { either, option, readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { notFound } from 'next/navigation'
 import { useMemo } from 'react'
 
-import type { ViewTournamentMatches } from '../../../../../actions/viewTournamentMatches'
-import { viewTournamentMatches } from '../../../../../actions/viewTournamentMatches'
+import { listAttendeesForTournament } from '../../../../../actions/helpers/listAttendeesForTournament'
+import { listTeamsForTournament } from '../../../../../actions/helpers/listTeamsForTournament'
+import { viewTournament } from '../../../../../actions/helpers/viewTournament'
+import { Config } from '../../../../../config/Config'
+import { theQuestService } from '../../../../../context/context'
+import { adminPocketBase } from '../../../../../context/singletons/adminPocketBase'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
-import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
+import type { Team } from '../../../../../models/pocketBase/tables/Team'
+import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
+import {
+  MatchApiData,
+  MatchApiDatas,
+} from '../../../../../models/pocketBase/tables/match/MatchApiDatas'
+import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'
+import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
 import { cx } from '../../../../../utils/cx'
 import { array, objectEntries, partialRecord } from '../../../../../utils/fpTsUtils'
 import { SetTournament } from '../../../TournamentContext'
 import { Game } from './Game'
+
+const { getFromPbCacheDuration, tags } = Config.constants
 
 type Props = {
   params: Promise<{ tournament: TournamentId }>
@@ -19,31 +36,28 @@ type Props = {
 const Games: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectOnAuthError(viewTournamentMatches(params.tournament))(data => (
-    <>
-      <SetTournament tournament={data?.tournament} />
-      <GamesLoaded data={data} />
-    </>
-  ))
+  return withRedirectOnAuthError(viewTournamentMatches(params.tournament))(data => {
+    if (data === undefined) return notFound()
+
+    return (
+      <>
+        <SetTournament tournament={data.tournament} />
+
+        <GamesLoaded data={data} />
+      </>
+    )
+  })
 }
 
 export default Games
 
+// ---
+
 type GamesLoadedProps = {
-  data: Optional<ViewTournamentMatches>
-}
-
-const GamesLoaded: React.FC<GamesLoadedProps> = ({ data }) => {
-  if (data === undefined) return notFound()
-
-  return <GamesLoadedDefined data={data} />
-}
-
-type GamesLoadedDefinedProps = {
   data: ViewTournamentMatches
 }
 
-const GamesLoadedDefined: React.FC<GamesLoadedDefinedProps> = ({ data }) => {
+const GamesLoaded: React.FC<GamesLoadedProps> = ({ data }) => {
   const { version, attendees, teams, matches } = data
 
   const { groupedRounds, knockoutRoundsMax } = useMemo(() => {
@@ -173,4 +187,63 @@ function knockoutRoundLabel(index: `${number}`, total: number): string {
   if (diff === 3) return 'Huitièmes de finale'
 
   return `Finale -${diff}`
+}
+
+// ---
+
+type ViewTournamentMatches = {
+  version: DDragonVersion
+  tournament: Tournament
+  teams: ReadonlyArray<Team>
+  attendees: ReadonlyArray<AttendeeWithRiotId>
+  matches: ReadonlyArray<MatchApiDataDecoded>
+}
+
+async function viewTournamentMatches(
+  tournamentId: TournamentId,
+): Promise<Optional<ViewTournamentMatches>> {
+  const data = await viewTournament(tournamentId)
+
+  if (data === undefined) return undefined
+
+  const { tournament } = data
+
+  const adminPb = await adminPocketBase()
+
+  const [staticData, teams, attendees, matches] = await Promise.all([
+    theQuestService.getStaticData(true),
+    listTeamsForTournament(adminPb, tournamentId),
+    listAttendeesForTournament(adminPb, tournamentId),
+    adminPb.collection('matches').getFullList({
+      filter: adminPb.smartFilter<'matches'>({ tournament: tournamentId }),
+      next: { revalidate: getFromPbCacheDuration, tags: [tags.matches] },
+    }),
+  ])
+
+  return {
+    version: staticData.version,
+    tournament,
+    teams,
+    attendees,
+    matches: pipe(
+      matches,
+      readonlyArray.map(
+        (m): MatchApiDataDecoded => ({
+          ...m,
+          apiData: pipe(
+            MatchApiDatas.codec.decode(m.apiData),
+            either.fold(
+              () => [],
+              apiData =>
+                apiData !== null
+                  ? apiData.map(
+                      (d): Optional<TheQuestMatch> => (MatchApiData.isGameId(d) ? undefined : d),
+                    )
+                  : [],
+            ),
+          ),
+        }),
+      ),
+    ),
+  }
 }

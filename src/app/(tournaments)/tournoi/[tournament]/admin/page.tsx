@@ -1,8 +1,11 @@
+'use server'
+
 import { notFound } from 'next/navigation'
 
-import { viewTournamentAdmin } from '../../../../../actions/viewTournamentAdmin'
+import { viewTournament } from '../../../../../actions/helpers/viewTournament'
+import { Permissions } from '../../../../../helpers/Permissions'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
-import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { SetTournament } from '../../../TournamentContext'
 import { Admin } from './Admin'
 
@@ -28,3 +31,21 @@ const AdminPage: React.FC<Props> = async props => {
 }
 
 export default AdminPage
+
+type ViewTournamentAdmin = {
+  tournament: Tournament
+}
+
+async function viewTournamentAdmin(
+  tournamentId: TournamentId,
+): Promise<Optional<ViewTournamentAdmin>> {
+  const data = await viewTournament(tournamentId)
+
+  if (data === undefined) return undefined
+
+  const { user, tournament } = data
+
+  if (!Permissions.tournaments.create(user.role)) return undefined
+
+  return { tournament }
+}

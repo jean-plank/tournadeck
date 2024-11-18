@@ -1,14 +1,24 @@
-import { readonlyArray } from 'fp-ts'
+'use server'
+
+import { either, readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { notFound } from 'next/navigation'
 import type { Merge } from 'type-fest'
 
-import { viewTournament } from '../../../../../actions/viewTournament'
+import { viewTournament } from '../../../../../actions/helpers/viewTournament'
+import { Config } from '../../../../../config/Config'
+import { theQuestService } from '../../../../../context/context'
+import { adminPocketBase } from '../../../../../context/singletons/adminPocketBase'
 import { Permissions } from '../../../../../helpers/Permissions'
 import { draftlolLink as getDraftlolLink } from '../../../../../helpers/draftlolLink'
 import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
+import type { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
+import {
+  MatchApiData,
+  MatchApiDatas,
+} from '../../../../../models/pocketBase/tables/match/MatchApiDatas'
 import { ChampionId } from '../../../../../models/riot/ChampionId'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
 import type { StaticData } from '../../../../../models/theQuest/staticData/StaticData'
@@ -17,6 +27,8 @@ import { objectValues } from '../../../../../utils/fpTsUtils'
 import { SetTournament } from '../../../TournamentContext'
 import { Champions, type PartionedChampions } from './Champions'
 
+const { getFromPbCacheDuration, tags } = Config.constants
+
 type Props = {
   params: Promise<{ tournament: TournamentId }>
 }
@@ -24,36 +36,29 @@ type Props = {
 const ChampionsPage: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectOnAuthError(getTournament(params.tournament))(data => (
-    <>
-      <SetTournament tournament={data?.tournament} />
-      <ChampionsLoaded data={data} />
-    </>
-  ))
-}
+  return withRedirectOnAuthError(viewTournamentChampions(params.tournament))(data => {
+    if (data === undefined) return notFound()
 
-type ChampionsLoadedProps = {
-  data: Optional<GetTournament>
-}
+    const { tournament, staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
 
-const ChampionsLoaded: React.FC<ChampionsLoadedProps> = ({ data }) => {
-  if (data === undefined) return notFound()
+    return (
+      <>
+        <SetTournament tournament={tournament} />
 
-  const { staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
-
-  return (
-    <Champions
-      staticData={staticData}
-      stillAvailable={stillAvailable}
-      alreadyPlayed={alreadyPlayed}
-      draftlolLink={draftlolLink}
-    />
-  )
+        <Champions
+          staticData={staticData}
+          stillAvailable={stillAvailable}
+          alreadyPlayed={alreadyPlayed}
+          draftlolLink={draftlolLink}
+        />
+      </>
+    )
+  })
 }
 
 export default ChampionsPage
 
-type GetTournament = Merge<
+type ViewTournamentChampions = Merge<
   {
     tournament: Tournament
     staticData: StaticData
@@ -62,14 +67,21 @@ type GetTournament = Merge<
   PartionedChampions
 >
 
-async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTournament>> {
-  'use server'
-
+async function viewTournamentChampions(
+  tournamentId: TournamentId,
+): Promise<Optional<ViewTournamentChampions>> {
   const data = await viewTournament(tournamentId)
 
   if (data === undefined) return undefined
 
-  const { user, tournament, matches, staticData } = data
+  const { user, tournament } = data
+
+  const adminPb = await adminPocketBase()
+
+  const [matches, staticData] = await Promise.all([
+    listMatchesForTournament(adminPb, tournamentId),
+    theQuestService.getStaticData(true),
+  ])
 
   const { stillAvailable, alreadyPlayed } = partionChampions(
     staticData.champions,
@@ -82,6 +94,34 @@ async function getTournament(tournamentId: TournamentId): Promise<Optional<GetTo
     : undefined
 
   return { tournament, staticData, stillAvailable, alreadyPlayed, draftlolLink }
+}
+
+async function listMatchesForTournament(
+  adminPb: MyPocketBase,
+  tournamentId: TournamentId,
+): Promise<ReadonlyArray<MatchApiDataDecoded>> {
+  const matches = await adminPb.collection('matches').getFullList({
+    filter: adminPb.smartFilter<'matches'>({ tournament: tournamentId }),
+    next: { revalidate: getFromPbCacheDuration, tags: [tags.matches] },
+  })
+
+  return matches.map(
+    (m): MatchApiDataDecoded => ({
+      ...m,
+      apiData: pipe(
+        MatchApiDatas.codec.decode(m.apiData),
+        either.fold(
+          () => [],
+          apiData =>
+            apiData !== null
+              ? apiData.map(
+                  (d): Optional<TheQuestMatch> => (MatchApiData.isGameId(d) ? undefined : d),
+                )
+              : [],
+        ),
+      ),
+    }),
+  )
 }
 
 function partionChampions(

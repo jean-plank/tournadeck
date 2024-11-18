@@ -1,20 +1,24 @@
-import { Config } from '../config/Config'
-import { adminPocketBase } from '../context/singletons/adminPocketBase'
-import { Permissions } from '../helpers/Permissions'
-import { auth } from '../helpers/auth'
-import { AuthError } from '../models/AuthError'
-import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
-import type { Tournament, TournamentId } from '../models/pocketBase/tables/Tournament'
+'use server'
+
+import { Config } from '../../config/Config'
+import { adminPocketBase } from '../../context/singletons/adminPocketBase'
+import { Permissions } from '../../helpers/Permissions'
+import { auth } from '../../helpers/auth'
+import { AuthError } from '../../models/AuthError'
+import { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
+import type { Tournament, TournamentId } from '../../models/pocketBase/tables/Tournament'
+import type { User } from '../../models/pocketBase/tables/User'
 
 const { getFromPbCacheDuration, tags } = Config.constants
 
-export type ViewTournamentAdmin = {
+type ViewTournament = {
+  user: User
   tournament: Tournament
 }
 
-export async function viewTournamentAdmin(
+export async function viewTournament(
   tournamentId: TournamentId,
-): Promise<Optional<ViewTournamentAdmin>> {
+): Promise<Optional<ViewTournament>> {
   const maybeAuth = await auth()
 
   if (maybeAuth === undefined) {
@@ -22,8 +26,6 @@ export async function viewTournamentAdmin(
   }
 
   const { user } = maybeAuth
-
-  if (!Permissions.tournaments.create(user.role)) return undefined
 
   const adminPb = await adminPocketBase()
 
@@ -38,5 +40,5 @@ export async function viewTournamentAdmin(
     return undefined
   }
 
-  return { tournament }
+  return { user, tournament }
 }

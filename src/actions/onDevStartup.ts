@@ -2,6 +2,6 @@
 
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
 
-export async function startupLoad(): Promise<void> {
+export async function onDevStartup(): Promise<void> {
   await adminPocketBase()
 }
