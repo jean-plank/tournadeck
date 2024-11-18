@@ -31,7 +31,7 @@ type ListTournaments = {
   tournaments: ReadonlyArray<Tournament>
 }
 
-export async function listTournaments(): Promise<ListTournaments> {
+async function listTournaments(): Promise<ListTournaments> {
   const maybeAuth = await auth()
 
   if (maybeAuth === undefined) {
