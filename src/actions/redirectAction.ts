@@ -4,5 +4,5 @@ import type { RedirectType } from 'next/navigation'
 import { redirect } from 'next/navigation'
 
 export async function redirectAction(url: string, type?: RedirectType): Promise<never> {
-  return await redirect(url, type)
+  redirect(url, type)
 }
