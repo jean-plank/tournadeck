@@ -25,10 +25,9 @@ export async function listTournaments(): Promise<ReadonlyArray<Tournament>> {
   const adminPb = await adminPocketBase()
 
   return await adminPb.collection('tournaments').getFullList({
-    filter:
-      user.role === 'organiser'
-        ? undefined
-        : adminPb.smartFilter<'tournaments'>({ isVisible: true }),
+    ...(user.role === 'organiser'
+      ? {}
+      : { filter: adminPb.smartFilter<'tournaments'>({ isVisible: true }) }),
     next: { revalidate: getFromPbCacheDuration, tags: [tags.tournaments] },
   })
 }
