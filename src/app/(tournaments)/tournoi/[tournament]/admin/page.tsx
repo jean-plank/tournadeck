@@ -1,12 +1,9 @@
 'use server'
 
-import { notFound } from 'next/navigation'
-
 import { viewTournament } from '../../../../../actions/helpers/viewTournament'
 import { Permissions } from '../../../../../helpers/Permissions'
-import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
+import { withRedirectTournament } from '../../../../../helpers/withRedirectTournament'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
-import { SetTournament } from '../../../TournamentContext'
 import { Admin } from './Admin'
 
 type Props = {
@@ -16,18 +13,7 @@ type Props = {
 const AdminPage: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectOnAuthError(viewTournamentAdmin(params.tournament))(data => {
-    if (data === undefined) return notFound()
-
-    const { tournament } = data
-
-    return (
-      <>
-        <SetTournament tournament={tournament} />
-        <Admin />
-      </>
-    )
-  })
+  return withRedirectTournament(viewTournamentAdmin(params.tournament))(() => <Admin />)
 }
 
 export default AdminPage

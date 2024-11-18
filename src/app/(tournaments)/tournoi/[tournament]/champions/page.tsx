@@ -2,7 +2,6 @@
 
 import { either, readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import { notFound } from 'next/navigation'
 import type { Merge } from 'type-fest'
 
 import { viewTournament } from '../../../../../actions/helpers/viewTournament'
@@ -11,7 +10,7 @@ import { theQuestService } from '../../../../../context/context'
 import { adminPocketBase } from '../../../../../context/singletons/adminPocketBase'
 import { Permissions } from '../../../../../helpers/Permissions'
 import { draftlolLink as getDraftlolLink } from '../../../../../helpers/draftlolLink'
-import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
+import { withRedirectTournament } from '../../../../../helpers/withRedirectTournament'
 import type { MyPocketBase } from '../../../../../models/pocketBase/MyPocketBase'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
@@ -24,7 +23,6 @@ import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch
 import type { StaticData } from '../../../../../models/theQuest/staticData/StaticData'
 import { StaticDataChampion } from '../../../../../models/theQuest/staticData/StaticDataChampion'
 import { objectValues } from '../../../../../utils/fpTsUtils'
-import { SetTournament } from '../../../TournamentContext'
 import { Champions, type PartionedChampions } from './Champions'
 
 const { getFromPbCacheDuration, tags } = Config.constants
@@ -36,24 +34,16 @@ type Props = {
 const ChampionsPage: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectOnAuthError(viewTournamentChampions(params.tournament))(data => {
-    if (data === undefined) return notFound()
-
-    const { tournament, staticData, stillAvailable, alreadyPlayed, draftlolLink } = data
-
-    return (
-      <>
-        <SetTournament tournament={tournament} />
-
-        <Champions
-          staticData={staticData}
-          stillAvailable={stillAvailable}
-          alreadyPlayed={alreadyPlayed}
-          draftlolLink={draftlolLink}
-        />
-      </>
-    )
-  })
+  return withRedirectTournament(viewTournamentChampions(params.tournament))(
+    ({ staticData, stillAvailable, alreadyPlayed, draftlolLink }) => (
+      <Champions
+        staticData={staticData}
+        stillAvailable={stillAvailable}
+        alreadyPlayed={alreadyPlayed}
+        draftlolLink={draftlolLink}
+      />
+    ),
+  )
 }
 
 export default ChampionsPage

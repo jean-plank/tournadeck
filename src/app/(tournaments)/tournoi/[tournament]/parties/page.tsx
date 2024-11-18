@@ -2,7 +2,6 @@
 
 import { either, option, readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import { notFound } from 'next/navigation'
 import { useMemo } from 'react'
 
 import { listAttendeesForTournament } from '../../../../../actions/helpers/listAttendeesForTournament'
@@ -11,7 +10,7 @@ import { viewTournament } from '../../../../../actions/helpers/viewTournament'
 import { Config } from '../../../../../config/Config'
 import { theQuestService } from '../../../../../context/context'
 import { adminPocketBase } from '../../../../../context/singletons/adminPocketBase'
-import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
+import { withRedirectTournament } from '../../../../../helpers/withRedirectTournament'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import type { Team } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
@@ -24,7 +23,6 @@ import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
 import { cx } from '../../../../../utils/cx'
 import { array, objectEntries, partialRecord } from '../../../../../utils/fpTsUtils'
-import { SetTournament } from '../../../TournamentContext'
 import { Game } from './Game'
 
 const { getFromPbCacheDuration, tags } = Config.constants
@@ -36,17 +34,9 @@ type Props = {
 const Games: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectOnAuthError(viewTournamentMatches(params.tournament))(data => {
-    if (data === undefined) return notFound()
-
-    return (
-      <>
-        <SetTournament tournament={data.tournament} />
-
-        <GamesLoaded data={data} />
-      </>
-    )
-  })
+  return withRedirectTournament(viewTournamentMatches(params.tournament))(data => (
+    <GamesLoaded data={data} />
+  ))
 }
 
 export default Games

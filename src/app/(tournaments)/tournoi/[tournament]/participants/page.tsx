@@ -1,15 +1,12 @@
 'use server'
 
-import { notFound } from 'next/navigation'
-
 import { listAttendeesForTournament } from '../../../../../actions/helpers/listAttendeesForTournament'
 import { viewTournament } from '../../../../../actions/helpers/viewTournament'
 import { adminPocketBase } from '../../../../../context/singletons/adminPocketBase'
-import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
+import { withRedirectTournament } from '../../../../../helpers/withRedirectTournament'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { redirectAppRoute } from '../../../../../utils/redirectAppRoute'
-import { SetTournament } from '../../../TournamentContext'
 import { Attendees } from './Attendees'
 
 type Props = {
@@ -19,21 +16,15 @@ type Props = {
 const AttendeesPage: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectOnAuthError(viewTournamentAttendees(params.tournament))(data => {
-    if (data === undefined) return notFound()
+  return withRedirectTournament(viewTournamentAttendees(params.tournament))(
+    ({ tournament, attendees }) => {
+      if (tournament.phase !== 'created') {
+        return redirectAppRoute(`/tournoi/${tournament.id}/equipes`)
+      }
 
-    const { tournament, attendees } = data
-
-    if (tournament.phase !== 'created') return redirectAppRoute(`/tournoi/${tournament.id}/equipes`)
-
-    return (
-      <>
-        <SetTournament tournament={tournament} />
-
-        <Attendees tournament={tournament} attendees={attendees} />
-      </>
-    )
-  })
+      return <Attendees tournament={tournament} attendees={attendees} />
+    },
+  )
 }
 
 export default AttendeesPage

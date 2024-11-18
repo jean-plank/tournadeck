@@ -2,7 +2,6 @@
 
 import { monoid, number, option, ord, readonlyArray, string } from 'fp-ts'
 import { pipe, tuple } from 'fp-ts/function'
-import { notFound } from 'next/navigation'
 
 import { listAttendeesForTournament } from '../../../../../actions/helpers/listAttendeesForTournament'
 import { listTeamsForTournament } from '../../../../../actions/helpers/listTeamsForTournament'
@@ -10,14 +9,13 @@ import { viewTournament } from '../../../../../actions/helpers/viewTournament'
 import { ClientOnly } from '../../../../../components/ClientOnly'
 import { adminPocketBase } from '../../../../../context/singletons/adminPocketBase'
 import { Permissions } from '../../../../../helpers/Permissions'
-import { withRedirectOnAuthError } from '../../../../../helpers/withRedirectOnAuthError'
+import { withRedirectTournament } from '../../../../../helpers/withRedirectTournament'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { TeamId } from '../../../../../models/pocketBase/tables/Team'
 import type { Tournament, TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import { array, objectEntries, record } from '../../../../../utils/fpTsUtils'
 import { redirectAppRoute } from '../../../../../utils/redirectAppRoute'
-import { SetTournament } from '../../../TournamentContext'
 import { DraggableTeams } from './DraggableTeams'
 import type { TeamWithRoleMembers } from './Teams'
 import { Teams } from './Teams'
@@ -29,36 +27,32 @@ type Props = {
 const TeamsPage: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectOnAuthError(viewTournamentTeams(params.tournament))(data => {
-    if (data === undefined) return notFound()
+  return withRedirectTournament(viewTournamentTeams(params.tournament))(
+    ({ tournament, teams, teamlessAttendees, draggable }) => {
+      if (tournament.phase === 'created') {
+        return redirectAppRoute(`/tournoi/${tournament.id}/participants`)
+      }
 
-    const { tournament, teams, teamlessAttendees, draggable } = data
-
-    if (tournament.phase === 'created') {
-      return redirectAppRoute(`/tournoi/${tournament.id}/participants`)
-    }
-
-    return (
-      <ClientOnly>
-        <SetTournament tournament={tournament} />
-
-        {draggable ? (
-          <DraggableTeams
-            tournament={tournament}
-            teams={teams}
-            teamlessAttendees={teamlessAttendees}
-          />
-        ) : (
-          <Teams
-            tournament={tournament}
-            teams={teams}
-            teamlessAttendees={teamlessAttendees}
-            draggingState={undefined}
-          />
-        )}
-      </ClientOnly>
-    )
-  })
+      return (
+        <ClientOnly>
+          {draggable ? (
+            <DraggableTeams
+              tournament={tournament}
+              teams={teams}
+              teamlessAttendees={teamlessAttendees}
+            />
+          ) : (
+            <Teams
+              tournament={tournament}
+              teams={teams}
+              teamlessAttendees={teamlessAttendees}
+              draggingState={undefined}
+            />
+          )}
+        </ClientOnly>
+      )
+    },
+  )
 }
 
 export default TeamsPage
