@@ -29,9 +29,7 @@ type OverridenPocketBase = OverrideProperties<
 
 type PocketBaseAugment = {
   // TODO: directly override getFullList, getList and getFirstListItem
-  smartFilter: <A extends TableName = never>(
-    filter: Partial<PbInputWithId<Tables[A]>>,
-  ) => Optional<string>
+  smartFilter: <A extends TableName = never>(filter: Partial<PbInputWithId<Tables[A]>>) => string
 }
 
 type MyRecordService<A extends PbBaseModel<PbAnyId, PbAnyModel>> = OverrideProperties<

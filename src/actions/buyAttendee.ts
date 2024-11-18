@@ -73,7 +73,7 @@ export async function buyAttendee(
       adminPb.smartFilter<'attendees'>({
         id: attendeeId,
         tournament: tournament.id,
-      }) ?? '',
+      }),
     ),
   ])
 
