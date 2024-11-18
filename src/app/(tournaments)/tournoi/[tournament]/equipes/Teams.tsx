@@ -28,6 +28,7 @@ export type TeamsProps = {
   tournament: Tournament
   teams: ReadonlyArray<TeamWithRoleMembers>
   teamlessAttendees: ReadonlyArray<AttendeeWithRiotId>
+  draggable: boolean
   draggingState: Optional<DraggingState>
 }
 
@@ -51,6 +52,7 @@ export const Teams: React.FC<TeamsProps> = ({
   tournament,
   teams,
   teamlessAttendees,
+  draggable,
   draggingState,
 }) => {
   //
@@ -169,6 +171,7 @@ export const Teams: React.FC<TeamsProps> = ({
                             attendee={attendee}
                             shouldDisplayAvatarRating={shouldDisplayAvatarRating}
                             captainShouldDisplayPrice={captainShouldDisplayPrice}
+                            disabled={!draggable}
                           />
                         ))}
                       </ul>
@@ -180,21 +183,24 @@ export const Teams: React.FC<TeamsProps> = ({
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={toggleMercatoPanelOpen}
-          className="self-center justify-self-end rounded-l-lg bg-goldenrod py-1 text-black area-1"
-        >
-          <ChevronForwardFilled className={cx('size-6', ['rotate-180', !mercatoPanelOpen])} />
-        </button>
+        {draggable && (
+          <button
+            type="button"
+            onClick={toggleMercatoPanelOpen}
+            className="self-center justify-self-end rounded-l-lg bg-goldenrod py-1 text-black area-1"
+          >
+            <ChevronForwardFilled className={cx('size-6', ['rotate-180', !mercatoPanelOpen])} />
+          </button>
+        )}
       </div>
 
-      {mercatoPanelOpen && (
+      {draggable && mercatoPanelOpen && (
         <MercatoPanel
           tournamentTeamsCount={tournament.teamsCount}
           mercatoValue={mercatoValue}
           setMercatoValue={setMercatoValue}
           attendees={mercatoViewAttendees}
+          draggable={draggable}
         />
       )}
     </div>

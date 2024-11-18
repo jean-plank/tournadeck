@@ -46,6 +46,7 @@ const TeamsPage: React.FC<Props> = async props => {
               tournament={tournament}
               teams={teams}
               teamlessAttendees={teamlessAttendees}
+              draggable={false}
               draggingState={undefined}
             />
           )}

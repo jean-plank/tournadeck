@@ -40,6 +40,7 @@ type MercatoPanelProps = {
   mercatoValue: Nullable<MercatoValue>
   setMercatoValue: React.Dispatch<React.SetStateAction<Nullable<MercatoValue>>>
   attendees: ReadonlyArray<AttendeeWithRiotId>
+  draggable: boolean
 }
 
 export const MercatoPanel: React.FC<MercatoPanelProps> = ({
@@ -47,6 +48,7 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
   mercatoValue,
   setMercatoValue,
   attendees,
+  draggable,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -132,6 +134,7 @@ export const MercatoPanel: React.FC<MercatoPanelProps> = ({
               attendee={attendee}
               shouldDisplayAvatarRating={shouldDisplayAvatarRating}
               captainShouldDisplayPrice={captainShouldDisplayPrice}
+              disabled={!draggable}
             />
           ))}
         </ul>

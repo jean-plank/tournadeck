@@ -17,7 +17,7 @@ import type { DraggingState, TeamsProps } from './Teams'
 import { Teams } from './Teams'
 import { captainShouldDisplayPrice, shouldDisplayAvatarRating } from './constants'
 
-type Props = Except<TeamsProps, 'draggingState'>
+type Props = Except<TeamsProps, 'draggable' | 'draggingState'>
 
 export const DraggableTeams: React.FC<Props> = ({
   tournament,
@@ -132,7 +132,7 @@ const DraggableTeamsBis: React.FC<Props & { isDragging: boolean }> = ({ isDraggi
 
   return (
     <>
-      <Teams {...props} draggingState={draggingState} />
+      <Teams {...props} draggable={true} draggingState={draggingState} />
 
       <DragOverlay>
         {isDragging && active !== null ? (
