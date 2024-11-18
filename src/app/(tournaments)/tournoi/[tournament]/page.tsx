@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 
 import type { ViewTournament } from '../../../../actions/viewTournament'
 import { viewTournament } from '../../../../actions/viewTournament'
+import { Permissions } from '../../../../helpers/Permissions'
 import { withRedirectOnAuthError } from '../../../../helpers/withRedirectOnAuthError'
 import { Dayjs } from '../../../../models/Dayjs'
 import { TournamentPhase } from '../../../../models/TournamentPhase'
@@ -33,7 +34,7 @@ type TournamentPageLoadedProps = {
 const TournamentPageLoaded: React.FC<TournamentPageLoadedProps> = ({ data }) => {
   if (data === undefined) return notFound()
 
-  const { tournament, attendees } = data
+  const { user, tournament, attendees } = data
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
@@ -57,6 +58,7 @@ const TournamentPageLoaded: React.FC<TournamentPageLoadedProps> = ({ data }) => 
         <TournamentSubPagesNav
           tournament={tournament}
           subPage={undefined}
+          displayAdmin={Permissions.tournaments.create(user.role)}
           linkClassName="underline"
         />
       </nav>

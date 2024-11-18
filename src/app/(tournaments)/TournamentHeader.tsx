@@ -64,6 +64,7 @@ export const TournamentHeader: React.FC = () => {
             <TournamentSubPagesNav
               tournament={tournament}
               subPage={subPage}
+              displayAdmin={user !== undefined && Permissions.tournaments.create(user.role)}
               linkClassName="font-bold"
             />
           </>

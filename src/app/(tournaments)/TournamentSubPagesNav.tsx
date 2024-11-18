@@ -5,7 +5,7 @@ import { cx } from '../../utils/cx'
 
 type TournamentSubPage = (typeof values)[number]
 
-const values = ['participants', 'equipes', 'champions', 'parties'] as const
+const values = ['participants', 'equipes', 'champions', 'parties', 'admin'] as const
 
 const TournamentSubPage = { values }
 
@@ -16,10 +16,16 @@ export { TournamentSubPage }
 type Props = {
   tournament: Tournament
   subPage: Optional<TournamentSubPage>
+  displayAdmin: boolean
   linkClassName?: string
 }
 
-export const TournamentSubPagesNav: React.FC<Props> = ({ tournament, subPage, linkClassName }) => (
+export const TournamentSubPagesNav: React.FC<Props> = ({
+  tournament,
+  subPage,
+  displayAdmin,
+  linkClassName,
+}) => (
   <>
     {tournament.phase === 'created' ? (
       <Link
@@ -54,5 +60,18 @@ export const TournamentSubPagesNav: React.FC<Props> = ({ tournament, subPage, li
     >
       Parties
     </Link>
+
+    {displayAdmin && (
+      <>
+        <span>·</span>
+
+        <Link
+          href={`/tournoi/${tournament.id}/admin`}
+          className={cx(['underline', subPage === 'admin'], linkClassName)}
+        >
+          Admin
+        </Link>
+      </>
+    )}
   </>
 )
