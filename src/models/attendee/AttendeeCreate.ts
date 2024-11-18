@@ -2,6 +2,7 @@ import { File } from 'buffer'
 import { pipe } from 'fp-ts/function'
 import * as D from 'io-ts/Decoder'
 
+import { nonEmptyStringDecoder } from '../../utils/ioTsUtils'
 import { ChampionPool } from '../ChampionPool'
 import { LolElo } from '../LolElo'
 import { TeamRole } from '../TeamRole'
@@ -31,12 +32,7 @@ const decoder = pipe(
       comment: stringMaxLength50Decoder,
       role: TeamRole.decoder,
       championPool: ChampionPool.decoder,
-      birthplace: pipe(
-        D.string,
-        D.map(s => s.trim()),
-        D.refine((s): s is string => 0 < s.length, 'NonEmptyString'),
-        D.parse(stringMaxLength50Decoder.decode),
-      ),
+      birthplace: pipe(nonEmptyStringDecoder, D.parse(stringMaxLength50Decoder.decode)),
       avatar: pipe(
         D.id<unknown>(),
         D.parse(i => (i instanceof File ? D.success(i) : D.failure(i, 'File'))),

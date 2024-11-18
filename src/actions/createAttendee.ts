@@ -10,6 +10,7 @@ import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
+import { TeamRole } from '../models/TeamRole'
 import { AttendeeCreate } from '../models/attendee/AttendeeCreate'
 import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
 import type { Attendee } from '../models/pocketBase/tables/Attendee'
@@ -17,7 +18,7 @@ import type { TournamentId } from '../models/pocketBase/tables/Tournament'
 import { RiotId } from '../models/riot/RiotId'
 import type { SummonerShort } from '../models/theQuest/SummonerShort'
 
-const { getFromPbCacheDuration, tags } = Config.constants
+const { tags } = Config.constants
 
 // TODO: check tournament isVisible and role is still open
 
@@ -83,11 +84,10 @@ async function validateCount(adminPb: MyPocketBase, tournamentId: TournamentId):
     adminPb.collection('attendees').getFullList<ReadonlyRecord<string, never>>({
       filter: adminPb.smartFilter<'attendees'>({ tournament: tournamentId }),
       fields: 'none',
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),
   ])
 
-  if (tournament.teamsCount * 5 <= attendees.length) {
-    throw Error('BadRequest')
+  if (tournament.teamsCount * TeamRole.values.length <= attendees.length) {
+    throw Error('BadRequest - Tournament already full')
   }
 }

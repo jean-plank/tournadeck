@@ -43,7 +43,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
 
   return (
     <div className="flex flex-col items-start gap-5">
-      {attendees.length < tournament.teamsCount * 5 && !alreadySubscribed && (
+      {attendees.length < tournament.teamsCount * TeamRole.values.length && !alreadySubscribed && (
         <dialog ref={dialog} className="bg-transparent">
           <AttendeeForm
             tournament={tournament.id}
@@ -72,7 +72,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
             </button>
           )}
           <span className="font-bold">
-            Participant·es ({attendees.length} / {tournament.teamsCount * 5})
+            Participant·es ({attendees.length} / {tournament.teamsCount * TeamRole.values.length})
           </span>
         </div>
 

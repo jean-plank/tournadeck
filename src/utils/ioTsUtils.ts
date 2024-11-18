@@ -192,3 +192,13 @@ const urlFromStringDecoder: Decoder<unknown, URL> = pipe(
 export const URLFromString = {
   decoder: urlFromStringDecoder,
 }
+
+/**
+ * NonEmptyString
+ */
+
+export const nonEmptyStringDecoder = pipe(
+  D.string,
+  D.map(s => s.trim()),
+  D.refine((s): s is string => 0 < s.length, 'NonEmptyString'),
+)

@@ -15,7 +15,9 @@ import type { Team } from '../models/pocketBase/tables/Team'
 import { TeamId } from '../models/pocketBase/tables/Team'
 import type { Tournament } from '../models/pocketBase/tables/Tournament'
 
-const { getFromPbCacheDuration, tags } = Config.constants
+const { tags } = Config.constants
+
+type Payload = D.TypeOf<typeof payloadDecoder>
 
 const payloadDecoder = D.struct({
   teamId: TeamId.codec,
@@ -23,11 +25,7 @@ const payloadDecoder = D.struct({
   price: D.number,
 })
 
-export async function buyAttendee(
-  teamId_: TeamId,
-  attendeeId_: AttendeeId,
-  price_: number,
-): Promise<void> {
+export async function buyAttendee(payload: Payload): Promise<void> {
   const maybeAuth = await auth()
 
   if (maybeAuth === undefined) {
@@ -36,11 +34,7 @@ export async function buyAttendee(
 
   const { user } = maybeAuth
 
-  const validated = payloadDecoder.decode({
-    teamId: teamId_,
-    attendeeId: attendeeId_,
-    price: price_,
-  })
+  const validated = payloadDecoder.decode(payload)
 
   if (either.isLeft(validated)) {
     throw Error('BadRequest')
@@ -68,13 +62,12 @@ export async function buyAttendee(
         tournament: tournament.id,
         team: team.id,
       }),
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),
     adminPb.collection('attendees').getFirstListItem(
       adminPb.smartFilter<'attendees'>({
         id: attendeeId,
         tournament: tournament.id,
-      }) ?? '',
+      }),
     ),
   ])
 

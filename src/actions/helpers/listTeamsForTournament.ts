@@ -1,3 +1,5 @@
+'use server'
+
 import { Config } from '../../config/Config'
 import type { MyPocketBase } from '../../models/pocketBase/MyPocketBase'
 import type { Team } from '../../models/pocketBase/tables/Team'
