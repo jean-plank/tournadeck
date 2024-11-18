@@ -33,8 +33,12 @@ const TournamentPage: React.FC<Props> = async props => {
           <span className="font-bold">{Dayjs(tournament.end).format(dateTimeFormat)}</span>
         </div>
 
-        <div className="text-lg font-bold text-sky-300">
-          {TournamentPhase.label[tournament.phase]}
+        <div className="flex gap-6 text-lg">
+          <span className="text-lg font-bold text-sky-300">
+            {TournamentPhase.label[tournament.phase]}
+          </span>
+
+          {!tournament.isVisible && <span className="font-bold text-red-500">[Non publié]</span>}
         </div>
 
         <span className="font-bold text-goldenrod">
