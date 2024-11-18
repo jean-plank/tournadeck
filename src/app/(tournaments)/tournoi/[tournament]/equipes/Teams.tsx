@@ -72,21 +72,25 @@ export const Teams: React.FC<TeamsProps> = ({
 
   // mercato panel
 
-  const [mercatoPanelOpen, setMercatoPanelOpen] = useLocalStorageState(
+  const [mercatoPanelOpen_, setMercatoPanelOpen] = useLocalStorageState(
     `${tournament.id}-mercatoPanelOpen`,
     [C.boolean, 'boolean'],
     false,
   )
 
+  const mercatoPanelOpen = draggable && mercatoPanelOpen_
+
   const toggleMercatoPanelOpen = useCallback(() => {
     setMercatoPanelOpen(b => !b)
   }, [setMercatoPanelOpen])
 
-  const [mercatoValue, setMercatoValue] = useLocalStorageState(
+  const [mercatoValue_, setMercatoValue] = useLocalStorageState(
     `${tournament.id}-mercatoValue`,
     [nullableMercatoValueCodec, 'Nullable<MercatoValue>'],
     null,
   )
+
+  const mercatoValue: Nullable<MercatoValue> = mercatoPanelOpen ? mercatoValue_ : null
 
   // ---
 
@@ -194,7 +198,7 @@ export const Teams: React.FC<TeamsProps> = ({
         )}
       </div>
 
-      {draggable && mercatoPanelOpen && (
+      {mercatoPanelOpen && (
         <MercatoPanel
           tournamentTeamsCount={tournament.teamsCount}
           mercatoValue={mercatoValue}
