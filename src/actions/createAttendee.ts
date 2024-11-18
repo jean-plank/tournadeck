@@ -18,7 +18,7 @@ import type { TournamentId } from '../models/pocketBase/tables/Tournament'
 import { RiotId } from '../models/riot/RiotId'
 import type { SummonerShort } from '../models/theQuest/SummonerShort'
 
-const { getFromPbCacheDuration, tags } = Config.constants
+const { tags } = Config.constants
 
 // TODO: check tournament isVisible and role is still open
 
@@ -84,7 +84,6 @@ async function validateCount(adminPb: MyPocketBase, tournamentId: TournamentId):
     adminPb.collection('attendees').getFullList<ReadonlyRecord<string, never>>({
       filter: adminPb.smartFilter<'attendees'>({ tournament: tournamentId }),
       fields: 'none',
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),
   ])
 

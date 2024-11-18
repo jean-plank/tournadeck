@@ -15,7 +15,7 @@ import type { Team } from '../models/pocketBase/tables/Team'
 import { TeamId } from '../models/pocketBase/tables/Team'
 import type { Tournament } from '../models/pocketBase/tables/Tournament'
 
-const { getFromPbCacheDuration, tags } = Config.constants
+const { tags } = Config.constants
 
 const payloadDecoder = D.struct({
   teamId: TeamId.codec,
@@ -68,7 +68,6 @@ export async function buyAttendee(
         tournament: tournament.id,
         team: team.id,
       }),
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.attendees] },
     }),
     adminPb.collection('attendees').getFirstListItem(
       adminPb.smartFilter<'attendees'>({
