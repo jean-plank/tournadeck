@@ -2,9 +2,28 @@
 
 import { useCallback } from 'react'
 
+import { cloneTournament } from '../../../../../actions/cloneTournament'
+import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import { redirectAppRoute } from '../../../../../utils/redirectAppRoute'
+
 const withAttendees = 'withAttendees'
 
-export const Admin: React.FC = () => {
+type Props = {
+  tournamentId: TournamentId
+}
+
+export const Admin: React.FC<Props> = ({ tournamentId }) => {
+  const formAction = useCallback(
+    async (formData: FormData) => {
+      const withAttendeesValue = formData.get(withAttendees)
+
+      const newTournament = await cloneTournament(tournamentId, withAttendeesValue !== null)
+
+      redirectAppRoute(`/tournoi/${newTournament}`)
+    },
+    [tournamentId],
+  )
+
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     if (!confirm('Êtes-vous sûr·e de vouloir cloner le tournoi ?')) {
       e.preventDefault()
@@ -23,12 +42,4 @@ export const Admin: React.FC = () => {
       </label>
     </form>
   )
-}
-
-function formAction(formData: FormData): void {
-  const withAttendeesValue = formData.get(withAttendees)
-
-  const res = { withAttendees: withAttendeesValue !== null }
-
-  console.log('res =', res)
 }

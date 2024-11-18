@@ -13,7 +13,9 @@ type Props = {
 const AdminPage: React.FC<Props> = async props => {
   const params = await props.params
 
-  return withRedirectTournament(viewTournamentAdmin(params.tournament))(() => <Admin />)
+  return withRedirectTournament(viewTournamentAdmin(params.tournament))(({ tournament }) => (
+    <Admin tournamentId={tournament.id} />
+  ))
 }
 
 export default AdminPage
