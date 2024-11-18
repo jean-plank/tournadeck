@@ -89,7 +89,7 @@ export const DraggableTeams: React.FC<Props> = ({
                 addOptimisticTeams([teamId, attendee, price])
               })
 
-              await buyAttendee(teamId, attendee.id, price)
+              await buyAttendee({ teamId, attendeeId: attendee.id, price })
             }
           }
         }

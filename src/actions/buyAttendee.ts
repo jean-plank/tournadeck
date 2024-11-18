@@ -17,17 +17,15 @@ import type { Tournament } from '../models/pocketBase/tables/Tournament'
 
 const { tags } = Config.constants
 
+type Payload = D.TypeOf<typeof payloadDecoder>
+
 const payloadDecoder = D.struct({
   teamId: TeamId.codec,
   attendeeId: AttendeeId.codec,
   price: D.number,
 })
 
-export async function buyAttendee(
-  teamId_: TeamId,
-  attendeeId_: AttendeeId,
-  price_: number,
-): Promise<void> {
+export async function buyAttendee(payload: Payload): Promise<void> {
   const maybeAuth = await auth()
 
   if (maybeAuth === undefined) {
@@ -36,11 +34,7 @@ export async function buyAttendee(
 
   const { user } = maybeAuth
 
-  const validated = payloadDecoder.decode({
-    teamId: teamId_,
-    attendeeId: attendeeId_,
-    price: price_,
-  })
+  const validated = payloadDecoder.decode(payload)
 
   if (either.isLeft(validated)) {
     throw Error('BadRequest')

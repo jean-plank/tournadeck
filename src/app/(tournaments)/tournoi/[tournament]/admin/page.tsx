@@ -14,7 +14,7 @@ const AdminPage: React.FC<Props> = async props => {
   const params = await props.params
 
   return withRedirectTournament(viewTournamentAdmin(params.tournament))(({ tournament }) => (
-    <Admin tournamentId={tournament.id} />
+    <Admin tournament={tournament} />
   ))
 }
 

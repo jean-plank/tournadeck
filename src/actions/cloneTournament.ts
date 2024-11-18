@@ -1,19 +1,36 @@
 'use server'
 
+import { either } from 'fp-ts'
+import * as D from 'io-ts/Decoder'
+
 import { config } from '../context/context'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
 import { Permissions } from '../helpers/Permissions'
 import { auth } from '../helpers/auth'
 import { AuthError } from '../models/AuthError'
-import { MyPocketBase } from '../models/pocketBase/MyPocketBase'
-import { Attendee } from '../models/pocketBase/tables/Attendee'
-import type { TournamentId } from '../models/pocketBase/tables/Tournament'
+import type { MyPocketBase } from '../models/pocketBase/MyPocketBase'
+import type { Attendee } from '../models/pocketBase/tables/Attendee'
+import { TournamentId } from '../models/pocketBase/tables/Tournament'
+import { nonEmptyStringDecoder } from '../utils/ioTsUtils'
 import { pbFileUrl } from '../utils/pbFileUrl'
 
-export async function cloneTournament(
-  tournamentId: TournamentId,
-  withAttendees: boolean,
-): Promise<TournamentId> {
+type Payload = D.TypeOf<typeof payloadDecoder>
+
+const payloadDecoder = D.struct({
+  id: TournamentId.codec,
+  name: nonEmptyStringDecoder,
+  withAttendees: D.boolean,
+})
+
+export async function cloneTournament(payload: Payload): Promise<TournamentId> {
+  const validated = payloadDecoder.decode(payload)
+
+  if (either.isLeft(validated)) {
+    throw Error('BadRequest')
+  }
+
+  const { id: tournamentId, name: tournamentName, withAttendees } = validated.right
+
   const maybeAuth = await auth()
 
   if (maybeAuth === undefined) {
@@ -50,7 +67,7 @@ export async function cloneTournament(
 
   const newTournament = await adminPb.collection('tournaments').create({
     phase: oldTournament.phase,
-    name: `${oldTournament.name} (1)`, // TODO: proper increment
+    name: tournamentName,
     start: oldTournament.start,
     end: oldTournament.end,
     teamsCount: oldTournament.teamsCount,
@@ -109,7 +126,7 @@ const createAttende =
       role: oldAttendee.role,
       championPool: oldAttendee.championPool,
       birthplace: oldAttendee.birthplace,
-      avatar: avatar,
+      avatar,
       isCaptain: oldAttendee.isCaptain,
       seed: oldAttendee.seed,
       avatarRating: oldAttendee.avatarRating,

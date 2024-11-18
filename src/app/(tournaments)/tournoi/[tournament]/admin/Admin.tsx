@@ -3,25 +3,33 @@
 import { useCallback } from 'react'
 
 import { cloneTournament } from '../../../../../actions/cloneTournament'
-import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
+import type { Tournament } from '../../../../../models/pocketBase/tables/Tournament'
 import { redirectAppRoute } from '../../../../../utils/redirectAppRoute'
 
 const withAttendees = 'withAttendees'
 
 type Props = {
-  tournamentId: TournamentId
+  tournament: Tournament
 }
 
-export const Admin: React.FC<Props> = ({ tournamentId }) => {
+export const Admin: React.FC<Props> = ({ tournament }) => {
   const formAction = useCallback(
-    async (formData: FormData) => {
+    (formData: FormData) => {
       const withAttendeesValue = formData.get(withAttendees)
 
-      const newTournament = await cloneTournament(tournamentId, withAttendeesValue !== null)
-
-      redirectAppRoute(`/tournoi/${newTournament}`)
+      cloneTournament({
+        id: tournament.id,
+        name: prompt('', tournament.name) ?? '',
+        withAttendees: withAttendeesValue !== null,
+      })
+        .catch(() => {
+          alert('Erreur.')
+        })
+        .then(newTournament => {
+          redirectAppRoute(`/tournoi/${newTournament}`)
+        })
     },
-    [tournamentId],
+    [tournament.id, tournament.name],
   )
 
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
