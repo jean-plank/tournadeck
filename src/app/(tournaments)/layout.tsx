@@ -1,5 +1,5 @@
+import { TournamentContextProvider } from '../../contexts/TournamentContext'
 import type { ChildrenFC } from '../../models/ChildrenFC'
-import { TournamentContextProvider } from './TournamentContext'
 import { TournamentHeader } from './TournamentHeader'
 
 const TournamentLayout: ChildrenFC = ({ children }) => (

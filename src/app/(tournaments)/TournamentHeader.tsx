@@ -7,9 +7,9 @@ import { useCallback, useMemo } from 'react'
 import { Loader } from '../../components/Loader'
 import { ChevronForwardFilled, PersonFilled } from '../../components/svgs/icons'
 import { usePocketBase } from '../../contexts/PocketBaseContext'
+import { useTournament } from '../../contexts/TournamentContext'
 import { Permissions } from '../../helpers/Permissions'
 import { cx } from '../../utils/cx'
-import { useTournament } from './TournamentContext'
 import { TournamentSubPage, TournamentSubPagesNav } from './TournamentSubPagesNav'
 
 const tournamentRegex = new RegExp(`^/tournoi/[^/]+/(${TournamentSubPage.values.join('|')})$`)

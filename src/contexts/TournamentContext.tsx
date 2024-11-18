@@ -2,8 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-import type { ChildrenFC } from '../../models/ChildrenFC'
-import type { Tournament } from '../../models/pocketBase/tables/Tournament'
+import type { ChildrenFC } from '../models/ChildrenFC'
+import type { Tournament } from '../models/pocketBase/tables/Tournament'
 
 type TournamentContext = {
   isLoading: boolean
