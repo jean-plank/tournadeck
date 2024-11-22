@@ -18,6 +18,9 @@ function TheQuestService(config: Config, httpClient: HttpClient) {
     getStaticData,
     getSummonerByPuuid,
     getSummonerByRiotId,
+    /**
+     * @deprecated useless for custom matches (TODO)
+     */
     getMatchById,
   }
 
