@@ -67,7 +67,9 @@ export const Teams: React.FC<TeamsProps> = ({
   }, [])
 
   const handleMembersScroll = useCallback((e: React.UIEvent<HTMLUListElement>) => {
-    setMemberScrolled((e.target as HTMLUListElement).scrollLeft > 0)
+    if (e.target instanceof Element) {
+      setMemberScrolled(e.target.scrollLeft > 0)
+    }
   }, [])
 
   // mercato panel
