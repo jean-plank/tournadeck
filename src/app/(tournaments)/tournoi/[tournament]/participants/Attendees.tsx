@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useRef } from 'react'
 
 import { AttendeeTile } from '../../../../../components/AttendeeTile'
+import { Dialog } from '../../../../../components/Dialog'
 import { TeamRoleIconGold } from '../../../../../components/TeamRoleIcon'
 import { usePocketBase } from '../../../../../contexts/PocketBaseContext'
 import { groupAndSortAttendees } from '../../../../../helpers/groupAndSortAttendees'
@@ -44,7 +45,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
   return (
     <div className="flex flex-col items-start gap-5">
       {attendees.length < tournament.teamsCount * TeamRole.values.length && !alreadySubscribed && (
-        <dialog ref={dialog} className="bg-transparent">
+        <Dialog ref={dialog}>
           <AttendeeForm
             tournament={tournament.id}
             handleCancelClick={handleCancelClick}
@@ -57,7 +58,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
               array.empty<TeamRole>(),
             )}
           />
-        </dialog>
+        </Dialog>
       )}
 
       <div className="flex w-full flex-col items-center gap-6 pt-6">
