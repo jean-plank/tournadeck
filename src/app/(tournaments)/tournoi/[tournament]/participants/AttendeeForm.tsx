@@ -58,7 +58,7 @@ export const AttendeeForm: React.FC<Props> = ({
 
   const [touched, setTouched] = useState<Touched>({})
 
-  const [submitError, setSubmitError] = useState<Optional<string>>(undefined)
+  const [submitError, setSubmitError] = useState<string>()
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<Nullable<string>>(null)
 
   const handleChange = (key: keyof Inputs) => (event: React.ChangeEvent<HTMLInputElement>) => {

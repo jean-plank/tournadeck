@@ -16,7 +16,7 @@ const TournamentContext = createContext<Optional<TournamentContext>>(undefined)
 export const TournamentContextProvider: ChildrenFC = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true)
 
-  const [tournament, setTournament] = useState<Optional<Tournament>>(undefined)
+  const [tournament, setTournament] = useState<Tournament>()
 
   const value: TournamentContext = {
     isLoading,

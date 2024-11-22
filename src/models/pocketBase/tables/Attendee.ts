@@ -40,9 +40,9 @@ export type PbAttendee = PbBaseModel<
     birthplace: TextField
     avatar: SingleFileField
     isCaptain: BoolField<'nullable'>
-    seed: NumberField<'nullable'>
-    avatarRating: NumberField<'nullable'>
-    price: NumberField<'nullable'>
+    seed: NumberField<number, 'nullable'>
+    avatarRating: NumberField<number, 'nullable'>
+    price: NumberField<number, 'nullable'>
   }
 >
 

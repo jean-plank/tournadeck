@@ -6,6 +6,7 @@ import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
 import { TriangleRight } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
 import { DayjsDuration } from '../../../../../models/Dayjs'
+import { MsDuration } from '../../../../../models/MsDuration'
 import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'
 import type { GameId } from '../../../../../models/riot/GameId'
 import { type TheQuestMatchParticipant } from '../../../../../models/theQuest/TheQuestMatch'
@@ -18,7 +19,7 @@ import { MatchTooltip } from './MatchTooltip'
 type Props = {
   version: DDragonVersion
   id: GameId
-  gameDuration: number
+  gameDuration: MsDuration
   left: ReadonlyArray<EnrichedParticipant>
   right: ReadonlyArray<EnrichedParticipant>
   blueIsLeft: boolean
@@ -36,7 +37,7 @@ export const Match: React.FC<Props> = ({
   leftWon,
   blueWon,
 }) => {
-  const gameDuration = DayjsDuration(gameDuration_)
+  const gameDuration = MsDuration.toDayJs(gameDuration_)
 
   const tooltip = useTooltip<HTMLAnchorElement>({ placement: 'right-start' })
 
@@ -44,7 +45,7 @@ export const Match: React.FC<Props> = ({
   const rightStats = teamStats(right)
 
   return (
-    <>
+    <li className="pb-0.5 first:pb-0">
       <a
         href={leagueofgraphsUrl(id)}
         target="_blank"
@@ -104,7 +105,7 @@ export const Match: React.FC<Props> = ({
       <Tooltip {...tooltip.floating}>
         <MatchTooltip version={version} left={left} right={right} />
       </Tooltip>
-    </>
+    </li>
   )
 }
 

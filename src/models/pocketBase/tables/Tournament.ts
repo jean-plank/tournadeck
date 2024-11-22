@@ -31,7 +31,7 @@ export type PbTournament = PbBaseModel<
     name: TextField
     start: DateField
     end: DateField
-    teamsCount: NumberField<'nullable'>
+    teamsCount: NumberField<number, 'nullable'>
     isVisible: BoolField<'nullable'>
     bannedChampions: JsonField<ReadonlyArray<ChampionId>, 'nullable'>
   }

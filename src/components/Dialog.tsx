@@ -3,7 +3,7 @@ import { forwardRef, useCallback, useRef } from 'react'
 import { useMergeRefs } from '../hooks/useMergeRefs'
 
 type Props = {
-  children?: React.ReactElement | ReadonlyArray<React.ReactElement>
+  children?: React.ReactNode
 }
 
 export const Dialog = forwardRef<HTMLDialogElement, Props>(({ children }, ref) => {

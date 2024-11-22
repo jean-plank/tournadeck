@@ -30,7 +30,7 @@ export const Champions: React.FC<Props> = ({
   alreadyPlayed,
   draftlolLink,
 }) => {
-  const [search, setSearch] = useState<Optional<string>>(undefined)
+  const [search, setSearch] = useState<string>()
 
   const filteredStillAvailable = stillAvailable.filter(filterChampion(search))
 
