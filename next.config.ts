@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['pino'],
   experimental: {
     typedRoutes: true,
+    serverActions: {
+      bodySizeLimit: '6mb', // TODO: process.env
+    },
   },
   images: {
     remotePatterns: [
