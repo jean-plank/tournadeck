@@ -13,6 +13,7 @@ import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/M
 import type { MatchId } from '../models/pocketBase/tables/match/MatchId'
 import type { ChampionId } from '../models/riot/ChampionId'
 import { ChampionKey } from '../models/riot/ChampionKey'
+import { GameId } from '../models/riot/GameId'
 import { LCUMatch } from '../models/riot/LCUMatch'
 import type { Puuid } from '../models/riot/Puuid'
 import type { RiotId } from '../models/riot/RiotId'
@@ -53,9 +54,7 @@ export async function addGameData(matchId: MatchId, game: Json): Promise<void> {
     // already all matches played
     oldApiData.length >= match.bestOf ||
     // game alreay added to this match
-    oldApiData.some(g =>
-      MatchApiData.isGameId(g) ? g === lcuMatch.gameId : g.id === lcuMatch.gameId,
-    )
+    oldApiData.some(g => GameId.Eq.equals(MatchApiData.isGameId(g) ? g : g.id, lcuMatch.gameId))
   ) {
     throw Error('BadRequest')
   }

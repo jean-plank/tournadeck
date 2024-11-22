@@ -79,7 +79,7 @@ export const Game: React.FC<GameProps> = ({
     <li className="flex flex-col">
       {plannedOn !== '' && <PlannedOn plannedOn={plannedOn} />}
 
-      <div className="flex flex-col gap-0.5 overflow-hidden">
+      <div className="flex flex-col gap-0.5">
         <div className="grid grid-cols-2 gap-0.5">
           {[team1, team2].map((team, i) => {
             const isEven = i % 2 === 0
@@ -152,7 +152,8 @@ export const Game: React.FC<GameProps> = ({
                 <Match
                   key={matchWithTeam1.match.id}
                   version={version}
-                  id={matchWithTeam1.match.id}
+                  matchId={match.id}
+                  gameId={matchWithTeam1.match.id}
                   gameDuration={matchWithTeam1.match.gameDuration}
                   left={(blueIsLeft ? enrichedParticipants[100] : enrichedParticipants[200]) ?? []}
                   right={(blueIsLeft ? enrichedParticipants[200] : enrichedParticipants[100]) ?? []}

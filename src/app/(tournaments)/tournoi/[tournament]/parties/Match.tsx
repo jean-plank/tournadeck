@@ -1,12 +1,15 @@
 'use client'
 
 import { ord } from 'fp-ts'
+import { useCallback } from 'react'
 
+import { removeGameData } from '../../../../../actions/removeGameData'
 import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
-import { TriangleRight } from '../../../../../components/svgs/icons'
+import { CloseFilled, TriangleRight } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
 import { DayjsDuration } from '../../../../../models/Dayjs'
 import { MsDuration } from '../../../../../models/MsDuration'
+import type { MatchId } from '../../../../../models/pocketBase/tables/match/MatchId'
 import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'
 import type { GameId } from '../../../../../models/riot/GameId'
 import { type TheQuestMatchParticipant } from '../../../../../models/theQuest/TheQuestMatch'
@@ -18,7 +21,8 @@ import { MatchTooltip } from './MatchTooltip'
 
 type Props = {
   version: DDragonVersion
-  id: GameId
+  matchId: MatchId
+  gameId: GameId
   gameDuration: MsDuration
   left: ReadonlyArray<EnrichedParticipant>
   right: ReadonlyArray<EnrichedParticipant>
@@ -29,7 +33,8 @@ type Props = {
 
 export const Match: React.FC<Props> = ({
   version,
-  id,
+  matchId,
+  gameId,
   gameDuration: gameDuration_,
   left,
   right,
@@ -44,13 +49,27 @@ export const Match: React.FC<Props> = ({
   const leftStats = teamStats(left)
   const rightStats = teamStats(right)
 
+  const askRemoveGameData = useCallback(() => {
+    if (confirm('Êtes-vous sûr·e de vouloir supprimer cette partie ?')) {
+      removeGameData(matchId, gameId)
+    }
+  }, [gameId, matchId])
+
   return (
-    <li className="pb-0.5 first:pb-0">
+    <li className="group/match relative flex items-center pb-0.5 first:pb-0">
+      <button
+        type="button"
+        onClick={askRemoveGameData}
+        className="invisible absolute -left-6 opacity-0 transition-all duration-300 group-hover/match:visible group-hover/match:opacity-100"
+      >
+        <CloseFilled className="size-6 text-red-500" />
+      </button>
+
       <a
-        href={leagueofgraphsUrl(id)}
+        href={leagueofgraphsUrl(gameId)}
         target="_blank"
         rel="noreferrer"
-        className="grid grid-cols-[1fr_auto_1fr] text-sm text-white"
+        className="grid w-full grid-cols-[1fr_auto_1fr] text-sm text-white"
         {...tooltip.reference}
       >
         <span
