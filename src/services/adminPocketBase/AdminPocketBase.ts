@@ -2,13 +2,12 @@ import 'server-cli-only'
 
 import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import { revalidateTag } from 'next/cache'
 import type { RecordSubscription } from 'pocketbase'
 import { ClientResponseError } from 'pocketbase'
 import util from 'util'
 
 import type { GetLogger } from '../../Logger'
-import { Config } from '../../config/Config'
+import type { Config } from '../../config/Config'
 import { constants } from '../../config/constants'
 import { subscribeCollection } from '../../helpers/subscribeCollection'
 import { DayjsDuration } from '../../models/Dayjs'
@@ -123,8 +122,6 @@ async function load(
                 await pb.collection('matches').update(event.record.id, {
                   apiData: MatchApiDatas.codec.encode(newApiDatas),
                 })
-
-                revalidateTag(Config.constants.tags.matches)
               }
             },
           ),

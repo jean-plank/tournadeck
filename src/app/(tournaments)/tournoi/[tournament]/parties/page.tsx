@@ -1,5 +1,3 @@
-'use server'
-
 import { either, readonlyArray } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 
@@ -21,7 +19,7 @@ import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch
 import type { ViewTournamentMatches } from './Games'
 import { Games } from './Games'
 
-const { getFromPbCacheDuration, tags } = Config.constants
+const { tags } = Config.constants
 
 type Props = {
   params: Promise<{ tournament: TournamentId }>
@@ -54,7 +52,7 @@ async function viewTournamentMatches(
     listAttendeesForTournament(adminPb, tournamentId),
     adminPb.collection('matches').getFullList({
       filter: adminPb.smartFilter<'matches'>({ tournament: tournamentId }),
-      next: { revalidate: getFromPbCacheDuration, tags: [tags.matches] },
+      next: { revalidate: 0, tags: [tags.matches] },
     }),
   ])
 

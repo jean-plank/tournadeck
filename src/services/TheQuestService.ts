@@ -8,7 +8,7 @@ import { SummonerShort } from '../models/theQuest/SummonerShort'
 import { TheQuestMatch } from '../models/theQuest/TheQuestMatch'
 import { StaticData } from '../models/theQuest/staticData/StaticData'
 
-const cacheDuration = 5 // seconds
+const cacheDuration = 30 * 60 // seconds
 
 type TheQuestService = ReturnType<typeof TheQuestService>
 

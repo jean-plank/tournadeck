@@ -4,8 +4,8 @@ import { pipe } from 'fp-ts/function'
 import { useCallback } from 'react'
 
 import { addGameData } from '../../../../../actions/addGameData'
+import { GameDataPayload } from '../../../../../models/GameDataPayload'
 import type { MatchId } from '../../../../../models/pocketBase/tables/match/MatchId'
-import { LCUMatch } from '../../../../../models/riot/LCUMatch'
 import { decodeErrorString } from '../../../../../utils/ioTsUtils'
 
 const gameData = 'gameData'
@@ -31,7 +31,10 @@ export const MatchForm: React.FC<Props> = ({ matchId, handleCancelClick }) => {
               : either.left(`${gameData} was not string`),
           ),
           either.chainFirst(i =>
-            pipe(LCUMatch.decoder.decode(i), either.mapLeft(decodeErrorString('LCUMatch')(i))),
+            pipe(
+              GameDataPayload.decoder.decode(i),
+              either.mapLeft(decodeErrorString('LCUMatch')(i)),
+            ),
           ),
           either.getOrElseW(e => {
             console.warn(e)
