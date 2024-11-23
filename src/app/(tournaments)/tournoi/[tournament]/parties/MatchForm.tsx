@@ -62,6 +62,7 @@ export const MatchForm: React.FC<Props> = ({ matchId, handleCancelClick }) => {
 
         <textarea
           name={gameData}
+          autoFocus={true}
           className="w-full rounded-md border border-blue1 p-2 font-medium outline-none"
         />
       </label>
