@@ -22,6 +22,7 @@ export type ViewTournamentMatches = {
   teams: ReadonlyArray<Team>
   attendees: ReadonlyArray<AttendeeWithRiotId>
   matches: ReadonlyArray<MatchApiDataDecoded>
+  canUpdateMatch: boolean
 }
 
 type Props = {
@@ -29,7 +30,7 @@ type Props = {
 }
 
 export const Games: React.FC<Props> = ({ data }) => {
-  const { version, attendees, teams, matches } = data
+  const { version, attendees, teams, matches, canUpdateMatch } = data
 
   const dialog = useRef<HTMLDialogElement>(null)
 
@@ -134,6 +135,7 @@ export const Games: React.FC<Props> = ({ data }) => {
                               teams={teams}
                               attendees={attendees}
                               match={match}
+                              canUpdateMatch={canUpdateMatch}
                               onEmptyMatchClick={dialogShowModal(match.id)}
                             />
                           ))}
@@ -155,6 +157,7 @@ export const Games: React.FC<Props> = ({ data }) => {
                                 teams={teams}
                                 attendees={attendees}
                                 match={match}
+                                canUpdateMatch={canUpdateMatch}
                                 onEmptyMatchClick={dialogShowModal(match.id)}
                               />
                             ))}

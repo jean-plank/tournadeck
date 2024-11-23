@@ -9,6 +9,9 @@ import { Config } from '../config/Config'
 import { constants } from '../config/constants'
 import { theQuestService } from '../context/context'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
+import { Permissions } from '../helpers/Permissions'
+import { auth } from '../helpers/auth'
+import { AuthError } from '../models/AuthError'
 import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/MatchApiDatas'
 import type { MatchId } from '../models/pocketBase/tables/match/MatchId'
 import type { ChampionId } from '../models/riot/ChampionId'
@@ -24,6 +27,18 @@ import { decodeError } from '../utils/ioTsUtils'
 const { tags } = Config.constants
 
 export async function addGameData(matchId: MatchId, game: Json): Promise<void> {
+  const maybeAuth = await auth()
+
+  if (maybeAuth === undefined) {
+    throw new AuthError('Unauthorized')
+  }
+
+  const { user } = maybeAuth
+
+  if (!Permissions.matches.update(user.role)) {
+    throw new AuthError('Forbidden')
+  }
+
   const validated = LCUMatch.decoder.decode(game)
 
   if (either.isLeft(validated)) {

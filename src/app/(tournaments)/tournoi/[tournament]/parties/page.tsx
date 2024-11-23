@@ -9,6 +9,7 @@ import { viewTournament } from '../../../../../actions/helpers/viewTournament'
 import { Config } from '../../../../../config/Config'
 import { theQuestService } from '../../../../../context/context'
 import { adminPocketBase } from '../../../../../context/singletons/adminPocketBase'
+import { Permissions } from '../../../../../helpers/Permissions'
 import { withRedirectTournament } from '../../../../../helpers/withRedirectTournament'
 import type { TournamentId } from '../../../../../models/pocketBase/tables/Tournament'
 import type { MatchApiDataDecoded } from '../../../../../models/pocketBase/tables/match/Match'
@@ -43,7 +44,7 @@ async function viewTournamentMatches(
 
   if (data === undefined) return undefined
 
-  const { tournament } = data
+  const { user, tournament } = data
 
   const adminPb = await adminPocketBase()
 
@@ -82,5 +83,6 @@ async function viewTournamentMatches(
         }),
       ),
     ),
+    canUpdateMatch: Permissions.matches.update(user.role),
   }
 }

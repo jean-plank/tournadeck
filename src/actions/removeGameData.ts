@@ -6,6 +6,9 @@ import { revalidateTag } from 'next/cache'
 
 import { Config } from '../config/Config'
 import { adminPocketBase } from '../context/singletons/adminPocketBase'
+import { Permissions } from '../helpers/Permissions'
+import { auth } from '../helpers/auth'
+import { AuthError } from '../models/AuthError'
 import { MatchApiData, MatchApiDatas } from '../models/pocketBase/tables/match/MatchApiDatas'
 import type { MatchId } from '../models/pocketBase/tables/match/MatchId'
 import { GameId } from '../models/riot/GameId'
@@ -15,6 +18,18 @@ import { decodeError } from '../utils/ioTsUtils'
 const { tags } = Config.constants
 
 export async function removeGameData(matchId: MatchId, gameId: GameId): Promise<void> {
+  const maybeAuth = await auth()
+
+  if (maybeAuth === undefined) {
+    throw new AuthError('Unauthorized')
+  }
+
+  const { user } = maybeAuth
+
+  if (!Permissions.matches.update(user.role)) {
+    throw new AuthError('Forbidden')
+  }
+
   const adminPb = await adminPocketBase()
 
   const match = await adminPb.collection('matches').getOne(matchId)

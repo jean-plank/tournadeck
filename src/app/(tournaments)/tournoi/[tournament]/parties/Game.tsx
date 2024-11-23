@@ -26,6 +26,7 @@ type GameProps = {
   teams: ReadonlyArray<Team>
   attendees: ReadonlyArray<AttendeeWithRiotId>
   match: MatchApiDataDecoded
+  canUpdateMatch: boolean
   onEmptyMatchClick: React.MouseEventHandler<HTMLButtonElement>
 }
 
@@ -34,6 +35,7 @@ export const Game: React.FC<GameProps> = ({
   teams,
   attendees,
   match,
+  canUpdateMatch,
   onEmptyMatchClick,
 }) => {
   const { winner, bestOf, plannedOn, apiData } = match
@@ -123,7 +125,12 @@ export const Game: React.FC<GameProps> = ({
 
               if (matchWithTeam1 === undefined) {
                 return tuple(
-                  <EmptyMatch key={i} isFirst={isFirstEmpty} onClick={onEmptyMatchClick} />,
+                  <EmptyMatch
+                    key={i}
+                    canUpdateMatch={canUpdateMatch}
+                    isFirst={isFirstEmpty}
+                    onClick={onEmptyMatchClick}
+                  />,
                   false,
                 )
               }
@@ -160,6 +167,7 @@ export const Game: React.FC<GameProps> = ({
                   blueIsLeft={blueIsLeft}
                   leftWon={leftWon}
                   blueWon={RiotTeamId.Eq.equals(matchWithTeam1.match.win, 100)}
+                  canUpdateMatch={canUpdateMatch}
                 />,
                 isFirstEmpty,
               )

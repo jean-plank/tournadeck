@@ -29,6 +29,7 @@ type Props = {
   blueIsLeft: boolean
   leftWon: boolean
   blueWon: boolean
+  canUpdateMatch: boolean
 }
 
 export const Match: React.FC<Props> = ({
@@ -41,6 +42,7 @@ export const Match: React.FC<Props> = ({
   blueIsLeft,
   leftWon,
   blueWon,
+  canUpdateMatch,
 }) => {
   const gameDuration = MsDuration.toDayJs(gameDuration_)
 
@@ -51,19 +53,23 @@ export const Match: React.FC<Props> = ({
 
   const askRemoveGameData = useCallback(() => {
     if (confirm('Êtes-vous sûr·e de vouloir supprimer cette partie ?')) {
-      removeGameData(matchId, gameId)
+      removeGameData(matchId, gameId).catch(() => {
+        alert('Erreur.')
+      })
     }
   }, [gameId, matchId])
 
   return (
     <li className="group/match relative flex items-center pb-0.5 first:pb-0">
-      <button
-        type="button"
-        onClick={askRemoveGameData}
-        className="invisible absolute -left-6 opacity-0 transition-all duration-300 group-hover/match:visible group-hover/match:opacity-100"
-      >
-        <CloseFilled className="size-6 text-red-500" />
-      </button>
+      {canUpdateMatch && (
+        <button
+          type="button"
+          onClick={askRemoveGameData}
+          className="invisible absolute -left-6 opacity-0 transition-all duration-300 group-hover/match:visible group-hover/match:opacity-100"
+        >
+          <CloseFilled className="size-6 text-red-500" />
+        </button>
+      )}
 
       <a
         href={leagueofgraphsUrl(gameId)}
