@@ -7,6 +7,7 @@ import type { Except, Merge, OverrideProperties } from 'type-fest'
 import { array, partialRecord } from '../../utils/fpTsUtils'
 import { DateFromNumber } from '../../utils/ioTsUtils'
 import { Dayjs, DayjsDuration } from '../Dayjs'
+import { MsDuration } from '../MsDuration'
 import type {
   TheQuestMatch,
   TheQuestMatchParticipant,
@@ -136,7 +137,7 @@ const toTheQuestMatch =
       platform: 'EUW',
       id: m.gameId,
       gameCreation: m.gameCreation,
-      gameDuration: m.gameDuration,
+      gameDuration: MsDuration.fromDayJs(m.gameDuration),
       gameEndTimestamp: Dayjs(m.gameCreation).add(m.gameDuration).toDate(),
       teams: await pipe(
         m.teams as ReadonlyRecord<`${RiotTeamId}`, LCUMatchTeam>,

@@ -1,0 +1,4 @@
+.first-empty-match:hover span,
+.empty-match:hover ~ .first-empty-match span {
+  @apply bg-goldenrod-bis/60;
+}

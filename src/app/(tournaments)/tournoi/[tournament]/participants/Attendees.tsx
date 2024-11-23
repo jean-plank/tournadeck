@@ -26,16 +26,12 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
 
   const dialog = useRef<HTMLDialogElement>(null)
 
-  const handleSuscribeClick = useCallback((): void => {
-    if (dialog.current !== null) dialog.current.showModal()
+  const dialogShowModal = useCallback((): void => {
+    dialog.current?.showModal()
   }, [])
 
-  const handleCancelClick = useCallback((): void => {
-    if (dialog.current !== null) dialog.current.close()
-  }, [])
-
-  const onSuscribeOk = useCallback((): void => {
-    if (dialog.current !== null) dialog.current.close()
+  const dialogClose = useCallback((): void => {
+    dialog.current?.close()
   }, [])
 
   const alreadySubscribed = user !== undefined && attendees.some(a => a.user === user.id)
@@ -48,8 +44,8 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
         <Dialog ref={dialog}>
           <AttendeeForm
             tournament={tournament.id}
-            handleCancelClick={handleCancelClick}
-            onSubscribeOk={onSuscribeOk}
+            handleCancelClick={dialogClose}
+            onSubscribeOk={dialogClose}
             avalaibleTeamRole={TeamRole.values.reduce(
               (acc, v) =>
                 attendees.filter(p => p.role === v).length < tournament.teamsCount
@@ -66,7 +62,7 @@ export const Attendees: React.FC<Props> = ({ tournament, attendees }) => {
           {!alreadySubscribed && (
             <button
               type="button"
-              onClick={handleSuscribeClick}
+              onClick={dialogShowModal}
               className="rounded bg-goldenrod px-8 py-2 text-3xl font-bold text-white"
             >
               S’inscrire

@@ -1,6 +1,7 @@
 import * as C from 'io-ts/Codec'
 
-import { DateFromISOString, DayjsDurationFromNumber } from '../../utils/ioTsUtils'
+import { DateFromISOString } from '../../utils/ioTsUtils'
+import { MsDuration } from '../MsDuration'
 import { ChampionId } from '../riot/ChampionId'
 import { GameId } from '../riot/GameId'
 import { Puuid } from '../riot/Puuid'
@@ -39,7 +40,7 @@ const codec = C.struct({
   platform: Platform.codec,
   id: GameId.codec,
   gameCreation: DateFromISOString.codec,
-  gameDuration: DayjsDurationFromNumber.codec,
+  gameDuration: MsDuration.codec,
   gameEndTimestamp: DateFromISOString.codec,
   teams: C.partial(teamProperties),
   win: RiotTeamId.codec,

@@ -138,12 +138,10 @@ export type EditorField<N extends NullReq = 'required'> = PbField<
   N
 >
 
-export type NumberField<N extends NullReq = 'required'> = PbField<
-  'Number',
-  N extends 'nullable' ? number | 0 : number,
-  N extends 'nullable' ? number | 0 : number,
-  N
->
+export type NumberField<
+  A extends number | Newtype<unknown, number> = number,
+  N extends NullReq = 'required',
+> = PbField<'Number', N extends 'nullable' ? A | 0 : A, N extends 'nullable' ? A | 0 : A, N>
 
 /**
  * Non nullable bool field can only be true

@@ -1,11 +1,15 @@
 'use client'
 
 import { ord } from 'fp-ts'
+import { useCallback } from 'react'
 
+import { removeGameData } from '../../../../../actions/removeGameData'
 import { Tooltip, useTooltip } from '../../../../../components/floating/Tooltip'
-import { TriangleRight } from '../../../../../components/svgs/icons'
+import { CloseFilled, TriangleRight } from '../../../../../components/svgs/icons'
 import { constants } from '../../../../../config/constants'
 import { DayjsDuration } from '../../../../../models/Dayjs'
+import { MsDuration } from '../../../../../models/MsDuration'
+import type { MatchId } from '../../../../../models/pocketBase/tables/match/MatchId'
 import type { DDragonVersion } from '../../../../../models/riot/DDragonVersion'
 import type { GameId } from '../../../../../models/riot/GameId'
 import { type TheQuestMatchParticipant } from '../../../../../models/theQuest/TheQuestMatch'
@@ -17,39 +21,61 @@ import { MatchTooltip } from './MatchTooltip'
 
 type Props = {
   version: DDragonVersion
-  id: GameId
-  gameDuration: number
+  matchId: MatchId
+  gameId: GameId
+  gameDuration: MsDuration
   left: ReadonlyArray<EnrichedParticipant>
   right: ReadonlyArray<EnrichedParticipant>
   blueIsLeft: boolean
   leftWon: boolean
   blueWon: boolean
+  canUpdateMatch: boolean
 }
 
 export const Match: React.FC<Props> = ({
   version,
-  id,
+  matchId,
+  gameId,
   gameDuration: gameDuration_,
   left,
   right,
   blueIsLeft,
   leftWon,
   blueWon,
+  canUpdateMatch,
 }) => {
-  const gameDuration = DayjsDuration(gameDuration_)
+  const gameDuration = MsDuration.toDayJs(gameDuration_)
 
   const tooltip = useTooltip<HTMLAnchorElement>({ placement: 'right-start' })
 
   const leftStats = teamStats(left)
   const rightStats = teamStats(right)
 
+  const askRemoveGameData = useCallback(() => {
+    if (confirm('Êtes-vous sûr·e de vouloir supprimer cette partie ?')) {
+      removeGameData(matchId, gameId).catch(() => {
+        alert('Erreur.')
+      })
+    }
+  }, [gameId, matchId])
+
   return (
-    <>
+    <li className="group/match relative flex items-center pb-0.5 first:pb-0">
+      {canUpdateMatch && (
+        <button
+          type="button"
+          onClick={askRemoveGameData}
+          className="invisible absolute -left-6 opacity-0 transition-all duration-300 group-hover/match:visible group-hover/match:opacity-100"
+        >
+          <CloseFilled className="size-6 text-red-500" />
+        </button>
+      )}
+
       <a
-        href={leagueofgraphsUrl(id)}
+        href={leagueofgraphsUrl(gameId)}
         target="_blank"
         rel="noreferrer"
-        className="grid grid-cols-[1fr_auto_1fr] text-sm text-white"
+        className="grid w-full grid-cols-[1fr_auto_1fr] text-sm text-white"
         {...tooltip.reference}
       >
         <span
@@ -104,7 +130,7 @@ export const Match: React.FC<Props> = ({
       <Tooltip {...tooltip.floating}>
         <MatchTooltip version={version} left={left} right={right} />
       </Tooltip>
-    </>
+    </li>
   )
 }
 

@@ -1,7 +1,8 @@
 import { option, ord, readonlyArray } from 'fp-ts'
-import { flow, pipe } from 'fp-ts/function'
+import { flow, pipe, tuple } from 'fp-ts/function'
 import { useMemo } from 'react'
 
+import { EmptyMatch } from '../../../../../components/emptyMatch/EmptyMatch'
 import { TeamRole } from '../../../../../models/TeamRole'
 import type { AttendeeWithRiotId } from '../../../../../models/attendee/AttendeeWithRiotId'
 import { Attendee } from '../../../../../models/pocketBase/tables/Attendee'
@@ -13,8 +14,7 @@ import { Puuid } from '../../../../../models/riot/Puuid'
 import { RiotTeamId } from '../../../../../models/riot/RiotTeamId'
 import type { TheQuestMatch } from '../../../../../models/theQuest/TheQuestMatch'
 import { cx } from '../../../../../utils/cx'
-import { partialRecord } from '../../../../../utils/fpTsUtils'
-import { DayjsDurationFromNumber } from '../../../../../utils/ioTsUtils'
+import { array, partialRecord } from '../../../../../utils/fpTsUtils'
 import type { EnrichedTeam } from './GameTeam'
 import { GameTeam } from './GameTeam'
 import { Match } from './Match'
@@ -26,9 +26,18 @@ type GameProps = {
   teams: ReadonlyArray<Team>
   attendees: ReadonlyArray<AttendeeWithRiotId>
   match: MatchApiDataDecoded
+  canUpdateMatch: boolean
+  onEmptyMatchClick: React.MouseEventHandler<HTMLButtonElement>
 }
 
-export const Game: React.FC<GameProps> = ({ version, teams, attendees, match }) => {
+export const Game: React.FC<GameProps> = ({
+  version,
+  teams,
+  attendees,
+  match,
+  canUpdateMatch,
+  onEmptyMatchClick,
+}) => {
   const { winner, bestOf, plannedOn, apiData } = match
 
   const { team1, team2, matchesWithTeam1 } = useMemo((): {
@@ -72,7 +81,7 @@ export const Game: React.FC<GameProps> = ({ version, teams, attendees, match }) 
     <li className="flex flex-col">
       {plannedOn !== '' && <PlannedOn plannedOn={plannedOn} />}
 
-      <div className="flex flex-col gap-0.5 overflow-hidden">
+      <div className="flex flex-col gap-0.5">
         <div className="grid grid-cols-2 gap-0.5">
           {[team1, team2].map((team, i) => {
             const isEven = i % 2 === 0
@@ -108,58 +117,64 @@ export const Game: React.FC<GameProps> = ({ version, teams, attendees, match }) 
           })}
         </div>
 
-        {pipe(
-          Array.from({ length: Math.max(bestOf, apiData.length) }),
-          readonlyArray.mapWithIndex(i => {
-            const matchWithTeam1 = matchesWithTeam1[i]
+        <ul className="flex flex-col-reverse">
+          {pipe(
+            Array.from({ length: Math.max(bestOf, apiData.length) }),
+            array.mapWithIndexWithAcc(true, (i, _, isFirstEmpty) => {
+              const matchWithTeam1 = matchesWithTeam1[i]
 
-            if (matchWithTeam1 === undefined) {
-              return (
-                // eslint-disable-next-line react/no-array-index-key
-                <div key={i} className="grid grid-cols-2 gap-0.5">
-                  <span className="bg-grey1 px-2 py-1 text-white/50">-</span>
-                  <span className="bg-grey1 px-2 py-1 text-end text-white/50">-</span>
-                </div>
-              )
-            }
-
-            const { blueIsLeft, leftWon } = MatchWithTeam1.predicates(matchWithTeam1)
-
-            const enrichedParticipants = pipe(
-              matchWithTeam1.match.teams,
-              partialRecord.map((team): ReadonlyArray<EnrichedParticipant> => {
-                if (team === undefined) return []
-
-                return pipe(
-                  team.participants,
-                  readonlyArray.map(
-                    (p): EnrichedParticipant => ({
-                      ...p,
-                      member: attendees.find(a => Puuid.Eq.equals(a.puuid, p.puuid)),
-                    }),
-                  ),
-                  readonlyArray.sort(byOptionalRole),
+              if (matchWithTeam1 === undefined) {
+                return tuple(
+                  <EmptyMatch
+                    key={i}
+                    canUpdateMatch={canUpdateMatch}
+                    isFirst={isFirstEmpty}
+                    onClick={onEmptyMatchClick}
+                  />,
+                  false,
                 )
-              }),
-            )
+              }
 
-            return (
-              <Match
-                key={matchWithTeam1.match.id}
-                version={version}
-                id={matchWithTeam1.match.id}
-                gameDuration={DayjsDurationFromNumber.encoder.encode(
-                  matchWithTeam1.match.gameDuration,
-                )}
-                left={(blueIsLeft ? enrichedParticipants[100] : enrichedParticipants[200]) ?? []}
-                right={(blueIsLeft ? enrichedParticipants[200] : enrichedParticipants[100]) ?? []}
-                blueIsLeft={blueIsLeft}
-                leftWon={leftWon}
-                blueWon={RiotTeamId.Eq.equals(matchWithTeam1.match.win, 100)}
-              />
-            )
-          }),
-        )}
+              const { blueIsLeft, leftWon } = MatchWithTeam1.predicates(matchWithTeam1)
+
+              const enrichedParticipants = pipe(
+                matchWithTeam1.match.teams,
+                partialRecord.map((team): ReadonlyArray<EnrichedParticipant> => {
+                  if (team === undefined) return []
+
+                  return pipe(
+                    team.participants,
+                    readonlyArray.map(
+                      (p): EnrichedParticipant => ({
+                        ...p,
+                        member: attendees.find(a => Puuid.Eq.equals(a.puuid, p.puuid)),
+                      }),
+                    ),
+                    readonlyArray.sort(byOptionalRole),
+                  )
+                }),
+              )
+
+              return tuple(
+                <Match
+                  key={matchWithTeam1.match.id}
+                  version={version}
+                  matchId={match.id}
+                  gameId={matchWithTeam1.match.id}
+                  gameDuration={matchWithTeam1.match.gameDuration}
+                  left={(blueIsLeft ? enrichedParticipants[100] : enrichedParticipants[200]) ?? []}
+                  right={(blueIsLeft ? enrichedParticipants[200] : enrichedParticipants[100]) ?? []}
+                  blueIsLeft={blueIsLeft}
+                  leftWon={leftWon}
+                  blueWon={RiotTeamId.Eq.equals(matchWithTeam1.match.win, 100)}
+                  canUpdateMatch={canUpdateMatch}
+                />,
+                isFirstEmpty,
+              )
+            }),
+            readonlyArray.reverse,
+          )}
+        </ul>
       </div>
     </li>
   )

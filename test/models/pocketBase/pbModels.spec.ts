@@ -196,7 +196,7 @@ describe('pbModels', () => {
       {
         text: TextField<Puuid, 'nullable'>
         editor: EditorField<'nullable'>
-        number: NumberField<'nullable'>
+        number: NumberField<number, 'nullable'>
         bool: BoolField<'nullable'>
         email: EmailField<'nullable'>
         url: UrlField<'nullable'>

@@ -60,11 +60,15 @@ export const eitherGetOrThrow: <A>(fa: Either<Error, A>) => A = either.getOrElse
   throw e
 })
 
+/**
+ * Array
+ */
+
 function arrayPopWhereRec<A>(
   as: ReadonlyArray<A>,
   predicate: Predicate<A>,
   acc: ReadonlyArray<A>,
-): readonly [Option<A>, ReadonlyArray<A>] {
+): Tuple<Option<A>, ReadonlyArray<A>> {
   if (!readonlyArray.isNonEmpty(as)) return [option.none, acc]
 
   const [head, tail] = readonlyNonEmptyArray.unprepend(as)
@@ -113,13 +117,32 @@ function arrayCombine<A>(as: ReadonlyArray<A>): ReadonlyArray<readonly [A, A]> {
 export const array = {
   empty: <A>(): ReadonlyArray<A> => [],
 
+  mapWithIndexWithAcc:
+    <A, B, Acc>(init: Acc, f: (i: number, a: A, acc: Acc) => Tuple<B, Acc>) =>
+    (fa: ReadonlyArray<A>): ReadonlyArray<B> => {
+      if (readonlyArray.isEmpty(fa)) return []
+
+      let acc: Acc = init
+
+      return pipe(
+        fa,
+        readonlyArray.mapWithIndex((i, a) => {
+          const [b, newAcc] = f(i, a, acc)
+
+          acc = newAcc
+
+          return b
+        }),
+      )
+    },
+
   groupBy: readonlyNonEmptyArray.groupBy as <A, K extends string | number>(
     f: (a: A) => K,
   ) => (as: ReadonlyArray<A>) => Partial<ReadonlyRecord<`${K}`, NonEmptyArray<A>>>,
 
   popWhere:
     <A>(predicate: Predicate<A>) =>
-    (as: ReadonlyArray<A>) =>
+    (as: ReadonlyArray<A>): Tuple<Option<A>, ReadonlyArray<A>> =>
       arrayPopWhereRec(as, predicate, []),
 
   groupByMap:
