@@ -79,11 +79,13 @@ export const Games: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="w-full overflow-auto">
-      <Dialog ref={dialog}>
-        {matchForm !== undefined && (
-          <MatchForm matchId={matchForm} handleCancelClick={dialogClose} />
-        )}
-      </Dialog>
+      {canUpdateMatch && (
+        <Dialog ref={dialog}>
+          {matchForm !== undefined && (
+            <MatchForm matchId={matchForm} handleCancelClick={dialogClose} />
+          )}
+        </Dialog>
+      )}
 
       <ul className="flex flex-wrap items-start gap-16 p-4">
         {groupedRounds.map(([roundType, rounds]) => {
